@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <item android:title="Menu">
+        <menu>
+            <item
+                android:id="@+id/nav_lugares"
+                android:icon="@drawable/icon_app"
+                android:title="My pets" />
+            <item
+                android:id="@+id/nav_drawrute"
+                android:icon="@drawable/icon_app"
+                android:title="Draw route" />
+
+            <item
+                android:id="@+id/nav_setting"
+                android:icon="@drawable/icon_app"
+                android:title="Ajustes" />
+        </menu>
+    </item>
+
+
+    <item android:title="Desarrollo">
+        <menu>
+            <item
+                android:id="@+id/nav_share"
+                android:icon="@drawable/icon_app"
+                android:title="Colaboradores" />
+            <item
+                android:id="@+id/nav_send"
+                android:icon="@drawable/icon_app"
+                android:title="ULP" />
+        </menu>
+    </item>
+</menu>
