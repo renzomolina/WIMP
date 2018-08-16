@@ -17,15 +17,14 @@ import com.facebook.appevents.AppEventsLogger;
 import com.whereismypet.whereismypet.R;
 
 public class SplashScreenActivity extends AppCompatActivity {
-    SharedPreferences appPref;
-    boolean isFirstTime = true;
+    private SharedPreferences appPref;
+    private boolean isFirstTime = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.splash_screen);
-        FacebookSdk.sdkInitialize(getApplicationContext());
-        AppEventsLogger.activateApp(this);
+
         RelativeLayout Splash = findViewById(R.id.Splash);
 
         appPref = getSharedPreferences("isFirstTime", 0);
@@ -45,7 +44,7 @@ public class SplashScreenActivity extends AppCompatActivity {
                 SplashScreenActivity.this.startActivity(new Intent(SplashScreenActivity.this,LoginActivity.class));
                 SplashScreenActivity.this.finish();
             }
-        },6000);
+        },2500);
 
 
 
