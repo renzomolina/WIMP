@@ -49,7 +49,8 @@ import com.whereismypet.whereismypet.R;
 import misclases.Marcador;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener,
-        GoogleApiClient.ConnectionCallbacks,AppCompatCallback,LocationListener,NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
+        GoogleApiClient.ConnectionCallbacks,AppCompatCallback,LocationListener,
+        NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
 
     GoogleMap googleMap;
     GoogleApiClient apiClient = null;
@@ -65,19 +66,23 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     static final int PETICION_PERMISO_LOCALIZACION = 0;
     int status = 0;
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
+
         setContentView(R.layout.activity_main);
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapa);
-        mapFragment.getMapAsync(this);
+       //SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapa);
+        //mapFragment.getMapAsync(this);
         drawer = findViewById(R.id.drawer_layout);
         ConectarAPI();
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -113,8 +118,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         Toast.makeText(this, "Error al conectar con Google Play Services", Toast.LENGTH_SHORT).show();
     }
 
-
-
     //----------------------------LocationListener----------------------------------
     @Override
     public void onLocationChanged(Location location) {
@@ -137,6 +140,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     }
 
 //---------------------------------------------------------------------------------------------------------------
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private void ConectarAPI() {
         apiClient = new GoogleApiClient
             .Builder(this)
@@ -145,8 +149,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             .addApi(LocationServices.API)
             .build();
        ((SupportMapFragment) Objects.requireNonNull(getSupportFragmentManager().findFragmentById(R.id.mapa))).getMapAsync(new Mapa());
-
-       //((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapa)).getMapAsync(new Mapa());
     }
 
     public void MyLocation() {
@@ -270,6 +272,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     public void onMapReady(GoogleMap googleMap) {
 
     }
+
 
 
     //-----------------------------------CLASE INTERNA MAPA-------------------------------------------------

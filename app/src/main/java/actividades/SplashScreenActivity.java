@@ -14,11 +14,11 @@ import android.widget.RelativeLayout;
 
 import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
+import com.facebook.login.Login;
 import com.whereismypet.whereismypet.R;
 
 public class SplashScreenActivity extends AppCompatActivity {
     private SharedPreferences appPref;
-    private boolean isFirstTime = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,11 +28,10 @@ public class SplashScreenActivity extends AppCompatActivity {
         RelativeLayout Splash = findViewById(R.id.Splash);
 
         appPref = getSharedPreferences("isFirstTime", 0);
-        isFirstTime = appPref.getBoolean("isFirstTime", true);
+        boolean isFirstTime = appPref.getBoolean("isFirstTime", true);
         if (isFirstTime) {
             crearAccesoDirecto();
         }
-
 
         Animation animationSplash = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.transition);
         Splash.startAnimation(animationSplash);
@@ -45,30 +44,6 @@ public class SplashScreenActivity extends AppCompatActivity {
                 SplashScreenActivity.this.finish();
             }
         },2500);
-
-
-
-        /*
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-         Thread timer = new Thread(){
-            @Override
-            public void run() {
-                super.run();
-                try{
-                    sleep(2000);
-                }
-                catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                finally {
-                    SplashScreenActivity.this.startActivity(intent);
-                    SplashScreenActivity.this.finish();
-                }
-            }
-        };*/
-
     }
 
 

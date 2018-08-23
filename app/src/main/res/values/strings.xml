@@ -2,5 +2,14 @@
     <string name="app_name">WIMP?</string>
     <string name="facebook_app_id">468154103661801</string>
     <string name="fb_login_protocol_scheme">fb468154103661801</string>
-
+    <string name="alert">Alert</string>
+    <string name="ok">Ok</string>
+    <string name="no_internet_conexion">No Internet connection</string>
+    <string name="iniciar_sesion">Iniciar Sesion</string>
+    <string name="correo_electronico">Correo Electronico</string>
+    <string name="contraseña">Contraseña</string>
+    <string name="olvidocontraseña">OlvidoContraseña</string>
+    <string name="registrarse">Registrarse</string>
+    <string name="imagen_perfil">Imagen Perfil</string>
+    <string name="continuar_facebook">Continuar con Facebook</string>
 </resources>
