@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/gradient_login">
+
+    <TextView
+        android:id="@+id/Configuracion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="21dp"
+        android:text="CONFIGURACION"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+        android:textSize="30sp"
+        android:textStyle="bold" />
+
+    <View
+        android:id="@+id/divider_config"
+        android:layout_width="359dp"
+        android:layout_height="2dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="82dp"
+        android:background="#C8C9CB" />
+
+    <LinearLayout
+        android:id="@+id/Ofertas"
+        android:layout_width="match_parent"
+        android:layout_height="75dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="102dp"
+        android:orientation="horizontal"
+        android:layout_below="@id/divider_config">
+
+
+        <TextView
+            android:id="@+id/tvOfertas_config"
+            android:layout_width="230dp"
+            android:layout_height="57dp"
+            android:layout_weight="1"
+            android:layout_marginTop="10dp"
+            android:gravity="center"
+            android:text="Recibir notificaciones de ofertas"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+            android:textSize="18sp" />
+
+        <View
+            android:id="@+id/divider_oferta"
+            android:layout_width="28dp"
+            android:layout_height="70dp"
+            android:layout_marginEnd="25dp"
+            android:layout_marginStart="25dp"
+            android:layout_marginTop="2dp"
+            android:layout_weight="1"
+            android:background="#C8C9CB"
+            android:visibility="visible" />
+
+        <Switch
+            android:id="@+id/swOfertas_config"
+            android:layout_width="148dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_weight="1"
+            android:text="Activado"
+            android:textColor="@color/colorAccent" />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/divider_config3"
+        android:layout_width="353dp"
+        android:layout_height="2dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="188dp"
+        android:layout_weight="1"
+        android:background="#C8C9CB"
+        android:layout_below="@id/Ofertas"/>
+
+    <LinearLayout
+        android:id="@+id/Notificaciones"
+        android:layout_width="match_parent"
+        android:layout_height="75dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="198dp"
+        android:orientation="horizontal"
+        android:layout_below="@id/divider_config3">
+
+
+        <TextView
+            android:id="@+id/tvNotificaciones_config"
+            android:layout_width="230dp"
+            android:layout_height="57dp"
+            android:layout_marginTop="10dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Recibir notificaciones cercanas de tu zona"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+            android:textSize="18sp" />
+
+        <View
+            android:id="@+id/divider_notificaciones"
+            android:layout_width="28dp"
+            android:layout_height="70dp"
+            android:layout_marginEnd="25dp"
+            android:layout_marginStart="25dp"
+            android:layout_marginTop="2dp"
+            android:layout_weight="1"
+            android:background="#C8C9CB"
+
+            android:visibility="visible" />
+
+        <Switch
+            android:id="@+id/swNotificaciones_config"
+            android:layout_width="148dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_weight="1"
+            android:text="Activado"
+            android:textColor="@color/colorAccent" />
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/divider_config4"
+        android:layout_width="348dp"
+        android:layout_height="2dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginEnd="14dp"
+        android:layout_marginTop="281dp"
+        android:layout_weight="1"
+        android:background="#C8C9CB"
+        android:visibility="visible"
+        android:layout_below="@id/Notificaciones"
+        />
+
+    <LinearLayout
+        android:id="@+id/ConfigurarMapa"
+        android:layout_width="match_parent"
+        android:layout_height="75dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignTop="@+id/divider_config4"
+        android:layout_marginTop="10dp"
+
+        android:orientation="horizontal">
+
+
+        <TextView
+            android:id="@+id/tvConfigurarMapa_config"
+            android:layout_width="238dp"
+            android:layout_height="57dp"
+            android:layout_marginTop="10dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Cambiar Vista De Mapa"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+            android:textSize="18sp" />
+
+        <View
+            android:id="@+id/divider_ConfigurarMapa"
+            android:layout_width="35dp"
+            android:layout_height="70dp"
+            android:layout_marginEnd="25dp"
+            android:layout_marginStart="25dp"
+            android:layout_marginTop="2dp"
+            android:layout_weight="1"
+            android:background="#C8C9CB"
+            android:visibility="visible" />
+
+        <ImageView
+            android:id="@+id/ivConfigurar_config"
+            android:layout_width="75dp"
+            android:layout_height="45dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="60dp"
+            android:layout_marginTop="15dp"
+            android:layout_weight="1"
+            android:background="@drawable/settings_maps"
+
+            />
+
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/divider_config5"
+        android:layout_width="355dp"
+        android:layout_height="2dp"
+        android:layout_below="@+id/ConfigurarMapa"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:layout_weight="1"
+        android:background="#C8C9CB"
+        android:visibility="visible" />
+
+    <LinearLayout
+        android:id="@+id/ContactarSoporte"
+        android:layout_width="match_parent"
+        android:layout_height="75dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignTop="@+id/divider_config5"
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp">
+
+
+        <TextView
+            android:id="@+id/tvContactarSoporte_config"
+            android:layout_width="242dp"
+            android:layout_height="57dp"
+            android:layout_marginTop="10dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Contactar a Soporte Tecnico"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+            android:textSize="18sp" />
+
+        <View
+            android:id="@+id/divider_ContactarSoporte"
+            android:layout_width="38dp"
+            android:layout_height="70dp"
+            android:layout_marginEnd="25dp"
+            android:layout_marginStart="25dp"
+            android:layout_marginTop="2dp"
+            android:layout_weight="1"
+            android:background="#C8C9CB"
+            android:visibility="visible" />
+
+        <ImageView
+            android:id="@+id/ivContactar_config"
+            android:layout_width="75dp"
+            android:layout_height="45dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="60dp"
+            android:layout_marginTop="15dp"
+            android:layout_weight="1"
+            android:background="@drawable/contact"
+
+            />
+
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/divider_config6"
+        android:layout_width="353dp"
+        android:layout_height="2dp"
+        android:layout_below="@+id/ContactarSoporte"
+        android:layout_centerHorizontal="true"
+        android:layout_weight="1"
+        android:background="#C8C9CB"
+        android:visibility="visible"
+        android:layout_marginTop="10dp"/>
+
+    <LinearLayout
+        android:id="@+id/EliminarCuneta"
+        android:layout_width="match_parent"
+        android:layout_height="75dp"
+        android:layout_marginTop="10dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignTop="@+id/divider_config6"
+        android:orientation="horizontal">
+
+
+        <TextView
+            android:id="@+id/tvEliminarCuneta_config"
+            android:layout_width="249dp"
+            android:layout_height="57dp"
+            android:layout_marginTop="10dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Eliminar Mi Cuenta"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+            android:textSize="18sp" />
+
+        <View
+            android:id="@+id/divider_EliminarCuenta"
+            android:layout_width="41dp"
+            android:layout_height="70dp"
+            android:layout_marginEnd="25dp"
+            android:layout_marginStart="25dp"
+            android:layout_marginTop="2dp"
+            android:layout_weight="1"
+            android:background="#C8C9CB"
+            android:visibility="visible" />
+
+        <ImageView
+            android:id="@+id/ivEliminar_config"
+            android:layout_width="75dp"
+            android:layout_height="45dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="60dp"
+            android:layout_marginTop="15dp"
+            android:layout_weight="1"
+            android:background="@drawable/delete" />
+    </LinearLayout>
+</RelativeLayout>
