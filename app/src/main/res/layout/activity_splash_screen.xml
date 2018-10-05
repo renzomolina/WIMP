@@ -5,7 +5,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/Splash"
-    android:background="@drawable/final_splash"
+    android:background="@drawable/gradient_login"
+
     tools:context="actividades.SplashScreenActivity">
+
+
+    <ImageView
+        android:layout_width="350dp"
+        android:layout_height="350dp"
+
+        android:layout_centerInParent="true"
+        android:background="@drawable/icon_app" />
+
+
 
 </RelativeLayout>

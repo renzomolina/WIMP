@@ -2,22 +2,27 @@
 <menu
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:background="@drawable/gradient_login"
     tools:showIn="navigation_view">
 
     <item android:title="Menu">
         <menu>
             <item
-                android:id="@+id/nav_lugares"
-                android:icon="@drawable/icon_app"
-                android:title="My pets" />
+                android:id="@+id/nav_mascota"
+                android:icon="@drawable/mascota"
+                android:title="Mis Mascotas" />
             <item
-                android:id="@+id/nav_drawrute"
-                android:icon="@drawable/icon_app"
-                android:title="Draw route" />
+                android:id="@+id/nav_buscado"
+                android:icon="@drawable/buscando"
+                android:title="Busquedas " />
 
             <item
-                android:id="@+id/nav_setting"
-                android:icon="@drawable/icon_app"
+                android:id="@+id/nav_premium"
+                android:icon="@drawable/premium"
+                android:title="Premium" />
+            <item
+                android:id="@+id/nav_ajustes"
+                android:icon="@drawable/ajustes"
                 android:title="Ajustes" />
         </menu>
     </item>
@@ -26,18 +31,37 @@
     <item android:title="Desarrollo">
         <menu>
             <item
-                android:id="@+id/nav_share"
-                android:icon="@drawable/icon_app"
+                android:id="@+id/nav_terminosycondiciones"
+                android:icon="@drawable/terminos_condiciones"
+                android:title="Terminos y Condiciones" />
+            <item
+                android:id="@+id/nav_colaboradores"
+                android:icon="@drawable/colaboradores_ulp"
                 android:title="Colaboradores" />
             <item
-                android:id="@+id/nav_send"
-                android:icon="@drawable/icon_app"
-                android:title="ULP" />
+                android:id="@+id/nav_nosotros"
+                android:icon="@drawable/nosotros"
+                android:title="Nosotros" />
+            <item
+                android:id="@+id/nav_compartir"
+                android:icon="@drawable/compartir"
+                android:title="Compartir"/>
         </menu>
     </item>
-    <item android:title="Cerrar Sesion">
 
+    <item android:title="Salir">
+        <menu>
+            <item
+                android:id="@+id/nav_salir"
+                android:title="Cerrar Sesion"
+                android:icon="@drawable/salir"
+                >
+
+            </item>
+        </menu>
     </item>
+
+
 
 
 </menu>

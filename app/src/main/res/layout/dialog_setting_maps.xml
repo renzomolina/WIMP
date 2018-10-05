@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="320dp"
+    android:layout_height="450dp">
+
+    <TextView
+        android:id="@+id/tvVersion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="25dp"
+        android:text="AJUSTAR ESTILO DEL MAPA" />
+
+    <ImageButton
+        android:id="@+id/btAzul"
+        android:layout_width="135dp"
+        android:layout_height="135dp"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/tvVersion"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="25dp"
+        android:layout_weight="1"
+        android:adjustViewBounds="true"
+        android:background="@drawable/maps_blue"
+        android:padding="20dp"
+        android:scaleType="fitCenter" />
+
+    <ImageButton
+        android:id="@+id/btBlack"
+        android:layout_width="135dp"
+        android:layout_height="135dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignTop="@+id/btAzul"
+        android:layout_marginEnd="11dp"
+        android:layout_weight="1"
+        android:adjustViewBounds="true"
+        android:background="@drawable/maps_black"
+        android:padding="20dp"
+        android:paddingLeft="25dp"
+        android:paddingRight="20dp"
+        android:scaleType="fitCenter" />
+
+    <ImageButton
+        android:id="@+id/btCandy"
+        android:layout_width="135dp"
+        android:layout_height="135dp"
+        android:layout_alignStart="@+id/btAzul"
+        android:layout_below="@+id/btAzul"
+        android:layout_marginTop="18dp"
+        android:layout_weight="1"
+        android:adjustViewBounds="true"
+        android:background="@drawable/maps_candy"
+        android:padding="20dp"
+        android:scaleType="fitCenter" />
+
+    <ImageButton
+        android:id="@+id/btVintage"
+        android:paddingLeft="25dp"
+        android:paddingRight="20dp"
+        android:layout_width="135dp"
+        android:layout_height="135dp"
+        android:layout_above="@+id/switch1"
+        android:layout_alignStart="@+id/btBlack"
+        android:layout_weight="1"
+        android:adjustViewBounds="true"
+        android:background="@drawable/maps_vintage"
+        android:padding="20dp"
+        android:scaleType="fitCenter" />
+
+    <Switch
+        android:id="@+id/switch1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/btCandy"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="14dp"
+        android:text="ubicacion  "
+        android:textOff="Off"
+        android:textOn="On"
+        android:visibility="invisible"
+        tools:checked="true" />
+
+</RelativeLayout>
