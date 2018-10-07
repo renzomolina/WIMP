@@ -54,6 +54,7 @@ import org.json.JSONObject;
 import misclases.GestionarFacebook;
 import misclases.Usuario;
 import misclases.VolleySingleton;
+import misclases.WebServiceJSON;
 
 public class LoginActivity extends AppCompatActivity{
 
@@ -71,10 +72,7 @@ public class LoginActivity extends AppCompatActivity{
     private EditText email,password;
     private boolean CheckEditText, Validacion;
     RequestQueue requestQueue;
-    String EmailHolder, PasswordHolder;
     ProgressDialog progressDialog;
-    private static final String URL_LOGIN = "http://www.secsanluis.com.ar/servicios/varios/wimp/W_Logueo2.php";
-    private static final String URL_REGISTRO = "http://www.secsanluis.com.ar/servicios/varios/wimp/W_Registro.php";
     private  Usuario user;
 
 
@@ -89,11 +87,11 @@ public class LoginActivity extends AppCompatActivity{
         super.onResume();
         user = new Usuario();
 
-        String correo = getFromSharedPreferences("correo"),
-                contraseña=getFromSharedPreferences("contraseña");
-        Boolean aux = getFromSharedPreferencesDB("rememberUser");
-        if(aux && !correo.equals("") && !contraseña.equals("")){
-            UserLogin(correo,contraseña);
+        String correoShared= WebServiceJSON.getFromSharedPreferences("correo",LoginActivity.this);
+        Boolean aux = WebServiceJSON.getFromSharedPreferencesDB("rememberUser",LoginActivity.this);
+        if(aux && !correoShared.equals("")){
+            user = new Usuario(email.getText().toString(),password.getText().toString());
+            WebServiceJSON.UserLogin(user,LoginActivity.this);
         }
         else{
             if(isLoggedIn()) {
@@ -106,15 +104,6 @@ public class LoginActivity extends AppCompatActivity{
             }}
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data ){
@@ -139,7 +128,7 @@ public class LoginActivity extends AppCompatActivity{
                     containerLogin.setVisibility(View.GONE);
                     String  send_token = loginResult.getAccessToken().getToken(),
                             send_user=loginResult.getAccessToken().getUserId();
-                    savedLoginSharedPreferencesFB(send_token,send_user,"FB");
+                    WebServiceJSON.savedLoginSharedPreferencesFB(send_token,send_user,"FB",LoginActivity.this);
                     InicioSesionCorrecto();
 
                     GraphRequest request = GraphRequest.newMeRequest(Token(),
@@ -174,8 +163,7 @@ public class LoginActivity extends AppCompatActivity{
                     accessTokenTracker.startTracking();
                     profileTracker.startTracking();
                     profile = Profile.getCurrentProfile();
-                    DatosPerfil(profile);
-                    Registro();
+
                 }
 
                 @Override
@@ -194,44 +182,15 @@ public class LoginActivity extends AppCompatActivity{
     private void DatosPerfil(Profile perfil){
         user.setNombre(perfil.getFirstName());
         user.setApellido(perfil.getLastName());
-        user.setImagenPerfil(perfil.getProfilePictureUri(400,400));
-    }
-    public void savedLoginSharedPreferencesFB(String token, String userID, String FB){
-        SharedPreferences sharedPreferences;
-        sharedPreferences = getSharedPreferences("Mis preferencias",Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("token", token);
-        editor.putString("userID", userID);
-        editor.putString("facebook",FB);
-        editor.apply();
-    }
-
-    public void savedLoginSharedPreferencesDB(String correo, String contraseña, String DB, boolean remember){
-        SharedPreferences sharedPreferences;
-        sharedPreferences = getSharedPreferences("Mis preferencias",Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("correo", correo);
-        editor.putString("contraseña", contraseña);
-        editor.putString("base", DB);
-        editor.putBoolean("rememberUser",remember);
-        editor.apply();
-    }
-
-    public String getFromSharedPreferences(String key){
-        SharedPreferences sharedPreferences = getSharedPreferences("Mis preferencias",Context.MODE_PRIVATE);
-        return sharedPreferences.getString(key,"");
-    }
-    public Boolean getFromSharedPreferencesDB(String key){
-        SharedPreferences sharedPreferences = getSharedPreferences("Mis preferencias",Context.MODE_PRIVATE);
-        return sharedPreferences.getBoolean(key,false);
+        user.setImagenPerfilFacebook(perfil.getProfilePictureUri(400,400));
     }
 
     private boolean isLoggedIn(){
         boolean user,expirado,vacio;
         AccessToken accessToken = Token();
         if(accessToken != null) {
-            user = (accessToken.getToken().equals(getFromSharedPreferences("token")) ||
-                accessToken.getUserId().equals(getFromSharedPreferences("userID")));
+            user = (accessToken.getToken().equals(WebServiceJSON.getFromSharedPreferences("token",LoginActivity.this)) ||
+                accessToken.getUserId().equals(WebServiceJSON.getFromSharedPreferences("userID",LoginActivity.this)));
             expirado = !accessToken.isExpired();
             vacio = !accessToken.getToken().isEmpty();
 
@@ -299,15 +258,20 @@ public class LoginActivity extends AppCompatActivity{
         Iniciar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               CheckEditTextIsEmptyOrNot();
+
+                CheckEditText = !TextUtils.isEmpty(email.getText().toString().trim()) && !TextUtils.isEmpty(password.getText().toString().trim());
                 if (CheckEditText && Validacion) {
                     if(recordarUsuario.isChecked()){
-                        savedLoginSharedPreferencesDB(email.getText().toString(),password.getText().toString(),"DB",true);
+                        WebServiceJSON.savedLoginSharedPreferencesDB(email.getText().toString(),"DB",true,LoginActivity.this);
                     }
                     else{
-                        savedLoginSharedPreferencesDB(email.getText().toString(),password.getText().toString(),"DB",false);
+                        WebServiceJSON.savedLoginSharedPreferencesDB(email.getText().toString(),"DB",false,LoginActivity.this);
                     }
-                    UserLogin(email.getText().toString(),password.getText().toString());
+                    user = new Usuario(email.getText().toString(),password.getText().toString());
+                    Usuario aux = WebServiceJSON.UserLogin(user,LoginActivity.this);
+                    if(aux!=null){
+                        InicioSesionCorrecto();
+                    }
                 } else {
                     Toast.makeText(getApplicationContext(), "Todos los capos son obligatorios, por favor vuelva a verificar los datos", Toast.LENGTH_SHORT).show();
                 }
@@ -329,97 +293,6 @@ public class LoginActivity extends AppCompatActivity{
         });
     }
 
-    public void CheckEditTextIsEmptyOrNot() {
-        EmailHolder = email.getText().toString().trim();
-        PasswordHolder = password.getText().toString().trim();
-        if (TextUtils.isEmpty(EmailHolder) || TextUtils.isEmpty(PasswordHolder)) {
-            CheckEditText = false;
-        }
-        else {
-            CheckEditText = true;
-        }
 
 
-    }
-
-    public void UserLogin(final String userDB, final String passDB) {
-        progressDialog.setMessage("Por favor, esperar...");
-        progressDialog.show();
-
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, URL_LOGIN,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String ServerResponse) {
-                        progressDialog.dismiss();
-                        if(ServerResponse.equalsIgnoreCase("Data Matched")) {
-                            InicioSesionCorrecto();
-                            finish();
-                        }
-                        else {
-                            Toast.makeText(getApplicationContext(), "Correo o Contraseña incorrectos, por favor verifique los datos", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError volleyError) {
-                        progressDialog.dismiss();
-                        Toast.makeText(getApplicationContext(), volleyError.toString(), Toast.LENGTH_SHORT).show();
-                    }
-                }) {
-            @Override
-            protected Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<>();
-                params.put("correo", userDB);
-                params.put("pass", passDB);
-
-                return params;
-            }
-        };
-        requestQueue.add(stringRequest);
-    }
-
-
-    public void Registro(){
-
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("Cargando...");
-        progressDialog.show();
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, URL_REGISTRO,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String ServerResponse) {
-                        progressDialog.dismiss();
-                        if(ServerResponse.equalsIgnoreCase("OK")) {
-                            Toast.makeText(getApplicationContext(), "Usuario registrado exitosamente!!!", Toast.LENGTH_SHORT).show();
-                            Intent i = new Intent(getApplicationContext(),LoginActivity.class);
-                            startActivity(i);
-                            finish();
-                        }
-                        else {
-                            Toast.makeText(getApplicationContext(), "Error al registrar, por favor, vuelve a intentar.", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError volleyError) {
-                        progressDialog.dismiss();
-                        Toast.makeText(getApplicationContext(), volleyError.toString(), Toast.LENGTH_LONG).show();
-                    }
-                }) {
-            @Override
-            protected Map<String,String> getParams(){
-                Map<String,String> params = new HashMap<>();
-                params.put("nombre",user.getNombre());
-                params.put("apellido", user.getApellido());
-                params.put("correo",user.getEmail());
-
-                return params;
-            }
-        };
-        stringRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 2, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-        VolleySingleton.getIntanciaVolley(this).addToRequestQueue(stringRequest);
-
-    }
 }

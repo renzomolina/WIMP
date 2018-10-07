@@ -100,7 +100,9 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import mercadopago.utils.ExamplesUtils;
 import misclases.CustomInfoWindowAdapter;
 import misclases.Marcador;
+import misclases.Usuario;
 import misclases.VolleySingleton;
+import misclases.WebServiceJSON;
 
 import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
@@ -125,6 +127,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     static final String TAG = MainActivity.class.getSimpleName();
     private SharedPreferences sharedPreferences;
     private ArrayList<Marcador> listaMarcador;
+    private Usuario connectedUser;
 
 
     static final int PETICION_PERMISO_LOCALIZACION = 0;
@@ -142,11 +145,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapa);
-        mapFragment.getMapAsync(this);
+        if (mapFragment != null) {
+            mapFragment.getMapAsync(this);
+        }
         drawer = findViewById(R.id.drawer_layout);
-        perfil = findViewById(R.id.imgPerfilMenu);
+
 
         ConectarAPI();
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -159,40 +163,20 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             {
                 MyLocation();
             }
-        }catch (Exception ex) { }
+        }catch (Exception ignored) { }
 
-        ConsultarPerfilUsuario();
+        ConsultarPerfil();
     }
 
-    private void ConsultarPerfilUsuario(){
-        UrlConsultarUsuario = UrlConsultarUsuario + "?correo=" + getFromSharedPreferences("correo");
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, UrlConsultarUsuario, null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            JSONArray lista = response.getJSONArray("w_usuario");
-                            JSONObject json_data = lista.getJSONObject(0);
-                            String imgPerfil = json_data.getString("imagen");
-                            perfil = findViewById(R.id.imgPerfilMenu);
-                            Picasso.with(getApplicationContext())
-                                    .load(imgPerfil)
-                                    .error(R.drawable.com_facebook_profile_picture_blank_square)
-                                    .fit()
-                                    .centerInside()
-                                    .into(perfil);
-
-                        } catch (JSONException ignored) { }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError volleyError) {
-                        Toast.makeText(getApplicationContext(), volleyError.toString(), Toast.LENGTH_LONG).show();
-                    }
-                });
-        jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 2, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-        VolleySingleton.getIntanciaVolley(this).addToRequestQueue(jsonObjectRequest);
+    private void ConsultarPerfil(){
+        connectedUser = WebServiceJSON.UserLogin(new Usuario(WebServiceJSON.getFromSharedPreferences("correo",MainActivity.this)),MainActivity.this);
+        perfil = findViewById(R.id.imgPerfilMenu);
+        Picasso.with(this)
+                .load(connectedUser.getImagenPerfilBase())
+                .error(R.drawable.com_facebook_profile_picture_blank_square)
+                .fit()
+                .centerInside()
+                .into(perfil);
     }
 
     @Override
@@ -353,10 +337,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     }
 
 
-    public String getFromSharedPreferences(String key){
+    /*public String getFromSharedPreferences(String key){
         SharedPreferences sharedPreferences = getSharedPreferences("Mis preferencias", Context.MODE_PRIVATE);
         return sharedPreferences.getString(key,"");
     }
+*/
 
     //---------------------------------CARGA DE MARCADORES EN MAPA---------------------------------------------------------
     private void ConsultarMarcadores(){
@@ -538,7 +523,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
                     marcador.setNombre(nombre.getText().toString());
                     marcador.setDescripcion(descripcion.getText().toString());
-                    marcador.setCreador(getFromSharedPreferences("correo"));
+                    marcador.setCreador(WebServiceJSON.getFromSharedPreferences("correo",MainActivity.this));
                     marcador.setTipo("pet");
                     marcador.setLatitud(String.valueOf(latLng.latitude));
                     marcador.setLongitud(String.valueOf(latLng.longitude));
