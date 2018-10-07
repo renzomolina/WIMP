@@ -9,16 +9,59 @@ public class Usuario {
     private String apellido;
     private String facebook;
     private String email;
+    private String contraseña;
 
-    public Uri getImagenPerfil() {
-        return imagenPerfil;
+
+    private String imagenPerfilBase;
+    private Uri imagenPerfilFacebook;
+
+    public Usuario() {
     }
 
-    public void setImagenPerfil(Uri imagenPerfil) {
-        this.imagenPerfil = imagenPerfil;
+    public Usuario(String email) {
+        this.email = email;
     }
 
-    private Uri imagenPerfil;
+    public Usuario(String email, String contraseña) {
+        this.email = email;
+        this.contraseña = contraseña;
+    }
+
+    public Usuario(String nombre, String apellido, String facebook, String email, String contraseña, Uri imagenPerfil) {
+
+        this.nombre = nombre;
+        this.apellido = apellido;
+        this.facebook = facebook;
+        this.email = email;
+        this.contraseña = contraseña;
+        this.imagenPerfilFacebook = imagenPerfil;
+    }
+
+
+
+    public String getImagenPerfilBase() {
+        return imagenPerfilBase;
+    }
+
+    public void setImagenPerfilBase(String imagenPerfilBase) {
+        this.imagenPerfilBase = imagenPerfilBase;
+    }
+
+    public String getContraseña() {
+        return contraseña;
+    }
+
+    public void setContraseña(String contraseña) {
+        this.contraseña = contraseña;
+    }
+
+    public Uri getImagenPerfilFacebook() {
+        return imagenPerfilFacebook;
+    }
+
+    public void setImagenPerfilFacebook(Uri imagenPerfil) {
+        this.imagenPerfilFacebook = imagenPerfil;
+    }
 
     public String getFacebook() {
         return facebook;
@@ -52,5 +95,6 @@ public class Usuario {
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
+
 
 }
