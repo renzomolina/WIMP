@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/gradient_login">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="317dp">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/imgMascota"
+            android:layout_width="70dp"
+            android:layout_height="80dp"
+            android:layout_alignTop="@+id/ContenedorEditText"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/huella_mascota"
+            app:civ_border_color="#FFFFFF"
+            app:civ_border_width="2dp" />
+
+        <TextView
+            android:id="@+id/Mascota"
+            android:layout_width="110dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:gravity="center"
+            android:paddingBottom="@dimen/padding_between"
+            android:paddingTop="@dimen/padding_between"
+            android:text="Mascota"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="334dp"
+            android:layout_height="2dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="56dp"
+            android:background="#C8C9CB" />
+
+        <View
+            android:id="@+id/divider2"
+            android:layout_width="334dp"
+            android:layout_height="2dp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="18dp"
+            android:layout_weight="5"
+            android:background="#C8C9CB"
+            app:layout_constraintTop_toBottomOf="@+id/ContenedorEditText" />
+
+        <LinearLayout
+            android:id="@+id/ContenedorEditText"
+            android:layout_width="321dp"
+            android:layout_height="206dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="72dp"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/input_nombre"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="80dp"
+                android:ems="10"
+                android:hint="@string/nombre"
+                android:inputType="textPersonName"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@android:color/white"
+                android:textColorHint="@android:color/white" />
+
+            <EditText
+                android:id="@+id/input_descripcion"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/padding_between"
+                android:layout_marginTop="@dimen/normal_padding"
+                android:ems="10"
+                android:hint="Descripcion"
+                android:inputType="textMultiLine"
+                android:padding="@dimen/edit_text_padding"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@android:color/white"
+                android:textColorHint="@android:color/white" />
+
+        </LinearLayout>
+    </RelativeLayout>
+
+</RelativeLayout>

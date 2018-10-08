@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:layout_marginBottom="8dp"
+        android:visibility="gone"/>
+    <ScrollView
+        android:id="@+id/regularLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="10dp"
+            android:background="@drawable/gradient_login">
+
+            <ImageView
+                android:id="@+id/imagenMercadoPago"
+                android:layout_width="150dp"
+                android:layout_height="100dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="20dp"
+                android:src="@drawable/icon_app"
+                android:contentDescription="@string/mp" />
+
+            <com.mercadopago.android.px.internal.view.MPTextView
+                style="@style/big_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginTop="20dp"
+                android:singleLine="false"
+                android:text="@string/checkout_title"/>
+
+            <com.mercadopago.android.px.internal.view.MPTextView
+                style="@style/form_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginTop="20dp"
+                android:gravity="center_horizontal"
+                android:singleLine="false"
+                android:text="@string/checkout_description"/>
+
+            <com.mercadopago.android.px.internal.view.MPButton
+                android:id="@+id/continueButton"
+                style="@style/px_button_normal"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/px_button_height"
+                android:layout_marginTop="25dp"
+                android:text="@string/px_continue_label"/>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
