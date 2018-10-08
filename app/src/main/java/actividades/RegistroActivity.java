@@ -68,7 +68,7 @@ public class RegistroActivity extends AppCompatActivity implements View.OnClickL
     //Url Webservices
     private static final String URL_REGISTRO = "http://www.secsanluis.com.ar/servicios/varios/wimp/W_Registro.php";
     private static final String URL_SUBIRFOTO = "http://www.secsanluis.com.ar/servicios/varios/wimp/W_Upload.php";
-    private static final String URL_CARPETAFOTO ="http://www.secsanluis.com.ar/w_uploads/";
+    private static final String URL_CARPETAFOTO ="http://www.secsanluis.com.ar/servicios/varios/wimp/W_Imagenes/";
     private static String URL_CORREO = "http://www.secsanluis.com.ar/servicios/varios/wimp/W_ValidarCorreo.php";
     //Imagen
     private Bitmap bitmapImagenPerfil;

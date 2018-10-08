@@ -1,23 +1,32 @@
 package misclases;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Marker;
+import com.squareup.picasso.Picasso;
 import com.whereismypet.whereismypet.R;
+
+import actividades.MainActivity;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
     private static final String TAG = "CustomInfoWindowAdapter";
     private LayoutInflater inflater;
     private String nombreMascota;
     private String descripcionMascota;
+    private String imgMascota;
+    private Context context;
 
-    public CustomInfoWindowAdapter(LayoutInflater inflater, Marcador pet){
+    public CustomInfoWindowAdapter(LayoutInflater inflater, Marcador pet, Context context){
         this.inflater = inflater;
         nombreMascota = pet.getNombre();
         descripcionMascota = pet.getDescripcion();
+        imgMascota = pet.getFoto();
+        this.context = context;
     }
 
     @Override
@@ -29,6 +38,7 @@ public class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
         ((TextView)v.findViewById(R.id.tvNombreMarcador)).setText(nombreMascota);
         ((TextView)v.findViewById(R.id.tvDescrpcionMarcador)).setText(descripcionMascota);
 
+        WebServiceJSON.Picasso(context,imgMascota, v.<CircleImageView>findViewById(R.id.imgMarcadorMascota));
         return v;
     }
 

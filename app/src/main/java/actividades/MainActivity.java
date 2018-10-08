@@ -4,7 +4,6 @@ package actividades;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -123,11 +122,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     CircleImageView perfil,imgPetsMarker;
     private static final String URL_MARCADORES = "http://www.secsanluis.com.ar/servicios/varios/wimp/W_ListarMarcadores.php";
     private String  UrlConsultarUsuario ="http://www.secsanluis.com.ar/servicios/varios/wimp/W_ConsultarCliente.php";
-    private ProgressDialog progressDialog;
     static final String TAG = MainActivity.class.getSimpleName();
     private SharedPreferences sharedPreferences;
     private ArrayList<Marcador> listaMarcador;
-    private Usuario connectedUser;
+
 
 
     static final int PETICION_PERMISO_LOCALIZACION = 0;
@@ -165,19 +163,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             }
         }catch (Exception ignored) { }
 
-        ConsultarPerfil();
+        WebServiceJSON.ConsultarPerfil(this,this);
     }
 
-    private void ConsultarPerfil(){
-        connectedUser = WebServiceJSON.UserLogin(new Usuario(WebServiceJSON.getFromSharedPreferences("correo",MainActivity.this)),MainActivity.this);
-        perfil = findViewById(R.id.imgPerfilMenu);
-        Picasso.with(this)
-                .load(connectedUser.getImagenPerfilBase())
-                .error(R.drawable.com_facebook_profile_picture_blank_square)
-                .fit()
-                .centerInside()
-                .into(perfil);
-    }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
@@ -405,7 +393,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 imgPetsMarker = findViewById(R.id.imgMarcadorMascota);
                 for (Marcador m : listaMarcador) {
                     if (m.getId_Marcador() == Integer.valueOf(marker.getTitle())) {
-                        googleMap.setInfoWindowAdapter(new CustomInfoWindowAdapter(LayoutInflater.from(getApplicationContext()), m));
+                        googleMap.setInfoWindowAdapter(new CustomInfoWindowAdapter(LayoutInflater.from(getApplicationContext()), m,MainActivity.this));
                     /*Picasso.get()
                             .load(m.getFoto())
                             .error(R.drawable.huella_mascota)
@@ -492,7 +480,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         private Marcador marcador;
 
 
-
         public DialogMascota(GoogleMap map, LatLng latLng) {
             this.latLng = latLng;
             this.map = map;
@@ -523,18 +510,18 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
                     marcador.setNombre(nombre.getText().toString());
                     marcador.setDescripcion(descripcion.getText().toString());
-                    marcador.setCreador(WebServiceJSON.getFromSharedPreferences("correo",MainActivity.this));
+                    marcador.setCreador(WebServiceJSON.getFromSharedPreferences("correo", MainActivity.this));
                     marcador.setTipo("pet");
                     marcador.setLatitud(String.valueOf(latLng.latitude));
                     marcador.setLongitud(String.valueOf(latLng.longitude));
                     switch (COD_OPCION) {
                         case COD_SELECCIONA: {
-                            marcador.CheckInPets(MainActivity.this,getPath(pathSelectPets),COD_OPCION, withImage);
+                            marcador.CheckInPets(MainActivity.this, getPath(pathSelectPets), COD_OPCION, withImage);
 
                         }
                         break;
                         case COD_FOTO: {
-                            marcador.CheckInPets(MainActivity.this,pathCapturePets,COD_OPCION, withImage);
+                            marcador.CheckInPets(MainActivity.this, pathCapturePets, COD_OPCION, withImage);
                         }
                         break;
                         default:
@@ -553,8 +540,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             });
             return builder.create();
         }
+
         private void CreateMarkers(LatLng latLng) {
-            googleMap.setInfoWindowAdapter(new CustomInfoWindowAdapter(LayoutInflater.from(getApplicationContext()),marcador));
+            googleMap.setInfoWindowAdapter(new CustomInfoWindowAdapter(LayoutInflater.from(getApplicationContext()), marcador, MainActivity.this));
             googleMap.addMarker(new MarkerOptions()
                     .position(latLng)
                     .title(String.valueOf(marcador.getId_Marcador()))
@@ -684,7 +672,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                         imgPetsDialog.setImageBitmap(bitmap);
                         marcador.setFoto(getPath(pathSelectPets));
                         COD_OPCION = COD_SELECCIONA;
-                        withImage=true;
+                        withImage = true;
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -703,7 +691,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                     imgPetsDialog.setImageBitmap(bitmap);
                     marcador.setFoto(pathCapturePets);
                     COD_OPCION = COD_FOTO;
-                    withImage=true;
+                    withImage = true;
                     break;
             }
             if (bitmap == null) {
@@ -713,19 +701,18 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         }
 
 
-
         //PERMISOS
         private boolean solicitaPermisosVersionesSuperiores() {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M){
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
                 return true;
             }
 
-            if((checkSelfPermission(WRITE_EXTERNAL_STORAGE)== PackageManager.PERMISSION_GRANTED)&& checkSelfPermission(CAMERA)==PackageManager.PERMISSION_GRANTED){
+            if ((checkSelfPermission(WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) && checkSelfPermission(CAMERA) == PackageManager.PERMISSION_GRANTED) {
                 return true;
             }
-            if ((shouldShowRequestPermissionRationale(WRITE_EXTERNAL_STORAGE)||(shouldShowRequestPermissionRationale(CAMERA)))){
+            if ((shouldShowRequestPermissionRationale(WRITE_EXTERNAL_STORAGE) || (shouldShowRequestPermissionRationale(CAMERA)))) {
                 cargarDialogoRecomendacion();
-            }else{
+            } else {
                 requestPermissions(new String[]{WRITE_EXTERNAL_STORAGE, CAMERA}, MIS_PERMISOS);
             }
 
@@ -733,7 +720,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         }
 
         private void cargarDialogoRecomendacion() {
-            AlertDialog.Builder dialogo=new AlertDialog.Builder(getApplicationContext());
+            AlertDialog.Builder dialogo = new AlertDialog.Builder(getApplicationContext());
             dialogo.setTitle("Permisos Desactivados");
             dialogo.setMessage("Debe aceptar los permisos para el correcto funcionamiento de la App");
 
@@ -741,7 +728,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        requestPermissions(new String[]{WRITE_EXTERNAL_STORAGE,CAMERA},100);
+                        requestPermissions(new String[]{WRITE_EXTERNAL_STORAGE, CAMERA}, 100);
                     }
                 }
             });
@@ -751,39 +738,36 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         @Override
         public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-            if (requestCode==MIS_PERMISOS){
-                if(grantResults.length==2 && grantResults[0]==PackageManager.PERMISSION_GRANTED && grantResults[1]==PackageManager.PERMISSION_GRANTED){//el dos representa los 2 permisos
-                    Toast.makeText(getApplicationContext(),"Permisos aceptados",Toast.LENGTH_SHORT);
+            if (requestCode == MIS_PERMISOS) {
+                if (grantResults.length == 2 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {//el dos representa los 2 permisos
+                    Toast.makeText(getApplicationContext(), "Permisos aceptados", Toast.LENGTH_SHORT);
                 }
-            }else{
+            } else {
                 solicitarPermisosManual();
             }
         }
 
         private void solicitarPermisosManual() {
-            final CharSequence[] opciones={"si","no"};
-            final AlertDialog.Builder alertOpciones=new AlertDialog.Builder(getApplicationContext());//estamos en fragment
+            final CharSequence[] opciones = {"si", "no"};
+            final AlertDialog.Builder alertOpciones = new AlertDialog.Builder(getApplicationContext());//estamos en fragment
             alertOpciones.setTitle("¿Desea configurar los permisos de forma manual?");
             alertOpciones.setItems(opciones, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    if (opciones[i].equals("si")){
-                        Intent intent=new Intent();
+                    if (opciones[i].equals("si")) {
+                        Intent intent = new Intent();
                         intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                        Uri uri=Uri.fromParts("package",getApplicationContext().getPackageName(),null);
+                        Uri uri = Uri.fromParts("package", getApplicationContext().getPackageName(), null);
                         intent.setData(uri);
                         startActivity(intent);
-                    }else{
-                        Toast.makeText(getApplicationContext(),"Los permisos no fueron aceptados",Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Los permisos no fueron aceptados", Toast.LENGTH_SHORT).show();
                         dialogInterface.dismiss();
                     }
                 }
             });
             alertOpciones.show();
         }
-
-
-
     }
     private void instanciarDialogoMarcadorMascota(GoogleMap map,LatLng latLng) {
         DialogMascota dialog = new DialogMascota(map,latLng); //Instanciamos la clase con el dialogo
@@ -794,7 +778,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     //------------------------------DIALOG AJUSTE----------------------------
     @SuppressLint("ValidFragment")
     private class AjusteDialog extends DialogFragment implements View.OnClickListener{
-        ImageView mapa_config;
+        ImageView mapa_config, soporte;
         @RequiresApi(api = Build.VERSION_CODES.O)
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -803,6 +787,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
             mapa_config = content.findViewById(R.id.ivConfigurar_config);
             mapa_config.setOnClickListener(this);
+            soporte = content.findViewById(R.id.ivContactar_config);
+            soporte.setOnClickListener(this);
+
 
             final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setView(content);
@@ -822,6 +809,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 case R.id.ivConfigurar_config: {
                     instanciarMapas();
                 }break;
+                case R.id.ivContactar_config:{
+                    ContactarSoporte();
+                }
                 default:break;
             }
         }
@@ -831,6 +821,25 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         dialog.setCancelable(false);
         dialog.show(getFragmentManager(), "AJUSTES");// Mostramos el dialogo
 
+    }
+    private void ContactarSoporte() {
+        String[] TO = {"whereismypetulp@gmail.com"};
+        String[] CC = {""};
+        Intent emailIntent = new Intent(Intent.ACTION_SEND);
+        emailIntent.setData(Uri.parse("mailto:"));
+        emailIntent.setType("text/plain");
+        emailIntent.putExtra(Intent.EXTRA_EMAIL, TO);
+        emailIntent.putExtra(Intent.EXTRA_CC, CC);
+// Esto podrás modificarlo si quieres, el asunto y el cuerpo del mensaje
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Asunto");
+        emailIntent.putExtra(Intent.EXTRA_TEXT, "Escribe aquí tu mensaje");
+        try {
+            startActivity(Intent.createChooser(emailIntent, "Enviar email..."));
+            finish();
+        } catch (android.content.ActivityNotFoundException ex) {
+            Toast.makeText(MainActivity.this,
+                    "No tienes clientes de email instalados.", Toast.LENGTH_SHORT).show();
+        }
     }
 
 

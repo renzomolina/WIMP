@@ -87,11 +87,10 @@ public class LoginActivity extends AppCompatActivity{
         super.onResume();
         user = new Usuario();
 
-        String correoShared= WebServiceJSON.getFromSharedPreferences("correo",LoginActivity.this);
-        Boolean aux = WebServiceJSON.getFromSharedPreferencesDB("rememberUser",LoginActivity.this);
+        String correoShared= WebServiceJSON.getFromSharedPreferences("correo",this);
+        Boolean aux = WebServiceJSON.getFromSharedPreferencesDB("rememberUser",this);
         if(aux && !correoShared.equals("")){
-            user = new Usuario(email.getText().toString(),password.getText().toString());
-            WebServiceJSON.UserLogin(user,LoginActivity.this);
+            WebServiceJSON.InicioSesionCorrecto(this,this);
         }
         else{
             if(isLoggedIn()) {
@@ -205,7 +204,7 @@ public class LoginActivity extends AppCompatActivity{
 
     public void InicioSesionCorrecto() {
 
-        Intent i = new Intent(LoginActivity.this,MainActivity.class);
+        Intent i = new Intent(this,MainActivity.class);
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(i);
@@ -226,14 +225,10 @@ public class LoginActivity extends AppCompatActivity{
 
        email.addTextChangedListener(new TextWatcher() {
            @Override
-           public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-           }
+           public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
 
            @Override
-           public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-           }
+           public void onTextChanged(CharSequence s, int start, int before, int count) { }
 
            @Override
            public void afterTextChanged(Editable s) {
@@ -258,19 +253,13 @@ public class LoginActivity extends AppCompatActivity{
         Iniciar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 CheckEditText = !TextUtils.isEmpty(email.getText().toString().trim()) && !TextUtils.isEmpty(password.getText().toString().trim());
                 if (CheckEditText && Validacion) {
-                    if(recordarUsuario.isChecked()){
-                        WebServiceJSON.savedLoginSharedPreferencesDB(email.getText().toString(),"DB",true,LoginActivity.this);
-                    }
-                    else{
-                        WebServiceJSON.savedLoginSharedPreferencesDB(email.getText().toString(),"DB",false,LoginActivity.this);
-                    }
-                    user = new Usuario(email.getText().toString(),password.getText().toString());
-                    Usuario aux = WebServiceJSON.UserLogin(user,LoginActivity.this);
-                    if(aux!=null){
-                        InicioSesionCorrecto();
+                    user = new Usuario(email.getText().toString(), password.getText().toString());
+                    if (recordarUsuario.isChecked()) {
+                        WebServiceJSON.UserLogin(user, LoginActivity.this,true,LoginActivity.this);
+                    } else {
+                        WebServiceJSON.UserLogin(user, LoginActivity.this,false,LoginActivity.this);
                     }
                 } else {
                     Toast.makeText(getApplicationContext(), "Todos los capos son obligatorios, por favor vuelva a verificar los datos", Toast.LENGTH_SHORT).show();
@@ -292,7 +281,5 @@ public class LoginActivity extends AppCompatActivity{
             }
         });
     }
-
-
 
 }

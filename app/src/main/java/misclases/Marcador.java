@@ -33,7 +33,7 @@ public class Marcador {
 
     private static final String URL_MARCADOR = "http://www.secsanluis.com.ar/servicios/varios/wimp/W_insertarMarcador.php";
     private static final String URL_SUBIRFOTO = "http://www.secsanluis.com.ar/servicios/varios/wimp/W_Upload.php";
-    private static final String URL_CARPETAFOTO ="http://www.secsanluis.com.ar/w_uploads/";
+    private static final String URL_CARPETAFOTO = "http://www.secsanluis.com.ar/servicios/varios/wimp/W_Imagenes/";
     private static final int COD_SELECCIONA = 10;
     private static final int COD_FOTO = 20;
     private String nombreFotoServidor;
