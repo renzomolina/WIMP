@@ -1,63 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+
+
+
+
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/gradient_login">
 
-    <RelativeLayout
-        android:id="@+id/ImagenBD"
-        android:layout_width="match_parent"
-        android:layout_height="132dp"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginBottom="0dp"
-        android:gravity="center_horizontal"
-        android:orientation="horizontal">
 
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/imgPerfilDB"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_marginTop="30dp"
-            android:src="@drawable/com_facebook_profile_picture_blank_square"
-            android:contentDescription="@string/perfildb" />
-    </RelativeLayout>
+    <android.support.constraint.ConstraintLayout
 
-    <RelativeLayout
+
         android:id="@+id/DatosPersonales"
-        android:layout_width="match_parent"
-        android:layout_height="436dp"
+        android:layout_width="383dp"
+        android:layout_height="520dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="158dp">
-
-        <EditText
-            android:id="@+id/nombre"
-            android:layout_width="match_parent"
-            android:layout_height="70dp"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:background="#11000000"
-            android:drawableStart="@drawable/ic_action_user"
-            android:ems="10"
-            android:hint="@string/nombre"
-            android:inputType="textPersonName"
-            android:textColor="@android:color/white"
-            android:textColorHint="@android:color/white"
-            tools:layout_editor_absoluteX="16dp"
-            tools:layout_editor_absoluteY="16dp" />
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.466"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <EditText
             android:id="@+id/apellido"
             android:layout_width="match_parent"
             android:layout_height="70dp"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
 
-            android:layout_marginTop="89dp"
+            android:layout_above="@+id/email"
+            android:layout_alignParentStart="true"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
             android:background="#11000000"
             android:drawableStart="@drawable/ic_action_user"
             android:ems="10"
@@ -65,8 +43,9 @@
             android:inputType="textPersonName"
             android:textColor="@android:color/white"
             android:textColorHint="@android:color/white"
-            app:layout_constraintTop_toBottomOf="@+id/nombre"
-            tools:layout_editor_absoluteX="16dp" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/nombre" />
 
         <EditText
             android:id="@+id/email"
@@ -74,8 +53,10 @@
             android:layout_height="70dp"
 
             android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginTop="181dp"
+            android:layout_below="@+id/relativeLayout"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
             android:background="#11000000"
             android:drawableStart="@drawable/ic_action_mail"
             android:ems="10"
@@ -83,16 +64,21 @@
             android:inputType="textPersonName"
             android:textColor="@android:color/white"
             android:textColorHint="@android:color/white"
-            tools:ignore="TextFields"
-            tools:layout_editor_absoluteX="16dp" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/apellido"
+            tools:ignore="TextFields" />
 
         <EditText
             android:id="@+id/pass"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
+            android:layout_height="73dp"
             android:layout_alignParentBottom="true"
             android:layout_alignParentStart="true"
-            android:layout_marginBottom="100dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
             android:background="#11000000"
             android:drawableStart="@drawable/ic_action_pass"
             android:ems="10"
@@ -100,7 +86,10 @@
             android:inputType="textPassword"
             android:textColor="@android:color/white"
             android:textColorHint="@android:color/white"
-            tools:layout_editor_absoluteX="0dp" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/email" />
 
         <EditText
             android:id="@+id/confirmpass"
@@ -108,7 +97,10 @@
             android:layout_height="70dp"
             android:layout_alignParentBottom="true"
             android:layout_alignParentStart="true"
-            android:layout_marginBottom="13dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
             android:background="#11000000"
             android:drawableStart="@drawable/ic_action_pass"
             android:ems="10"
@@ -116,42 +108,124 @@
             android:inputType="textPassword"
             android:textColor="@android:color/white"
             android:textColorHint="@android:color/white"
-            tools:layout_editor_absoluteX="0dp" />
-    </RelativeLayout>
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/pass"
+            app:layout_constraintVertical_bias="0.166" />
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="64dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginBottom="25dp"
-        android:gravity="center_horizontal"
-        android:orientation="horizontal">
+        <android.support.constraint.ConstraintLayout
 
-        <android.support.v7.widget.CardView
-            android:id="@+id/CheckIn"
-            android:layout_width="300dp"
-            android:layout_height="50dp"
-            app:cardBackgroundColor="@color/colorAccent"
-            app:cardCornerRadius="25dp"
-            app:cardElevation="10dp"
-            tools:layout_editor_absoluteX="50dp"
-            tools:layout_editor_absoluteY="526dp">
 
-            <RelativeLayout
+            android:id="@+id/relativeLayout"
+            android:layout_width="368dp"
+            android:layout_height="121dp"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/nombre"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="8dp"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+
+            <android.support.constraint.ConstraintLayout
+
+
+                android:id="@+id/ImagenBD"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="138dp"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
+                android:gravity="center_horizontal"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
-                <TextView
-                    android:id="@+id/tvRegistrar"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:text="@string/registrar"
-                    android:textColor="#fff"
-                    android:textSize="18sp" />
-            </RelativeLayout>
-        </android.support.v7.widget.CardView>
-    </RelativeLayout>
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/imgPerfilDB"
+                    android:layout_width="113dp"
+                    android:layout_height="100dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:contentDescription="@string/perfildb"
+                    android:src="@drawable/com_facebook_profile_picture_blank_square"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </android.support.constraint.ConstraintLayout>
+        </android.support.constraint.ConstraintLayout>
 
-</RelativeLayout>
+        <EditText
+            android:id="@+id/nombre"
+            android:layout_width="match_parent"
+            android:layout_height="73dp"
+            android:layout_alignParentStart="true"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:background="#11000000"
+            android:drawableStart="@drawable/ic_action_user"
+            android:ems="10"
+            android:hint="@string/nombre"
+            android:inputType="textPersonName"
+            android:textColor="@android:color/white"
+            android:textColorHint="@android:color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/relativeLayout" />
+
+    </android.support.constraint.ConstraintLayout>
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/CheckIn"
+        android:layout_width="300dp"
+        android:layout_height="50dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        app:cardBackgroundColor="@color/colorAccent"
+        app:cardCornerRadius="25dp"
+        app:cardElevation="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/DatosPersonales">
+
+
+        <android.support.constraint.ConstraintLayout
+
+
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/tvRegistrar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:layout_marginBottom="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
+                android:text="@string/registrar"
+                android:textColor="#fff"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+        </android.support.constraint.ConstraintLayout>
+
+
+    </android.support.v7.widget.CardView>
+
+</android.support.constraint.ConstraintLayout>

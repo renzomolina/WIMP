@@ -1,4 +1,7 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -11,9 +14,14 @@
         android:layout_width="242dp"
         android:layout_height="2dp"
         android:layout_below="@+id/tvQuintana"
-        android:layout_marginTop="20dp"
         android:layout_centerHorizontal="true"
-        android:background="#C8C9CB" />
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:background="#C8C9CB"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvQuintana" />
 
     <View
         android:id="@+id/divider_nosotros_star"
@@ -21,175 +29,198 @@
         android:layout_height="2dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="163dp"
-        android:background="#C8C9CB" />
-
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="27dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignStart="@+id/imgPerfilFunes"
-        android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle.Inverse"
-        android:textColor="@color/colorAccent"
-        android:textSize="36sp" />
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:background="#C8C9CB"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView4" />
 
     <TextView
         android:id="@+id/tvVersion"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="25dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:text="Version 1.1"
+        android:layout_marginBottom="12dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="10dp"
+        android:text="@string/version_1_1"
         android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle.Inverse"
         android:textColor="@color/cast_expanded_controller_progress_text_color"
         android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/divider_nosotros_end"
         tools:text="Version 1.1" />
 
     <TextView
         android:id="@+id/textView4"
-        android:layout_width="160dp"
-        android:layout_height="44dp"
+        android:layout_width="140dp"
+        android:layout_height="39dp"
         android:layout_above="@+id/imgPerfilRiveros"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="-153dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
         android:fontFamily="casual"
         android:gravity="center"
-        android:text="Creado por:"
+        android:text="@string/creado_por"
         android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle.Inverse"
         android:textSize="24sp"
         android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imgLogo"
         tools:text="Creado por:" />
 
     <TextView
         android:id="@+id/tvRiveros"
-        android:layout_width="275dp"
-        android:layout_height="70dp"
+        android:layout_width="209dp"
+        android:layout_height="46dp"
         android:layout_alignParentTop="true"
         android:layout_alignStart="@+id/textView"
-        android:layout_marginTop="183dp"
+        android:layout_marginEnd="2dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
         android:fontFamily="serif"
         android:gravity="center"
-        android:text="Riveros Gustavo"
+        android:text="@string/riveros_gustavo"
         android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-        android:textSize="30sp" />
+        android:textSize="24sp"
+        app:layout_constraintEnd_toStartOf="@+id/imgPerfilRiveros"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imgPerfilPardo" />
 
     <TextView
         android:id="@+id/tvQuintana"
-        android:layout_width="262dp"
-        android:layout_height="70dp"
+        android:layout_width="206dp"
+        android:layout_height="50dp"
         android:layout_alignStart="@+id/textView"
         android:layout_below="@+id/tvPardo"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="16dp"
         android:fontFamily="serif"
         android:gravity="center"
-        android:text="Quintana Miguel"
+        android:text="@string/quintana_miguel"
         android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-        android:textSize="30sp" />
-
-    <TextView
-        android:id="@+id/tvFunes"
-        android:layout_width="279dp"
-        android:layout_height="70dp"
-        android:layout_alignEnd="@+id/imgPerfilRiveros"
-        android:layout_below="@+id/imgPerfilRiveros"
-        android:fontFamily="serif"
-        android:gravity="center"
-        android:text="Funes Diego"
-        android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-        android:textSize="30sp" />
+        android:textSize="25sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/imgPerfilQuintana"
+        app:layout_constraintTop_toBottomOf="@+id/imgPerfilRiveros" />
 
     <TextView
         android:id="@+id/tvPardo"
-        android:layout_width="268dp"
-        android:layout_height="70dp"
-        android:layout_alignEnd="@+id/tvFunes"
+        android:layout_width="201dp"
+        android:layout_height="43dp"
         android:layout_below="@+id/tvMolina"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
         android:fontFamily="serif"
         android:gravity="center"
-        android:text="Pardo Marco"
+        android:text="@string/pardo_marco"
         android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-        android:textSize="30sp" />
+        android:textSize="25sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/imgPerfilPardo"
+        app:layout_constraintTop_toBottomOf="@+id/imgPerfilMolina" />
 
     <TextView
         android:id="@+id/tvMolina"
-        android:layout_width="241dp"
-        android:layout_height="70dp"
+        android:layout_width="194dp"
+        android:layout_height="47dp"
         android:layout_alignEnd="@+id/imgLogo"
-        android:layout_below="@+id/tvFunes"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="24dp"
         android:fontFamily="serif"
         android:gravity="center"
-        android:text="Molina Renzo"
+        android:text="@string/molina_renzo"
         android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-        android:textSize="30sp" />
+        android:textSize="25sp"
+        app:layout_constraintEnd_toStartOf="@+id/imgPerfilMolina"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/divider_nosotros_star" />
 
     <ImageView
         android:id="@+id/imgLogo"
-        android:layout_width="150dp"
-        android:layout_height="wrap_content"
+        android:layout_width="155dp"
+        android:layout_height="135dp"
         android:layout_above="@+id/textView4"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="-2dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/icon_app" />
 
-    <de.hdodenhof.circleimageview.CircleImageView
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+    <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/imgPerfilMolina"
-        android:layout_width="100dp"
-        android:layout_height="70dp"
-        android:layout_alignEnd="@+id/tvFunes"
-        android:layout_below="@+id/tvFunes"
+        android:layout_width="77dp"
+        android:layout_height="64dp"
+
+        android:layout_marginEnd="24dp"
+        android:layout_marginTop="16dp"
         android:src="@drawable/molina"
         android:visibility="visible"
         app:civ_border_color="#FFFFFF"
-        app:civ_border_width="2dp" />
+        app:civ_border_width="2dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/tvMolina"
+        app:layout_constraintTop_toBottomOf="@+id/divider_nosotros_star" />
 
-    <de.hdodenhof.circleimageview.CircleImageView
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/imgPerfilFunes"
-        android:layout_width="100dp"
-        android:layout_height="70dp"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/imgPerfilRiveros"
-        android:layout_marginStart="14dp"
-        android:src="@drawable/funes"
-        android:visibility="visible"
-        app:civ_border_color="#FFFFFF"
-        app:civ_border_width="2dp" />
-
-    <de.hdodenhof.circleimageview.CircleImageView
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+    <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/imgPerfilQuintana"
-        android:layout_width="100dp"
-        android:layout_height="70dp"
-        android:layout_alignEnd="@+id/tvFunes"
+        android:layout_width="77dp"
+        android:layout_height="64dp"
         android:layout_alignTop="@+id/tvQuintana"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
         android:src="@drawable/quintana"
         android:visibility="visible"
         app:civ_border_color="#FFFFFF"
-        app:civ_border_width="2dp" />
+        app:civ_border_width="2dp"
+        app:layout_constraintEnd_toStartOf="@+id/tvQuintana"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvRiveros" />
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/imgPerfilRiveros"
-        android:layout_width="100dp"
-        android:layout_height="70dp"
+        android:layout_width="77dp"
+        android:layout_height="64dp"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="183dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginTop="16dp"
         android:layout_toEndOf="@+id/imgLogo"
         android:src="@drawable/riveros"
         android:visibility="visible"
         app:civ_border_color="#FFFFFF"
-        app:civ_border_width="2dp" />
+        app:civ_border_width="2dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/tvRiveros"
+        app:layout_constraintTop_toBottomOf="@+id/tvPardo" />
 
     <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/imgPerfilPardo"
-        android:layout_width="100dp"
-        android:layout_height="70dp"
-        android:layout_alignStart="@+id/textView"
+        android:layout_width="77dp"
+        android:layout_height="64dp"
         android:layout_alignTop="@+id/tvPardo"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
         android:src="@drawable/pardo"
         android:visibility="visible"
         app:civ_border_color="#FFFFFF"
-        app:civ_border_width="2dp" />
+        app:civ_border_width="2dp"
+        app:layout_constraintEnd_toStartOf="@+id/tvPardo"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvMolina" />
 
 
-</RelativeLayout>
+</android.support.constraint.ConstraintLayout>

@@ -87,7 +87,6 @@ import android.widget.Toast;
 
 import com.mercadopago.android.px.internal.view.MPButton;
 import com.mercadopago.android.px.tracking.internal.TrackingEnvironments;
-import com.squareup.picasso.Picasso;
 import com.whereismypet.whereismypet.R;
 
 
@@ -99,7 +98,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import mercadopago.utils.ExamplesUtils;
 import misclases.CustomInfoWindowAdapter;
 import misclases.Marcador;
-import misclases.Usuario;
 import misclases.VolleySingleton;
 import misclases.WebServiceJSON;
 
@@ -997,12 +995,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
             final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setView(content);
-            builder.setNegativeButton("cerrar", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int id) {
-                    dialog.dismiss();
-                }
-            });
             return builder.create();
         }
 

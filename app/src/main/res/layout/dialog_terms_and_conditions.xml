@@ -1,147 +1,154 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     android:background="@drawable/gradient_login">
 
     <TextView
-        android:id="@+id/TerminosYCondiciones"
+        android:id="@+id/tvTerminos"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="21dp"
-        android:text="TERMINOS Y CONDICIONES"
+        android:layout_height="45dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:gravity="center_horizontal"
+        android:text="@string/terminos_y_condiciones"
         android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-        android:textSize="26sp"
-        android:textStyle="bold" />
+        android:textSize="28sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/divider_nosotros_star"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <View
-        android:id="@+id/divider_config"
-        android:layout_width="359dp"
+        android:id="@+id/divider_nosotros_star"
+        android:layout_width="242dp"
         android:layout_height="2dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="82dp"
-        android:background="#C8C9CB" />
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:background="#C8C9CB"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvTerminos" />
 
-
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="126dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="170dp"
-        android:text="Where is my pet"
-        android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle.Inverse"
-        android:textColor="@color/colorAccent"
-        android:textSize="36sp"
-        tools:text="WIMP" />
-
-    <TextView
-        android:id="@+id/tvVersion"
+    <ScrollView
+        android:id="@+id/scrTerminos"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="400dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="239dp"
-        android:text="Version 1.1"
-        android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle.Inverse"
-        android:textColor="@color/cast_expanded_controller_progress_text_color"
-        android:textSize="24sp"
-        tools:text="Version 1.1" />
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/divider_nosotros_star">
 
-    <TextView
-        android:id="@+id/textView4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        <TextView
+            android:id="@+id/tvTextoTerminos"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="serif"
+            android:text="Condiciones generales y uso:
+
+El uso de la aplicacion movil(WIMP), el cual es operado por alumnos de la Universidad De La Punta, en San Luis Argentina.
+La aplicacion permite solucionar el tema de las mascotas perdidas, con el fin de ubicarlas. Ademas permite realizar diversas actividades, como busqueda de
+ veterinarias, pet shop, descuentos, etc.
+El usuario se compromete a leer los terminos y condiciones aqui establecidas, luego de descargar la aplicacion, por tanto, en caso de realizar la instalacion se entiende que cuenta con el  conocimiento integral de este documento y la consecuente aceptacion de la totalidad de sus estipulaciones.  El Usuario reconoce que el ingreso
+ de su informacion personal, y los datos que contiene la aplicacion, quienes optan por acceder a esta aplicacion en Argentina o desde
+ fuera  del territorio nacional, lo hacen por iniciativa propia y son responsables del cumplimiento de las leyes locales, en la medida
+en que dichas leyes sean aplicables en su correspondiente pais. En caso de que se acceda por parte  de menores de edad,la aplicacion recomieda
+ utilizar la apps para el fin por el cual se creo y no hacer uso indebido, ni mal uso de la misma.
+
+Medios de Pago para PREMIUM:
+
+MercadoPago (Pago con tarjetas de crédito y débito)
+
+Los pagos con tarjeta de crédito y débito serán aceptados redireccionando la operativa a la empresa MERCADOPAGO, empresa que cuenta con los medios de seguridad necesaria para realizar operaciones con tarjeta en línea.
+
+
+Permisos:
+
+
+.Permiso de acceso a camara.
+.Permiso de ubicacion.
+.Permiso de almacenamiento.
+
+Facturación:
+
+En cada una de las compras realizadas a través del sitio web se adjuntará la factura correspondiente al momento de la entrega del pedido.
+
+
+Conducta y reglas:
+
+El Usuario se compromete a no utilizar la app con ningún propósito que esté prohibido por estos Términos y Condiciones como así también por la legislación aplicable. En tal sentido, a modo ejemplificativo, se compromete a:
+
+No publicar comunicaciones no autorizadas (como correo no deseado, “spam”) en la app;
+
+.No solicitar información de inicio de sesión ni acceder a una cuenta perteneciente a otro usuario;
+.No molestar, intimidar ni acosar a ningún usuario;
+.No publicar contenido que contenga lenguaje ofensivo, resulte intimidatorio o pornográfico, que incite a la violencia o que contenga desnudos o violencia gráfica o injustificada;
+.No desarrollar ni hacer uso de aplicaciones de terceros que contengan, publiciten o promocionen de cualquier otro modo contenido relacionado con el consumo de alcohol o las citas, o bien de naturaleza adulta (incluidos los anuncios) sin las restricciones de edad apropiadas;
+.No utilizar la app para actos ilícitos, engañosos, malintencionados o discriminatorios;
+.No realizar ninguna acción que pudiera inhabilitar, sobrecargar o afectar al funcionamiento correcto de la app.
+.No facilitar ni fomentar el incumplimiento de estos Términos y Condiciones.
+.No publicar contenido ni realizar ninguna acción en la app que infrinja o viole los derechos de otros o que viole la ley de algún modo;
+.No recopilar información de Usuarios;
+.No publicar y/o distribuir pornografía infantil y/o adolescente;
+.No interferir o intentar interferir con el buen funcionamiento de la app o de cualquier actividad realizada en los servicios provistos desde los mismos;
+.No modificar, adaptar, asignar, reproducir, distribuir, traducir, crear trabajos o adaptaciones derivadas, mostrar públicamente, republicar, reutilizar, vender, comercializar o explotar de cualquier manera el servicio provisto por medio de la app.
+.No descifrar, descompilar, desensamblar, realizar ingeniería inversa o bien intentar derivar un código fuente o ideas subyacentes o algoritmos de cualquier parte del Sitio Web.
+
+
+En caso de incumplir con estas prohibiciones y/o con la legislación aplicable, WIMP podrá sancionar al Usuario con la suspensión o cancelación del contenido y/o el acceso a la app y/o de cualquier otra forma que estime pertinente, sin perjuicio de las acciones legales a que pueda dar lugar por la configuración de delitos o contravenciones o los perjuicios civiles que pueda causar a WIMP y/u otros Usuarios de la app. También WIMP tendrá dicha facultad a efectos de cumplir con alguna ley, norma, proceso legal o solicitud gubernamental aplicable como así también para detectar, prevenir o de otra forma gestionar problemas de fraude, de seguridad o técnicos y/o en caso de denuncia de Usuarios y/o terceros.
+
+Atención al cliente:
+
+Escríbanos a whereismypetulp@gmail.com"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+            tools:layout_editor_absoluteX="61dp"
+            tools:layout_editor_absoluteY="0dp" />
+
+
+    </ScrollView>
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/CheckIn"
+        android:layout_width="300dp"
+        android:layout_height="50dp"
         android:layout_alignParentBottom="true"
-        android:layout_alignStart="@+id/imageView"
-        android:layout_marginBottom="192dp"
-        android:text="Creado por:"
-        android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle.Inverse"
-        android:textSize="20sp"
-        tools:text="Creado por:" />
-
-    <TextView
-        android:id="@+id/tvRiveros"
-        android:layout_width="125dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginBottom="160dp"
-        android:layout_marginStart="59dp"
-        android:text="Rivero Gustavo"
-        android:gravity="center"
-
-
-
-        android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle.Inverse"
-        android:textColor="@color/cast_expanded_controller_progress_text_color"
-        android:textSize="17sp"
-        tools:text="Rivero Gustavo" />
-
-    <TextView
-        android:id="@+id/textView6"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignStart="@+id/tvRiveros"
-        android:layout_marginBottom="127dp"
-        android:text="Quintana Miguel"
-
-        android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle.Inverse"
-        android:textColor="@color/cast_expanded_controller_progress_text_color"
-        android:textSize="17sp"
-        tools:text="Quintana Miguel" />
-
-    <TextView
-        android:id="@+id/tvFunes"
-        android:layout_width="125dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignStart="@+id/tvRiveros"
-        android:layout_marginBottom="65dp"
-        android:text="Funes Diego"
-        android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle.Inverse"
-        android:textColor="@color/cast_expanded_controller_progress_text_color"
-        android:textSize="17sp"
-        tools:text="Funes Diego" />
-
-    <TextView
-        android:id="@+id/textView8"
-        android:layout_width="120dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignStart="@+id/tvRiveros"
-        android:layout_marginBottom="31dp"
-        android:text="Pardo Marco"
-        android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle.Inverse"
-        android:textColor="@color/cast_expanded_controller_progress_text_color"
-        android:textSize="17sp"
-        tools:text="Pardo Marco" />
-
-    <TextView
-        android:id="@+id/textView12"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignStart="@+id/tvRiveros"
-        android:layout_marginBottom="96dp"
-        android:text="Molina Renzo"
-        android:textColor="@color/cast_expanded_controller_progress_text_color"
-        android:textSize="17sp" />
-
-    <ImageView
-        android:id="@+id/imgLogo"
-        android:layout_width="223dp"
-        android:layout_height="135dp"
-        android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        app:srcCompat="@drawable/icon_app" />
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:cardBackgroundColor="@color/colorAccent"
+        app:cardCornerRadius="25dp"
+        app:cardElevation="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/scrTerminos">
 
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
+            <TextView
+                android:id="@+id/tvAceptarTerminos"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="@string/aceptar"
+                android:textColor="#fff"
+                android:textSize="18sp" />
+        </RelativeLayout>
+    </android.support.v7.widget.CardView>
 
-</RelativeLayout>
+</android.support.constraint.ConstraintLayout>

@@ -39,5 +39,13 @@
     <string name="auth_error_password_required">El campo clave es requerido.</string>
 
     <string name="mp">MercadoPago</string>
+    <string name="terminos_y_condiciones">Terminos y condiciones</string>
+    <string name="aceptar">Aceptar</string>
+    <string name="molina_renzo">Molina Renzo</string>
+    <string name="pardo_marco">Pardo Marco</string>
+    <string name="quintana_miguel">Quintana Miguel</string>
+    <string name="riveros_gustavo">Riveros Gustavo</string>
+    <string name="creado_por">Creado por:</string>
+    <string name="version_1_1">Version 1.1</string>
 
 </resources>
