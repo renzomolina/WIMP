@@ -52,71 +52,71 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/divider_nosotros_star">
 
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
         <TextView
             android:id="@+id/tvTextoTerminos"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="serif"
-            android:text="Condiciones generales y uso:
-
-El uso de la aplicacion movil(WIMP), el cual es operado por alumnos de la Universidad De La Punta, en San Luis Argentina.
-La aplicacion permite solucionar el tema de las mascotas perdidas, con el fin de ubicarlas. Ademas permite realizar diversas actividades, como busqueda de
- veterinarias, pet shop, descuentos, etc.
-El usuario se compromete a leer los terminos y condiciones aqui establecidas, luego de descargar la aplicacion, por tanto, en caso de realizar la instalacion se entiende que cuenta con el  conocimiento integral de este documento y la consecuente aceptacion de la totalidad de sus estipulaciones.  El Usuario reconoce que el ingreso
- de su informacion personal, y los datos que contiene la aplicacion, quienes optan por acceder a esta aplicacion en Argentina o desde
- fuera  del territorio nacional, lo hacen por iniciativa propia y son responsables del cumplimiento de las leyes locales, en la medida
-en que dichas leyes sean aplicables en su correspondiente pais. En caso de que se acceda por parte  de menores de edad,la aplicacion recomieda
- utilizar la apps para el fin por el cual se creo y no hacer uso indebido, ni mal uso de la misma.
-
-Medios de Pago para PREMIUM:
-
-MercadoPago (Pago con tarjetas de crédito y débito)
-
-Los pagos con tarjeta de crédito y débito serán aceptados redireccionando la operativa a la empresa MERCADOPAGO, empresa que cuenta con los medios de seguridad necesaria para realizar operaciones con tarjeta en línea.
+            android:text="              Condiciones generales y uso:
 
 
-Permisos:
+    El uso de la aplicacion movil(WIMP), el cual es operado por alumnos de la Universidad De La Punta, en San Luis Argentina.
+La aplicacion permite solucionar el tema de las mascotas perdidas, con el fin de ubicarlas. Ademas permite realizar diversas actividades, como busqueda de veterinarias, pet shop, descuentos, etc.          Medios de Pago para PREMIUM:
+            MercadoPago (Pago con tarjetas de crédito y débito)
 
 
+                                        Permisos:
 .Permiso de acceso a camara.
 .Permiso de ubicacion.
 .Permiso de almacenamiento.
 
-Facturación:
+                                        Facturación:
 
-En cada una de las compras realizadas a través del sitio web se adjuntará la factura correspondiente al momento de la entrega del pedido.
+    En cada una de las compras realizadas a través del sitio web se adjuntará la factura correspondiente al momento de la entrega del pedido.
 
-
-Conducta y reglas:
+                                 Conducta y reglas:
 
 El Usuario se compromete a no utilizar la app con ningún propósito que esté prohibido por estos Términos y Condiciones como así también por la legislación aplicable. En tal sentido, a modo ejemplificativo, se compromete a:
 
-No publicar comunicaciones no autorizadas (como correo no deseado, “spam”) en la app;
+.No publicar comunicaciones no autorizadas (como correo no deseado, “spam”) en la app;
 
 .No solicitar información de inicio de sesión ni acceder a una cuenta perteneciente a otro usuario;
+
 .No molestar, intimidar ni acosar a ningún usuario;
+
 .No publicar contenido que contenga lenguaje ofensivo, resulte intimidatorio o pornográfico, que incite a la violencia o que contenga desnudos o violencia gráfica o injustificada;
-.No desarrollar ni hacer uso de aplicaciones de terceros que contengan, publiciten o promocionen de cualquier otro modo contenido relacionado con el consumo de alcohol o las citas, o bien de naturaleza adulta (incluidos los anuncios) sin las restricciones de edad apropiadas;
+
+.No desarrollar ni hacer uso de aplicaciones de terceros que contengan, publiciten o promocionen de cualquier otro modo contenido relacionado con e consumo de alcohol o las citas, o bien de naturaleza adulta (incluidos los anuncios) sin las restricciones de edad apropiadas;
+
 .No utilizar la app para actos ilícitos, engañosos, malintencionados o discriminatorios;
+
 .No realizar ninguna acción que pudiera inhabilitar, sobrecargar o afectar al funcionamiento correcto de la app.
+
 .No facilitar ni fomentar el incumplimiento de estos Términos y Condiciones.
+
 .No publicar contenido ni realizar ninguna acción en la app que infrinja o viole los derechos de otros o que viole la ley de algún modo;
+
 .No recopilar información de Usuarios;
+
 .No publicar y/o distribuir pornografía infantil y/o adolescente;
+
 .No interferir o intentar interferir con el buen funcionamiento de la app o de cualquier actividad realizada en los servicios provistos desde los mismos;
+
 .No modificar, adaptar, asignar, reproducir, distribuir, traducir, crear trabajos o adaptaciones derivadas, mostrar públicamente, republicar, reutilizar, vender, comercializar o explotar de cualquier manera el servicio provisto por medio de la app.
+
 .No descifrar, descompilar, desensamblar, realizar ingeniería inversa o bien intentar derivar un código fuente o ideas subyacentes o algoritmos de cualquier parte del Sitio Web.
-
-
 En caso de incumplir con estas prohibiciones y/o con la legislación aplicable, WIMP podrá sancionar al Usuario con la suspensión o cancelación del contenido y/o el acceso a la app y/o de cualquier otra forma que estime pertinente, sin perjuicio de las acciones legales a que pueda dar lugar por la configuración de delitos o contravenciones o los perjuicios civiles que pueda causar a WIMP y/u otros Usuarios de la app. También WIMP tendrá dicha facultad a efectos de cumplir con alguna ley, norma, proceso legal o solicitud gubernamental aplicable como así también para detectar, prevenir o de otra forma gestionar problemas de fraude, de seguridad o técnicos y/o en caso de denuncia de Usuarios y/o terceros.
 
-Atención al cliente:
+                            Atención al cliente:
 
-Escríbanos a whereismypetulp@gmail.com"
+    Escríbanos a whereismypetulp@gmail.com"
             android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
             tools:layout_editor_absoluteX="61dp"
             tools:layout_editor_absoluteY="0dp" />
-
+</RelativeLayout>
 
     </ScrollView>
 

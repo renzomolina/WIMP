@@ -403,6 +403,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 return false;
             }
         });
+        googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+                InstanciarDialogoComentario();
+            }
+        });
     }
 
     //-----------------------------------CLASE INTERNA MAPA-------------------------------------------------
@@ -1104,4 +1110,30 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         dialog.show(getFragmentManager(), "PREMIUM");// Mostramos el dialogo
     }
 
+
+    //-----------------------------------------------------DIALOGO COMENTARIO MASCOTA---------------------------------------------------------
+    @SuppressLint("ValidFragment")
+    private class DialogoComentario extends DialogFragment {
+        @RequiresApi(api = Build.VERSION_CODES.O)
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            LayoutInflater inflater = getActivity().getLayoutInflater();
+            View content = inflater.inflate(R.layout.dialog_comentario_mascota, null);
+            final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setView(content);
+            builder.setNegativeButton("cerrar", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int id) {
+                    dialog.dismiss();
+                }
+            });
+            return builder.create();
+        }
+    }
+    private void InstanciarDialogoComentario(){
+        DialogoComentario dialog = new DialogoComentario();  //Instanciamos la clase con el dialogo
+        dialog.setCancelable(false);
+        dialog.show(getFragmentManager(), "COMENTARIO");// Mostramos el dialogo
+
+    }
 }

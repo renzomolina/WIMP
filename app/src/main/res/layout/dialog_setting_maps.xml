@@ -1,20 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+
+<android.support.constraint.ConstraintLayout
+
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="320dp"
-    android:layout_height="450dp">
+    android:layout_height="450dp"
+    android:background="@drawable/gradient_login">
+
+    <TextView
+        android:id="@+id/tvVersion2"
+        android:textColor="@android:color/white"
+
+        android:layout_width="wrap_content"
+        android:layout_height="20dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="56dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="24dp"
+        android:text="AJUSTAR ESTILO DEL MAPA"
+        app:layout_constraintBottom_toTopOf="@+id/btAzul"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Switch
+        android:id="@+id/swNotificaciones_config2"
+        android:layout_width="148dp"
+        android:layout_height="28dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_weight="1"
+        android:backgroundTint="@color/colorAccent"
+        android:checked="true"
+        android:text="Activado"
+        android:textColor="@color/colorAccent"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btVintage" />
 
     <TextView
         android:id="@+id/tvVersion"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="20dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="25dp"
-        android:text="AJUSTAR ESTILO DEL MAPA" />
+        android:layout_marginBottom="56dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:text="AJUSTAR ESTILO DEL MAPA"
+        app:layout_constraintBottom_toTopOf="@+id/btAzul"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <ImageButton
         android:id="@+id/btAzul"
@@ -22,13 +65,18 @@
         android:layout_height="135dp"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/tvVersion"
-        android:layout_marginStart="12dp"
-        android:layout_marginTop="25dp"
+        android:layout_marginBottom="20dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
         android:layout_weight="1"
         android:adjustViewBounds="true"
         android:background="@drawable/maps_blue"
         android:padding="20dp"
-        android:scaleType="fitCenter" />
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toTopOf="@+id/btCandy"
+        app:layout_constraintEnd_toStartOf="@+id/btBlack"
+        app:layout_constraintHorizontal_bias="0.444"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <ImageButton
         android:id="@+id/btBlack"
@@ -36,14 +84,17 @@
         android:layout_height="135dp"
         android:layout_alignParentEnd="true"
         android:layout_alignTop="@+id/btAzul"
-        android:layout_marginEnd="11dp"
+        android:layout_marginBottom="24dp"
+        android:layout_marginEnd="16dp"
         android:layout_weight="1"
         android:adjustViewBounds="true"
         android:background="@drawable/maps_black"
         android:padding="20dp"
         android:paddingLeft="25dp"
         android:paddingRight="20dp"
-        android:scaleType="fitCenter" />
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toTopOf="@+id/btVintage"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <ImageButton
         android:id="@+id/btCandy"
@@ -51,38 +102,105 @@
         android:layout_height="135dp"
         android:layout_alignStart="@+id/btAzul"
         android:layout_below="@+id/btAzul"
-        android:layout_marginTop="18dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
         android:layout_weight="1"
         android:adjustViewBounds="true"
         android:background="@drawable/maps_candy"
         android:padding="20dp"
-        android:scaleType="fitCenter" />
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toTopOf="@+id/textView2"
+        app:layout_constraintEnd_toStartOf="@+id/btVintage"
+        app:layout_constraintHorizontal_bias="0.444"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <ImageButton
         android:id="@+id/btVintage"
-        android:paddingLeft="25dp"
-        android:paddingRight="20dp"
         android:layout_width="135dp"
         android:layout_height="135dp"
-        android:layout_above="@+id/switch1"
+
         android:layout_alignStart="@+id/btBlack"
+        android:layout_marginBottom="52dp"
+        android:layout_marginEnd="16dp"
         android:layout_weight="1"
         android:adjustViewBounds="true"
         android:background="@drawable/maps_vintage"
         android:padding="20dp"
-        android:scaleType="fitCenter" />
+        android:paddingLeft="25dp"
+        android:paddingRight="20dp"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    <Switch
-        android:id="@+id/switch1"
+    <TextView
+        android:id="@+id/textView2"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/btCandy"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="14dp"
-        android:text="ubicacion  "
-        android:textOff="Off"
-        android:textOn="On"
-        android:visibility="invisible"
-        tools:checked="true" />
+        android:layout_height="16dp"
+        android:layout_marginBottom="20dp"
+        android:layout_marginStart="16dp"
+        android:text="Vista de google"
+        android:textColor="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
-</RelativeLayout>
+    <ImageView
+        android:id="@+id/checkmapa1"
+        android:layout_width="66dp"
+        android:layout_height="66dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/btAzul"
+        app:layout_constraintEnd_toEndOf="@+id/btAzul"
+        app:layout_constraintStart_toStartOf="@+id/btAzul"
+        app:layout_constraintTop_toTopOf="@+id/btAzul"
+        app:srcCompat="@drawable/check_tilde_mapa" />
+
+    <ImageView
+        android:id="@+id/checkmapa2"
+        android:layout_width="66dp"
+        android:layout_height="66dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/btBlack"
+        app:layout_constraintEnd_toEndOf="@+id/btBlack"
+        app:layout_constraintStart_toStartOf="@+id/btBlack"
+        app:layout_constraintTop_toTopOf="@+id/btBlack"
+        app:srcCompat="@drawable/check_tilde_mapa" />
+
+    <ImageView
+        android:id="@+id/checkmapa3"
+        android:layout_width="66dp"
+        android:layout_height="66dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/btCandy"
+        app:layout_constraintEnd_toEndOf="@+id/btCandy"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/btCandy"
+        app:srcCompat="@drawable/check_tilde_mapa" />
+
+    <ImageView
+        android:id="@+id/checkmapa4"
+        android:layout_width="66dp"
+        android:layout_height="66dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/btVintage"
+        app:layout_constraintEnd_toEndOf="@+id/btVintage"
+        app:layout_constraintStart_toStartOf="@+id/btVintage"
+        app:layout_constraintTop_toTopOf="@+id/btVintage"
+        app:srcCompat="@drawable/check_tilde_mapa" />
+
+</android.support.constraint.ConstraintLayout>
