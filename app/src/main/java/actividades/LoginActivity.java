@@ -1,11 +1,21 @@
 package actividades;
 
+import android.annotation.SuppressLint;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.app.ProgressDialog;
-import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.support.annotation.RequiresApi;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.text.Editable;
@@ -13,6 +23,7 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.util.Patterns;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -20,19 +31,13 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.DefaultRetryPolicy;
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.facebook.AccessToken;
 import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
-import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.Profile;
@@ -41,20 +46,21 @@ import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.whereismypet.whereismypet.R;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import clases_estaticas.GeneralMethods;
+import de.hdodenhof.circleimageview.CircleImageView;
 import misclases.GestionarFacebook;
 import misclases.Usuario;
-import misclases.VolleySingleton;
-import misclases.WebServiceJSON;
+import clases_estaticas.WebServiceJSON;
 
 public class LoginActivity extends AppCompatActivity{
 
@@ -87,10 +93,10 @@ public class LoginActivity extends AppCompatActivity{
         super.onResume();
         user = new Usuario();
 
-        String correoShared= WebServiceJSON.getFromSharedPreferences("correo",this);
-        Boolean aux = WebServiceJSON.getFromSharedPreferencesDB("rememberUser",this);
+        String correoShared= GeneralMethods.getFromSharedPreferences("correo",this);
+        Boolean aux = GeneralMethods.getFromSharedPreferencesDB("rememberUser",this);
         if(aux && !correoShared.equals("")){
-            WebServiceJSON.InicioSesionCorrecto(this,this);
+            GeneralMethods.InicioSesionCorrecto(this,this);
         }
         else{
             if(isLoggedIn()) {
@@ -107,7 +113,7 @@ public class LoginActivity extends AppCompatActivity{
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data ){
         super.onActivityResult(requestCode, resultCode, data);
-        callbackManager.onActivityResult(requestCode, resultCode, data);
+        //callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
     public  void FacebookLogin(){
@@ -127,7 +133,7 @@ public class LoginActivity extends AppCompatActivity{
                     containerLogin.setVisibility(View.GONE);
                     String  send_token = loginResult.getAccessToken().getToken(),
                             send_user=loginResult.getAccessToken().getUserId();
-                    WebServiceJSON.savedLoginSharedPreferencesFB(send_token,send_user,"FB",LoginActivity.this);
+                    GeneralMethods.savedLoginSharedPreferencesFB(send_token,send_user,"FB",LoginActivity.this);
                     InicioSesionCorrecto();
 
                     GraphRequest request = GraphRequest.newMeRequest(Token(),
@@ -188,8 +194,8 @@ public class LoginActivity extends AppCompatActivity{
         boolean user,expirado,vacio;
         AccessToken accessToken = Token();
         if(accessToken != null) {
-            user = (accessToken.getToken().equals(WebServiceJSON.getFromSharedPreferences("token",LoginActivity.this)) ||
-                accessToken.getUserId().equals(WebServiceJSON.getFromSharedPreferences("userID",LoginActivity.this)));
+            user = (accessToken.getToken().equals(GeneralMethods.getFromSharedPreferences("token",LoginActivity.this)) ||
+                accessToken.getUserId().equals(GeneralMethods.getFromSharedPreferences("userID",LoginActivity.this)));
             expirado = !accessToken.isExpired();
             vacio = !accessToken.getToken().isEmpty();
 
@@ -269,8 +275,7 @@ public class LoginActivity extends AppCompatActivity{
         Registro.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(getApplicationContext(), RegistroActivity.class);
-               startActivity(i);
+               instaciaRegistro();
 
             }
         });
@@ -281,5 +286,96 @@ public class LoginActivity extends AppCompatActivity{
             }
         });
     }
+
+    // ------------------------ DIALOG REGISTRO-----------------------------------------
+    @SuppressLint("ValidFragment")
+    private class RegistroDialog extends DialogFragment implements View.OnClickListener {
+        private static final int COD_SELECCIONA = 10;
+        private static final int COD_FOTO = 20;
+        private Bitmap bitmapImagenPerfil;
+        private CircleImageView btnImagenPerfilCircular;
+        private CardView btnRegistrar;
+        private boolean withImage = false;
+        private int codigoOpcion = 0;
+
+        @RequiresApi(api = Build.VERSION_CODES.O)
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            LayoutInflater inflater = getActivity().getLayoutInflater();
+            View content = inflater.inflate(R.layout.activity_registro, null);
+            btnImagenPerfilCircular = content.findViewById(R.id.imgPerfilDB);
+            btnImagenPerfilCircular.setOnClickListener(this);
+            btnRegistrar = content.findViewById(R.id.CheckIn);
+            btnRegistrar.setOnClickListener(this);
+            final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setView(content);
+            builder.setNegativeButton("Volver", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int id) {
+                    dialog.dismiss();
+                }
+            });
+            return builder.create();
+        }
+
+        @Override
+        public void onActivityResult(int requestCode, int resultCode, Intent data) {
+            super.onActivityResult(requestCode, resultCode, data);
+            switch (requestCode) {
+                case COD_SELECCIONA:
+                    if (data != null) {
+                        try {
+                            bitmapImagenPerfil = MediaStore.Images.Media.getBitmap(getContentResolver(), data.getData());
+                            btnImagenPerfilCircular.setImageBitmap(bitmapImagenPerfil);
+                            codigoOpcion = COD_SELECCIONA;
+                            withImage = true;
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    break;
+                case COD_FOTO:
+                    MediaScannerConnection.scanFile(LoginActivity.this, new String[]{GeneralMethods.pathTomarFoto}, null,
+                            new MediaScannerConnection.OnScanCompletedListener() {
+                                @Override
+                                public void onScanCompleted(String path, Uri uri) {
+                                    Log.i("Path", "" + path);
+                                }
+                            });
+                    codigoOpcion = COD_FOTO;
+                    bitmapImagenPerfil = BitmapFactory.decodeFile(GeneralMethods.pathTomarFoto);
+                    btnImagenPerfilCircular.setImageBitmap(bitmapImagenPerfil);
+                    withImage = true;
+                    break;
+            }
+
+            if (bitmapImagenPerfil == null) {
+                withImage = false;
+                btnImagenPerfilCircular.setImageDrawable(getResources().getDrawable(R.drawable.com_facebook_profile_picture_blank_square));
+            }
+        }
+
+        @Override
+        public void onClick(View view) {
+            switch (view.getId()) {
+                case R.id.CheckIn:{
+
+                }break;
+                case R.id.imgPerfilDB:{
+                    if (GeneralMethods.solicitaPermisosVersionesSuperiores(LoginActivity.this,LoginActivity.this)) {
+                        GeneralMethods.mostrarDialogOpciones(LoginActivity.this,LoginActivity.this);
+                    }
+                }break;
+            }
+        }
+    }
+    private void instaciaRegistro(){
+        RegistroDialog dialog = new RegistroDialog();  //Instanciamos la clase con el dialogo
+        dialog.setCancelable(false);
+        dialog.show(getFragmentManager(), "REGISTRO");// Mostramos el dialogo
+
+    }
+
+
 
 }

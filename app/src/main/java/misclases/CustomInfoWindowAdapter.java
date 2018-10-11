@@ -7,10 +7,9 @@ import android.widget.TextView;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Marker;
-import com.squareup.picasso.Picasso;
 import com.whereismypet.whereismypet.R;
 
-import actividades.MainActivity;
+import clases_estaticas.GeneralMethods;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
@@ -21,7 +20,7 @@ public class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
     private String imgMascota;
     private Context context;
 
-    public CustomInfoWindowAdapter(LayoutInflater inflater, Marcador pet, Context context){
+    public CustomInfoWindowAdapter(LayoutInflater inflater, Mascota pet, Context context){
         this.inflater = inflater;
         nombreMascota = pet.getNombre();
         descripcionMascota = pet.getDescripcion();
@@ -38,7 +37,7 @@ public class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
         ((TextView)v.findViewById(R.id.tvNombreMarcador)).setText(nombreMascota);
         ((TextView)v.findViewById(R.id.tvDescrpcionMarcador)).setText(descripcionMascota);
 
-        WebServiceJSON.Picasso(context,imgMascota, v.<CircleImageView>findViewById(R.id.imgMarcadorMascota));
+        GeneralMethods.Picasso(context,imgMascota, v.<CircleImageView>findViewById(R.id.imgMarcadorMascota));
         return v;
     }
 

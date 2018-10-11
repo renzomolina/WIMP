@@ -53,14 +53,15 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
+import clases_estaticas.GeneralMethods;
 import de.hdodenhof.circleimageview.CircleImageView;
 import misclases.VolleySingleton;
 
 import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
-public class RegistroActivity extends AppCompatActivity implements View.OnClickListener{
-
+public class RegistroActivity {
+/*
     //Componentes
     private CardView btnRegistrar;
     private EditText etNombre, etApellido, etCorreo, etContraseña, etConfimarContraseña;
@@ -77,7 +78,8 @@ public class RegistroActivity extends AppCompatActivity implements View.OnClickL
     private String pathTomarFoto;
     private Uri uriSeleccionarFoto;
     private String pathImageWebService;
-    private String nombreFotoServidor;
+
+
     private boolean withImage = false;
     private int codigoOpcion = 0;
     //Url carpeta imagenes
@@ -194,10 +196,10 @@ public class RegistroActivity extends AppCompatActivity implements View.OnClickL
         switch (requestCode){
             case COD_SELECCIONA:
                 if(data != null) {
-                    uriSeleccionarFoto = data.getData();
-                    btnImagenPerfilCircular.setImageURI(uriSeleccionarFoto);
+                    //uriSeleccionarFoto = data.getData();
+                    //btnImagenPerfilCircular.setImageURI(uriSeleccionarFoto);
                     try {
-                        bitmapImagenPerfil = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uriSeleccionarFoto);
+                        bitmapImagenPerfil = MediaStore.Images.Media.getBitmap(getContentResolver(),data.getData());
                         btnImagenPerfilCircular.setImageBitmap(bitmapImagenPerfil);
                         codigoOpcion = COD_SELECCIONA;
                         withImage = true;
@@ -228,64 +230,19 @@ public class RegistroActivity extends AppCompatActivity implements View.OnClickL
         /*else{
             if(codigoOpcion != 0)
                 enviarImagenDB(codigoOpcion);
-        }*/
-    }
-
-    private void enviarImagenDB(int tipoOpcion){
-        switch (tipoOpcion){
-            case COD_SELECCIONA:{
-                AndroidUploadService(getPath(uriSeleccionarFoto));
-            }break;
-            case COD_FOTO:{
-                AndroidUploadService(pathTomarFoto);
-            }break;
-            default:break;
         }
     }
 
-    private void AndroidUploadService(final String pathX){
-        try {
-            String extension = pathX.substring(pathX.indexOf('.'),pathX.length());
-            String uploadId = UUID.randomUUID().toString();
-            nombreFotoServidor = String.valueOf(Calendar.getInstance().getTime()).replace(":","-").replace(" ","") + String.valueOf(Calendar.getInstance().getTimeInMillis());
-            new MultipartUploadRequest(this, uploadId, URL_SUBIRFOTO)
-                    .addFileToUpload(pathX, "picture")
-                    .addParameter("filename", nombreFotoServidor)
-                    .setNotificationConfig(new UploadNotificationConfig())
-                    .setMaxRetries(2)
-                    .setDelegate(new UploadStatusDelegate() {
-                        @Override
-                        public void onProgress(Context context, UploadInfo uploadInfo) {
-
-                        }
-
-                        @Override
-                        public void onError(Context context, UploadInfo uploadInfo, ServerResponse serverResponse, Exception exception) {
-
-                        }
-
-                        @Override
-                        public void onCompleted(Context context, UploadInfo uploadInfo, ServerResponse serverResponse) {
-                            //ELiminar imagen
-                            File eliminar = new File(pathX);
-                            if (eliminar.exists()) {
-                                if (eliminar.delete()) {
-                                    System.out.println("archivo eliminado:" + pathX);
-                                } else {
-                                    System.out.println("archivo no eliminado" + pathX);
-                                }
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(Context context, UploadInfo uploadInfo) {
-
-                        }
-                    })
-                    .startUpload();
-            pathImageWebService = URL_CARPETAFOTO + nombreFotoServidor+extension;
-        } catch (Exception exc) {
-            System.out.println(exc.getMessage()+" "+exc.getLocalizedMessage());
+    private void enviarImagenDB(int tipoOpcion){
+        String nombreFotoServidor = String.valueOf(Calendar.getInstance().getTime()).replace(":","-").replace(" ","") + String.valueOf(Calendar.getInstance().getTimeInMillis());
+        switch (tipoOpcion){
+            case COD_SELECCIONA:{
+                GeneralMethods.AndroidUploadService(getPath(uriSeleccionarFoto),nombreFotoServidor,RegistroActivity.this);
+            }break;
+            case COD_FOTO:{
+                GeneralMethods.AndroidUploadService(pathTomarFoto,nombreFotoServidor,RegistroActivity.this);
+            }break;
+            default:break;
         }
     }
 
@@ -330,6 +287,7 @@ public class RegistroActivity extends AppCompatActivity implements View.OnClickL
         if (requestCode==MIS_PERMISOS){
             if(grantResults.length==2 && grantResults[0]==PackageManager.PERMISSION_GRANTED && grantResults[1]==PackageManager.PERMISSION_GRANTED){//el dos representa los 2 permisos
                 Toast.makeText(getApplicationContext(),"Permisos aceptados",Toast.LENGTH_SHORT);
+                mostrarDialogOpciones();
             }
         }else{
             solicitarPermisosManual();
@@ -413,6 +371,7 @@ public class RegistroActivity extends AppCompatActivity implements View.OnClickL
             public void onTextChanged(CharSequence s, int start, int before, int count) { }
             @Override
             public void afterTextChanged(Editable s) {
+
                 Regex("email");
             }
         });
@@ -687,5 +646,5 @@ public class RegistroActivity extends AppCompatActivity implements View.OnClickL
         stringRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 2, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         VolleySingleton.getIntanciaVolley(this).addToRequestQueue(stringRequest);
 
-    }
+    }*/
 }

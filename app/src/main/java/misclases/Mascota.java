@@ -2,9 +2,6 @@ package misclases;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
-import android.provider.MediaStore;
 import android.widget.Toast;
 
 import com.android.volley.DefaultRetryPolicy;
@@ -13,7 +10,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.whereismypet.whereismypet.BuildConfig;
-
 
 import net.gotev.uploadservice.MultipartUploadRequest;
 import net.gotev.uploadservice.ServerResponse;
@@ -28,9 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-
-public class Marcador {
-
+public class Mascota {
     private static final String URL_MARCADOR = "http://www.secsanluis.com.ar/servicios/varios/wimp/W_insertarMarcador.php";
     private static final String URL_SUBIRFOTO = "http://www.secsanluis.com.ar/servicios/varios/wimp/W_Upload.php";
     private static final String URL_CARPETAFOTO = "http://www.secsanluis.com.ar/servicios/varios/wimp/W_Imagenes/";
@@ -202,4 +196,3 @@ public class Marcador {
 
 
 }
-
