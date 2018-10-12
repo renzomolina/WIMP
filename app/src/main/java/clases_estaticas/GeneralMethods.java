@@ -163,8 +163,7 @@ public final class GeneralMethods {
                     abrirCamara(context,activity);
                 }else{
                     if (opciones[i].equals("Elegir de Galeria")){
-                        Intent intent=new Intent(Intent.ACTION_PICK,
-                                MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                        Intent intent=new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                         intent.setType("image/");
                         activity.startActivityForResult(intent.createChooser(intent,"Seleccione"),10);
                     }else{
@@ -205,7 +204,7 @@ public final class GeneralMethods {
             {
                 intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(fileImagen));
             }
-            activity.startActivityForResult(intent,10);
+            activity.startActivityForResult(intent,20);
         }
 
     }

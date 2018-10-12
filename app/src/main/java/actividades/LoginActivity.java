@@ -56,13 +56,14 @@ import com.whereismypet.whereismypet.R;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import clases_estaticas.FragmentsDialogs;
 import clases_estaticas.GeneralMethods;
 import de.hdodenhof.circleimageview.CircleImageView;
 import misclases.GestionarFacebook;
 import misclases.Usuario;
 import clases_estaticas.WebServiceJSON;
 
-public class LoginActivity extends AppCompatActivity{
+public class LoginActivity extends AppCompatActivity {
 
     private LoginButton loginButton;
     private CallbackManager callbackManager;
@@ -70,16 +71,18 @@ public class LoginActivity extends AppCompatActivity{
     private AccessTokenTracker accessTokenTracker;
     private ProfileTracker profileTracker;
     private CheckBox recordarUsuario;
-    private TextView Registro,OlvidoContraseña;
-    private CardView Iniciar,Restablecer;
+    private TextView Registro, OlvidoContraseña;
+    private CardView Iniciar, Restablecer;
     private List<String> permisoNecesario = Arrays.asList("email", "user_birthday", "user_friends", "public_profile");
 
 
-    private EditText email,password;
+    private EditText email, password;
     private boolean CheckEditText, Validacion;
     RequestQueue requestQueue;
     ProgressDialog progressDialog;
-    private  Usuario user;
+    private Usuario user;
+
+
 
 
     @Override
@@ -88,52 +91,53 @@ public class LoginActivity extends AppCompatActivity{
         requestQueue = Volley.newRequestQueue(this);
         progressDialog = new ProgressDialog(this);
     }
+
     @Override
     protected void onResume() {
         super.onResume();
         user = new Usuario();
 
-        String correoShared= GeneralMethods.getFromSharedPreferences("correo",this);
-        Boolean aux = GeneralMethods.getFromSharedPreferencesDB("rememberUser",this);
-        if(aux && !correoShared.equals("")){
-            GeneralMethods.InicioSesionCorrecto(this,this);
-        }
-        else{
-            if(isLoggedIn()) {
+        String correoShared = GeneralMethods.getFromSharedPreferences("correo", this);
+        Boolean aux = GeneralMethods.getFromSharedPreferencesDB("rememberUser", this);
+        if (aux && !correoShared.equals("")) {
+            GeneralMethods.InicioSesionCorrecto(this, this);
+        } else {
+            if (isLoggedIn()) {
                 InicioSesionCorrecto();
-            }
-            else {
+            } else {
                 setContentView(R.layout.activity_login);
                 Login();
                 ValidarLogin();
-            }}
+            }
+        }
     }
-
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data ){
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         //callbackManager.onActivityResult(requestCode, resultCode, data);
+        FragmentsDialogs.RegistroDialog.ResultadoDeCamara(requestCode,data);
     }
 
-    public  void FacebookLogin(){
-        try{
+
+    public void FacebookLogin() {
+        try {
             LoginManager.getInstance().logOut();
-        }catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
-        if(GestionarFacebook.comprobarInternet(getApplicationContext())){
+        if (GestionarFacebook.comprobarInternet(getApplicationContext())) {
             callbackManager = CallbackManager.Factory.create();
-            LoginManager.getInstance().logInWithReadPermissions(this,permisoNecesario);
+            LoginManager.getInstance().logInWithReadPermissions(this, permisoNecesario);
 
             loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
                 @Override
                 public void onSuccess(LoginResult loginResult) {
                     RelativeLayout containerLogin = findViewById(R.id.ContainerLogin);
                     containerLogin.setVisibility(View.GONE);
-                    String  send_token = loginResult.getAccessToken().getToken(),
-                            send_user=loginResult.getAccessToken().getUserId();
-                    GeneralMethods.savedLoginSharedPreferencesFB(send_token,send_user,"FB",LoginActivity.this);
+                    String send_token = loginResult.getAccessToken().getToken(),
+                            send_user = loginResult.getAccessToken().getUserId();
+                    GeneralMethods.savedLoginSharedPreferencesFB(send_token, send_user, "FB", LoginActivity.this);
                     InicioSesionCorrecto();
 
                     GraphRequest request = GraphRequest.newMeRequest(Token(),
@@ -184,18 +188,18 @@ public class LoginActivity extends AppCompatActivity{
         }
     }
 
-    private void DatosPerfil(Profile perfil){
+    private void DatosPerfil(Profile perfil) {
         user.setNombre(perfil.getFirstName());
         user.setApellido(perfil.getLastName());
-        user.setImagenPerfilFacebook(perfil.getProfilePictureUri(400,400));
+        user.setImagenPerfilFacebook(perfil.getProfilePictureUri(400, 400));
     }
 
-    private boolean isLoggedIn(){
-        boolean user,expirado,vacio;
+    private boolean isLoggedIn() {
+        boolean user, expirado, vacio;
         AccessToken accessToken = Token();
-        if(accessToken != null) {
-            user = (accessToken.getToken().equals(GeneralMethods.getFromSharedPreferences("token",LoginActivity.this)) ||
-                accessToken.getUserId().equals(GeneralMethods.getFromSharedPreferences("userID",LoginActivity.this)));
+        if (accessToken != null) {
+            user = (accessToken.getToken().equals(GeneralMethods.getFromSharedPreferences("token", LoginActivity.this)) ||
+                    accessToken.getUserId().equals(GeneralMethods.getFromSharedPreferences("userID", LoginActivity.this)));
             expirado = !accessToken.isExpired();
             vacio = !accessToken.getToken().isEmpty();
 
@@ -204,20 +208,21 @@ public class LoginActivity extends AppCompatActivity{
         }
         return (false);
     }
-    private AccessToken Token(){
+
+    private AccessToken Token() {
         return AccessToken.getCurrentAccessToken();
     }
 
     public void InicioSesionCorrecto() {
 
-        Intent i = new Intent(this,MainActivity.class);
+        Intent i = new Intent(this, MainActivity.class);
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(i);
         finish();
     }
 
-    private void Inicializar(){
+    private void Inicializar() {
         Iniciar = findViewById(R.id.Login);
         loginButton = findViewById(R.id.login_button);
         Registro = findViewById(R.id.tvRegistrarse);
@@ -225,36 +230,38 @@ public class LoginActivity extends AppCompatActivity{
         email = findViewById(R.id.Correo);
         password = findViewById(R.id.Password);
         recordarUsuario = findViewById(R.id.RecordarSesion);
+
     }
 
-    private boolean ValidarLogin(){
+    private boolean ValidarLogin() {
 
-       email.addTextChangedListener(new TextWatcher() {
-           @Override
-           public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+        email.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
-           @Override
-           public void onTextChanged(CharSequence s, int start, int before, int count) { }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
 
-           @Override
-           public void afterTextChanged(Editable s) {
-               if(!Patterns.EMAIL_ADDRESS.matcher(email.getText().toString()).matches()) {
-                   Drawable msgerror = getResources().getDrawable(R.drawable.icon_error);
-                   msgerror.setBounds(0, 0, msgerror.getIntrinsicWidth(), msgerror.getIntrinsicHeight());
-                   email.setError("Correo Invalido",msgerror);
-                   Validacion = false;
-               }
-               else {
-                   email.setError(null);
-                   Validacion = true;
-               }
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (!Patterns.EMAIL_ADDRESS.matcher(email.getText().toString()).matches()) {
+                    Drawable msgerror = getResources().getDrawable(R.drawable.icon_error);
+                    msgerror.setBounds(0, 0, msgerror.getIntrinsicWidth(), msgerror.getIntrinsicHeight());
+                    email.setError("Correo Invalido", msgerror);
+                    Validacion = false;
+                } else {
+                    email.setError(null);
+                    Validacion = true;
+                }
 
-           }
-       });
-       return Validacion;
+            }
+        });
+        return Validacion;
     }
 
-    private void Login(){
+    private void Login() {
         Inicializar();
         Iniciar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -263,9 +270,9 @@ public class LoginActivity extends AppCompatActivity{
                 if (CheckEditText && Validacion) {
                     user = new Usuario(email.getText().toString(), password.getText().toString());
                     if (recordarUsuario.isChecked()) {
-                        WebServiceJSON.UserLogin(user, LoginActivity.this,true,LoginActivity.this);
+                        WebServiceJSON.UserLogin(user, LoginActivity.this, true, LoginActivity.this);
                     } else {
-                        WebServiceJSON.UserLogin(user, LoginActivity.this,false,LoginActivity.this);
+                        WebServiceJSON.UserLogin(user, LoginActivity.this, false, LoginActivity.this);
                     }
                 } else {
                     Toast.makeText(getApplicationContext(), "Todos los capos son obligatorios, por favor vuelva a verificar los datos", Toast.LENGTH_SHORT).show();
@@ -275,7 +282,9 @@ public class LoginActivity extends AppCompatActivity{
         Registro.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               instaciaRegistro();
+                FragmentsDialogs.context = LoginActivity.this;
+                FragmentsDialogs.activity = LoginActivity.this;
+                FragmentsDialogs.instaciaRegistro();
 
             }
         });
@@ -287,95 +296,6 @@ public class LoginActivity extends AppCompatActivity{
         });
     }
 
-    // ------------------------ DIALOG REGISTRO-----------------------------------------
-    @SuppressLint("ValidFragment")
-    private class RegistroDialog extends DialogFragment implements View.OnClickListener {
-        private static final int COD_SELECCIONA = 10;
-        private static final int COD_FOTO = 20;
-        private Bitmap bitmapImagenPerfil;
-        private CircleImageView btnImagenPerfilCircular;
-        private CardView btnRegistrar;
-        private boolean withImage = false;
-        private int codigoOpcion = 0;
-
-        @RequiresApi(api = Build.VERSION_CODES.O)
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            LayoutInflater inflater = getActivity().getLayoutInflater();
-            View content = inflater.inflate(R.layout.activity_registro, null);
-            btnImagenPerfilCircular = content.findViewById(R.id.imgPerfilDB);
-            btnImagenPerfilCircular.setOnClickListener(this);
-            btnRegistrar = content.findViewById(R.id.CheckIn);
-            btnRegistrar.setOnClickListener(this);
-            final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setView(content);
-            builder.setNegativeButton("Volver", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int id) {
-                    dialog.dismiss();
-                }
-            });
-            return builder.create();
-        }
-
-        @Override
-        public void onActivityResult(int requestCode, int resultCode, Intent data) {
-            super.onActivityResult(requestCode, resultCode, data);
-            switch (requestCode) {
-                case COD_SELECCIONA:
-                    if (data != null) {
-                        try {
-                            bitmapImagenPerfil = MediaStore.Images.Media.getBitmap(getContentResolver(), data.getData());
-                            btnImagenPerfilCircular.setImageBitmap(bitmapImagenPerfil);
-                            codigoOpcion = COD_SELECCIONA;
-                            withImage = true;
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    break;
-                case COD_FOTO:
-                    MediaScannerConnection.scanFile(LoginActivity.this, new String[]{GeneralMethods.pathTomarFoto}, null,
-                            new MediaScannerConnection.OnScanCompletedListener() {
-                                @Override
-                                public void onScanCompleted(String path, Uri uri) {
-                                    Log.i("Path", "" + path);
-                                }
-                            });
-                    codigoOpcion = COD_FOTO;
-                    bitmapImagenPerfil = BitmapFactory.decodeFile(GeneralMethods.pathTomarFoto);
-                    btnImagenPerfilCircular.setImageBitmap(bitmapImagenPerfil);
-                    withImage = true;
-                    break;
-            }
-
-            if (bitmapImagenPerfil == null) {
-                withImage = false;
-                btnImagenPerfilCircular.setImageDrawable(getResources().getDrawable(R.drawable.com_facebook_profile_picture_blank_square));
-            }
-        }
-
-        @Override
-        public void onClick(View view) {
-            switch (view.getId()) {
-                case R.id.CheckIn:{
-
-                }break;
-                case R.id.imgPerfilDB:{
-                    if (GeneralMethods.solicitaPermisosVersionesSuperiores(LoginActivity.this,LoginActivity.this)) {
-                        GeneralMethods.mostrarDialogOpciones(LoginActivity.this,LoginActivity.this);
-                    }
-                }break;
-            }
-        }
-    }
-    private void instaciaRegistro(){
-        RegistroDialog dialog = new RegistroDialog();  //Instanciamos la clase con el dialogo
-        dialog.setCancelable(false);
-        dialog.show(getFragmentManager(), "REGISTRO");// Mostramos el dialogo
 
     }
 
-
-
-}
