@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "723349993692",
+    "firebase_url": "https://wimp-219219.firebaseio.com",
+    "project_id": "wimp-219219",
+    "storage_bucket": "wimp-219219.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:723349993692:android:8596649444c94dc2",
+        "android_client_info": {
+          "package_name": "com.whereismypet.whereismypet"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "723349993692-jfslifcp7i305m5q0ep45gj3bn88316q.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.whereismypet.whereismypet",
+            "certificate_hash": "fff55e584ae55a9f71365763f59ff82a1941249d"
+          }
+        },
+        {
+          "client_id": "723349993692-s10bu66uonhgjdutcsjtgth0t0sgacsb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAv42uvwY8Edl5jOQ59FMAVoJj9J4wW4xM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "723349993692-s10bu66uonhgjdutcsjtgth0t0sgacsb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

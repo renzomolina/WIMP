@@ -1,0 +1,190 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@drawable/gradient_login">
+
+
+    <View
+        android:id="@+id/divider_nosotros_end"
+        android:layout_width="242dp"
+        android:layout_height="2dp"
+        android:layout_below="@+id/tvQuintana"
+        android:layout_marginTop="20dp"
+        android:layout_centerHorizontal="true"
+        android:background="#C8C9CB" />
+
+    <View
+        android:id="@+id/divider_nosotros_star"
+        android:layout_width="242dp"
+        android:layout_height="2dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="163dp"
+        android:background="#C8C9CB" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="27dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignStart="@+id/imgPerfilFunes"
+        android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle.Inverse"
+        android:textColor="@color/colorAccent"
+        android:textSize="36sp" />
+
+    <TextView
+        android:id="@+id/tvVersion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:text="Version 1.1"
+        android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle.Inverse"
+        android:textColor="@color/colorVariante"
+        android:textSize="14sp"
+        tools:text="Version 1.1" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="160dp"
+        android:layout_height="44dp"
+        android:layout_above="@+id/imgPerfilRiveros"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="-153dp"
+        android:fontFamily="casual"
+        android:gravity="center"
+        android:text="Creado por:"
+        android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle.Inverse"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        tools:text="Creado por:" />
+
+    <TextView
+        android:id="@+id/tvRiveros"
+        android:layout_width="275dp"
+        android:layout_height="70dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignStart="@+id/textView"
+        android:layout_marginTop="183dp"
+        android:fontFamily="serif"
+        android:gravity="center"
+        android:text="Riveros Gustavo"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+        android:textSize="30sp" />
+
+    <TextView
+        android:id="@+id/tvQuintana"
+        android:layout_width="262dp"
+        android:layout_height="70dp"
+        android:layout_alignStart="@+id/textView"
+        android:layout_below="@+id/tvPardo"
+        android:fontFamily="serif"
+        android:gravity="center"
+        android:text="Quintana Miguel"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+        android:textSize="30sp" />
+
+    <TextView
+        android:id="@+id/tvFunes"
+        android:layout_width="279dp"
+        android:layout_height="70dp"
+        android:layout_alignEnd="@+id/imgPerfilRiveros"
+        android:layout_below="@+id/imgPerfilRiveros"
+        android:fontFamily="serif"
+        android:gravity="center"
+        android:text="Funes Diego"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+        android:textSize="30sp" />
+
+    <TextView
+        android:id="@+id/tvPardo"
+        android:layout_width="268dp"
+        android:layout_height="70dp"
+        android:layout_alignEnd="@+id/tvFunes"
+        android:layout_below="@+id/tvMolina"
+        android:fontFamily="serif"
+        android:gravity="center"
+        android:text="Pardo Marco"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+        android:textSize="30sp" />
+
+    <TextView
+        android:id="@+id/tvMolina"
+        android:layout_width="241dp"
+        android:layout_height="70dp"
+        android:layout_alignEnd="@+id/imgLogo"
+        android:layout_below="@+id/tvFunes"
+        android:fontFamily="serif"
+        android:gravity="center"
+        android:text="Molina Renzo"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+        android:textSize="30sp" />
+
+    <ImageView
+        android:id="@+id/imgLogo"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/textView4"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="-2dp"
+        app:srcCompat="@drawable/icon_app" />
+
+    <android.support.v7.widget.AppCompatImageView
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/imgPerfilMolina"
+        android:layout_width="100dp"
+        android:layout_height="70dp"
+        android:layout_alignEnd="@+id/tvFunes"
+        android:layout_below="@+id/tvFunes"
+        android:src="@drawable/molina"
+        android:visibility="visible"
+         />
+
+    <android.support.v7.widget.AppCompatImageView
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/imgPerfilFunes"
+        android:layout_width="100dp"
+        android:layout_height="70dp"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/imgPerfilRiveros"
+        android:layout_marginStart="14dp"
+        android:src="@drawable/funes"
+        android:visibility="visible"
+         />
+
+    <android.support.v7.widget.AppCompatImageView
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/imgPerfilQuintana"
+        android:layout_width="100dp"
+        android:layout_height="70dp"
+        android:layout_alignEnd="@+id/tvFunes"
+        android:layout_alignTop="@+id/tvQuintana"
+        android:src="@drawable/quintana"
+        android:visibility="visible"
+         />
+
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/imgPerfilRiveros"
+        android:layout_width="100dp"
+        android:layout_height="70dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="183dp"
+        android:layout_toEndOf="@+id/imgLogo"
+        android:src="@drawable/riveros"
+        android:visibility="visible"
+        />
+
+    <android.support.v7.widget.AppCompatImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/imgPerfilPardo"
+        android:layout_width="100dp"
+        android:layout_height="70dp"
+        android:layout_alignStart="@+id/textView"
+        android:layout_alignTop="@+id/tvPardo"
+        android:src="@drawable/pardo"
+        android:visibility="visible"
+        />
+
+
+</RelativeLayout>

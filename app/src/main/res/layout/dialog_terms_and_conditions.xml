@@ -1,0 +1,147 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@drawable/gradient_login">
+
+    <TextView
+        android:id="@+id/TerminosYCondiciones"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="21dp"
+        android:text="TERMINOS Y CONDICIONES"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+        android:textSize="26sp"
+        android:textStyle="bold" />
+
+    <View
+        android:id="@+id/divider_config"
+        android:layout_width="359dp"
+        android:layout_height="2dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="82dp"
+        android:background="#C8C9CB" />
+
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="126dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="170dp"
+        android:text="Where is my pet"
+        android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle.Inverse"
+        android:textColor="@color/colorAccent"
+        android:textSize="36sp"
+        tools:text="WIMP" />
+
+    <TextView
+        android:id="@+id/tvVersion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="239dp"
+        android:text="Version 1.1"
+        android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle.Inverse"
+        android:textColor="@color/colorVariante"
+        android:textSize="24sp"
+        tools:text="Version 1.1" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignStart="@+id/imageView"
+        android:layout_marginBottom="192dp"
+        android:text="Creado por:"
+        android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle.Inverse"
+        android:textSize="20sp"
+        tools:text="Creado por:" />
+
+    <TextView
+        android:id="@+id/tvRiveros"
+        android:layout_width="125dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="160dp"
+        android:layout_marginStart="59dp"
+        android:text="Rivero Gustavo"
+        android:gravity="center"
+
+
+
+        android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle.Inverse"
+        android:textColor="@color/colorVariante"
+        android:textSize="17sp"
+        tools:text="Riveros Gustavo" />
+
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignStart="@+id/tvRiveros"
+        android:layout_marginBottom="127dp"
+        android:text="Quintana Miguel"
+
+        android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle.Inverse"
+        android:textColor="@color/colorVariante"
+        android:textSize="17sp"
+        tools:text="Quintana Miguel" />
+
+    <TextView
+        android:id="@+id/tvFunes"
+        android:layout_width="125dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignStart="@+id/tvRiveros"
+        android:layout_marginBottom="65dp"
+        android:text="Funes Diego"
+        android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle.Inverse"
+        android:textColor="@color/colorVariante"
+        android:textSize="17sp"
+        tools:text="Funes Diego" />
+
+    <TextView
+        android:id="@+id/textView8"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignStart="@+id/tvRiveros"
+        android:layout_marginBottom="31dp"
+        android:text="Pardo Marco"
+        android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle.Inverse"
+        android:textColor="@color/colorVariante"
+        android:textSize="17sp"
+        tools:text="Pardo Marco" />
+
+    <TextView
+        android:id="@+id/textView12"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignStart="@+id/tvRiveros"
+        android:layout_marginBottom="96dp"
+        android:text="Molina Renzo"
+        android:textColor="@color/colorVariante"
+        android:textSize="17sp" />
+
+    <ImageView
+        android:id="@+id/imgLogo"
+        android:layout_width="223dp"
+        android:layout_height="135dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        app:srcCompat="@drawable/icon_app" />
+
+
+
+</RelativeLayout>
