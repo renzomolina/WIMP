@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    android:id="@+id/ContainerLogin"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/ContainerLogin"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/gradient_login"
@@ -12,22 +11,33 @@
     <TextView
         android:id="@+id/tvRegistrarseLogin"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="19dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="90dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="28dp"
         android:text="@string/registrarse"
-        android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/login_button" />
 
     <TextView
         android:id="@+id/tvOlvidoContraseñaLogin"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="16dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="46dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="8dp"
         android:text="@string/olvidocontraseña"
-        android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.501"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvRegistrarseLogin" />
 
     <ImageView
         android:id="@+id/imageView"
@@ -35,8 +45,14 @@
         android:layout_height="130dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="35dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
         android:contentDescription="@string/imagen_perfil"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.591"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/icon_app" />
 
 
@@ -46,7 +62,9 @@
         android:layout_height="70dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="210dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="32dp"
         android:background="#11000000"
         android:drawableStart="@drawable/ic_action_mail"
         android:ems="10"
@@ -54,7 +72,10 @@
         android:inputType="textPersonName"
         android:textColor="@android:color/white"
         android:textColorHint="@android:color/white"
-        android:textStyle="normal|bold" />
+        android:textStyle="normal|bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView" />
 
     <EditText
         android:id="@+id/Password"
@@ -62,16 +83,37 @@
         android:layout_height="70dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="293dp"
-        android:background="#11000000"
+        android:layout_marginEnd="8dp"
 
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="28dp"
+        android:background="#11000000"
         android:drawableStart="@drawable/ic_action_pass"
         android:ems="10"
         android:hint="@string/contraseña"
         android:inputType="textPassword"
         android:textColor="@android:color/white"
         android:textColorHint="@android:color/white"
-        android:textStyle="normal|bold" />
+        android:textStyle="normal|bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/Correo" />
+
+
+    <com.facebook.login.widget.LoginButton
+        android:id="@+id/login_button"
+        style="@style/FacebookLoginButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnIniciarLogin" />
 
 
     <android.support.v7.widget.CardView
@@ -80,20 +122,29 @@
         android:layout_height="50dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="205dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="12dp"
         app:cardBackgroundColor="@color/colorAccent"
         app:cardCornerRadius="25dp"
-        app:cardElevation="10dp">
+        app:cardElevation="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/RecordarSesion">
 
         <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_width="284dp"
+            android:layout_height="34dp"
+            tools:layout_editor_absoluteX="8dp"
+            tools:layout_editor_absoluteY="8dp">
 
             <TextView
                 android:id="@+id/tvIniciarSesion"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="78dp"
                 android:text="@string/iniciar_sesion"
                 android:textColor="#fff"
                 android:textSize="18sp" />
@@ -107,10 +158,14 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_below="@+id/Password"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="8dp"
         android:buttonTint="@color/colorAccent"
         android:checked="true"
         android:text="@string/recordar_sesion"
-        android:textColor="@android:color/white" />
+        android:textColor="@android:color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/Password" />
 
 
-</RelativeLayout>
+</android.support.constraint.ConstraintLayout>

@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">WIMP?</string>
-    <string name="facebook_app_id">468154103661801</string>
     <string name="fb_login_protocol_scheme">fb468154103661801</string>
     <string name="alert">Alert</string>
     <string name="ok">Ok</string>
@@ -24,9 +23,13 @@
     <string name="salir">Salir</string>
     <string name="perfildb">PerfilDB</string>
     <string name="configuracion">CONFIGURACION</string>
+    //--------------------------------FACEBOOK-------------------------------------------------
+    <string name="facebook_app_id">468154103661801</string>
 
-
-//--------------------------------FIREBASE-------------------------------------------------
+    //--------------------------------FIREBASE-------------------------------------------------
     <string name="auth_failed">Lo siento, pero la autentificacion fallo</string>
+    <string name="loading">Cargando…</string>
+    //--------------------------------MENSAJES-------------------------------------------------
+
 
 </resources>

@@ -23,6 +23,14 @@
           }
         },
         {
+          "client_id": "723349993692-mqn9jmcl23boul1nqqsukfuim54a6gsj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.whereismypet.whereismypet",
+            "certificate_hash": "fffa271b0c3d286eabcdabbec773bc7d17f8128e"
+          }
+        },
+        {
           "client_id": "723349993692-s10bu66uonhgjdutcsjtgth0t0sgacsb.apps.googleusercontent.com",
           "client_type": 3
         }
