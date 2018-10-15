@@ -259,7 +259,6 @@ public final class GeneralMethods {
                 Pattern p = Pattern.compile(REGEX_LETRAS);
                 if (!p.matcher(etApellido.getText().toString()).matches()) {
                     etApellido.setError("Este campo permite solo letras", msgerror);
-
                     btnRegistrar.setEnabled(false);
                 } else {
                     btnRegistrar.setEnabled(true);
@@ -280,7 +279,6 @@ public final class GeneralMethods {
             case"email": {
                 if (!Patterns.EMAIL_ADDRESS.matcher(etCorreo.getText().toString()).matches()) {
                     etCorreo.setError("Correo Invalido", msgerror);
-
                     btnRegistrar.setEnabled(false);
                 } else {
                     btnRegistrar.setEnabled(true);
@@ -312,7 +310,6 @@ public final class GeneralMethods {
                 if(CheckEditTextIsEmptyOrNot(etCorreo))
                 {
                     etCorreo.setError("Campo Vacio", msgerror);
-
                     btnRegistrar.setEnabled(false);
                 }
                 else {

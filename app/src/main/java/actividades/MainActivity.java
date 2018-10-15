@@ -4,6 +4,7 @@ package actividades;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -14,6 +15,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.graphics.PointF;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.LocationListener;
@@ -29,6 +31,8 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.FileProvider;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -37,9 +41,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatCallback;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -60,6 +68,8 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.GroundOverlay;
+import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.File;
@@ -77,14 +87,21 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.mercadolibre.android.ui.utils.UIUtil;
+import com.mercadolibre.android.ui.widgets.contextual_menu.ContextualMenu;
+import com.mercadolibre.android.ui.widgets.contextual_menu.ContextualMenuInfo;
+import com.mercadolibre.android.ui.widgets.contextual_menu.ContextualMenuListener;
+import com.mercadolibre.android.ui.widgets.contextual_menu.ContextualMenuOption;
 import com.mercadopago.android.px.internal.view.MPButton;
 import com.mercadopago.android.px.tracking.internal.TrackingEnvironments;
 import com.oguzdev.circularfloatingactionmenu.library.FloatingActionMenu;
@@ -127,8 +144,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     private SharedPreferences sharedPreferences;
     private ArrayList<Mascota> listaMarcador;
 
-
-
+    //BOTON FLOTANTE MAPA
+    private PointF positionXY;
+    private PopupWindow contextualMenuPopup;
+    private ContextualMenu contextualMenu;
     static final int PETICION_PERMISO_LOCALIZACION = 0;
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -144,10 +163,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapa);
+        SupportMapFragment mapFragment = (SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.mapa);
         if (mapFragment != null) {
             mapFragment.getMapAsync(this);
         }
+       /*FragmentMap fragment = FragmentMap.newInstance();
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.commit();*/
         drawer = findViewById(R.id.drawer_layout);
 
 
@@ -226,7 +248,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             Localizacion = LocationServices.FusedLocationApi.getLastLocation(apiClient);
             LocalizacionCoord = new LatLng(Localizacion.getLatitude(), Localizacion.getLongitude());
             ActualizarCamara(LocalizacionCoord);
-        } catch (Exception ex) { }
+        } catch (Exception ignored) { }
         googleMap.setMyLocationEnabled(true);
 
     }
@@ -324,30 +346,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-
-
-    /*public String getFromSharedPreferences(String key){
-        SharedPreferences sharedPreferences = getSharedPreferences("Mis preferencias", Context.MODE_PRIVATE);
-        return sharedPreferences.getString(key,"");
-    }
-*/
-
-
-    //------------------------------------METODO BOTON FLOTANTE-----------------------------------------------------------
-    private void  botonFlotante(){
-        TextView a = new TextView(this); a.setText("a"); a.setBackgroundResource(android.R.drawable.btn_default_small);
-        TextView b = new TextView(this); b.setText("b"); b.setBackgroundResource(android.R.drawable.btn_default_small);
-        SubActionButton.Builder subBuilder = new SubActionButton.Builder(this);
-
-        FloatingActionMenu circleMenu = new FloatingActionMenu.Builder(this)
-                .setStartAngle(0) // A whole circle!
-                .setEndAngle(360)
-                .addSubActionView(a)
-                .addSubActionView(b)
-
-                .build();
-    }
-
     //---------------------------------CARGA DE MARCADORES EN MAPA---------------------------------------------------------
     private void ConsultarMarcadores(){
         listaMarcador = new ArrayList<>();
@@ -440,15 +438,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 @RequiresApi(api = Build.VERSION_CODES.O)
                 @Override
                 public void onMapLongClick(LatLng latLng) {
-                    botonFlotante();
-
                     instanciarDialogoMarcadorMascota(googleMap,latLng);
                 }
             });
+
         }
     }
-
-
     //-----------------------------------PREFERENCIAS---------------------------------------------------------------------------
     public void SaveStyle(String key, String value){
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());

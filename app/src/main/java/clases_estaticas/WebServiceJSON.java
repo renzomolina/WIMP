@@ -3,25 +3,18 @@ package clases_estaticas;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Bundle;
 import android.provider.MediaStore;
-import android.view.View;
 import android.widget.Toast;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
-import com.google.firebase.appindexing.builders.StickerBuilder;
-import com.squareup.picasso.Picasso;
 import com.whereismypet.whereismypet.R;
 
 
@@ -34,8 +27,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import actividades.LoginActivity;
-import actividades.MainActivity;
-import actividades.RegistroActivity;
 import de.hdodenhof.circleimageview.CircleImageView;
 import misclases.Usuario;
 import misclases.VolleySingleton;

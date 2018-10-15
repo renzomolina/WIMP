@@ -1,112 +1,68 @@
 package actividades;
 
-import android.annotation.SuppressLint;
-import android.app.Dialog;
-import android.app.DialogFragment;
-import android.app.ProgressDialog;
-import android.content.DialogInterface;
+
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
-import android.media.MediaScannerConnection;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.support.annotation.RequiresApi;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.util.Patterns;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.Volley;
-import com.facebook.AccessToken;
-import com.facebook.AccessTokenTracker;
+
 import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
-import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
-import com.facebook.Profile;
-import com.facebook.ProfileTracker;
-import com.facebook.login.LoginManager;
-import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 import com.whereismypet.whereismypet.R;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
+import clases_estaticas.Facebook;
 import clases_estaticas.FragmentsDialogs;
 import clases_estaticas.GeneralMethods;
-import de.hdodenhof.circleimageview.CircleImageView;
-import misclases.GestionarFacebook;
 import misclases.Usuario;
 import clases_estaticas.WebServiceJSON;
 
 public class LoginActivity extends AppCompatActivity {
 
+    //  Botonos de Login con Facebook
     private LoginButton loginButton;
     private CallbackManager callbackManager;
-    private Profile profile;
-    private AccessTokenTracker accessTokenTracker;
-    private ProfileTracker profileTracker;
+    //  Componentes
     private CheckBox recordarUsuario;
     private TextView Registro, OlvidoContraseña;
     private CardView Iniciar, Restablecer;
-    private List<String> permisoNecesario = Arrays.asList("email", "user_birthday", "user_friends", "public_profile");
-
-
     private EditText email, password;
+    //  Extras
     private boolean CheckEditText, Validacion;
-    RequestQueue requestQueue;
-    ProgressDialog progressDialog;
     private Usuario user;
-
-
-
+    private int tipoDeLogin = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestQueue = Volley.newRequestQueue(this);
-        progressDialog = new ProgressDialog(this);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         user = new Usuario();
-
         String correoShared = GeneralMethods.getFromSharedPreferences("correo", this);
         Boolean aux = GeneralMethods.getFromSharedPreferencesDB("rememberUser", this);
         if (aux && !correoShared.equals("")) {
             GeneralMethods.InicioSesionCorrecto(this, this);
         } else {
-            if (isLoggedIn()) {
-                InicioSesionCorrecto();
+            if (Facebook.isLoggedIn(LoginActivity.this)) {
+                GeneralMethods.InicioSesionCorrecto(LoginActivity.this, LoginActivity.this);
             } else {
                 setContentView(R.layout.activity_login);
-                Login();
+                ClickBotonesLogin();
                 ValidarLogin();
             }
         }
@@ -115,111 +71,14 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        //callbackManager.onActivityResult(requestCode, resultCode, data);
-        FragmentsDialogs.RegistroDialog.ResultadoDeCamara(requestCode,data);
-    }
-
-
-    public void FacebookLogin() {
-        try {
-            LoginManager.getInstance().logOut();
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        switch (tipoDeLogin){
+            case 0:{ FragmentsDialogs.RegistroDialog.ResultadoDeCamara(requestCode, data);}break;//Login con base de datos
+            case 1:{ callbackManager.onActivityResult(requestCode, resultCode, data);}break; //Login con facebook
+            default:break;
         }
-        if (GestionarFacebook.comprobarInternet(getApplicationContext())) {
-            callbackManager = CallbackManager.Factory.create();
-            LoginManager.getInstance().logInWithReadPermissions(this, permisoNecesario);
-
-            loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
-                @Override
-                public void onSuccess(LoginResult loginResult) {
-                    RelativeLayout containerLogin = findViewById(R.id.ContainerLogin);
-                    containerLogin.setVisibility(View.GONE);
-                    String send_token = loginResult.getAccessToken().getToken(),
-                            send_user = loginResult.getAccessToken().getUserId();
-                    GeneralMethods.savedLoginSharedPreferencesFB(send_token, send_user, "FB", LoginActivity.this);
-                    InicioSesionCorrecto();
-
-                    GraphRequest request = GraphRequest.newMeRequest(Token(),
-                            new GraphRequest.GraphJSONObjectCallback() {
-                                @Override
-                                public void onCompleted(JSONObject object, GraphResponse response) {
-                                    try {
-                                        user.setEmail(object.getString("email"));
-                                        user.setFacebook(object.getString("id"));
 
 
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            });
-                    Bundle parameters = new Bundle();
-                    parameters.putString("fields", "id,name,email,gender,birthday");
-                    request.setParameters(parameters);
-                    request.executeAsync();
-                    accessTokenTracker = new AccessTokenTracker() {
-                        @Override
-                        protected void onCurrentAccessTokenChanged(AccessToken oldAccessToken, AccessToken currentAccessToken) {
-                        }
-                    };
-                    profileTracker = new ProfileTracker() {
-                        @Override
-                        protected void onCurrentProfileChanged(Profile oldProfile, Profile currentProfile) {
-                            DatosPerfil(currentProfile);
-                        }
-                    };
-                    accessTokenTracker.startTracking();
-                    profileTracker.startTracking();
-                    profile = Profile.getCurrentProfile();
 
-                }
-
-                @Override
-                public void onCancel() {
-                    Log.e("Login Cancelado", "n" + "login de Facebook cancelado");
-                }
-
-                @Override
-                public void onError(FacebookException error) {
-                    Log.e("Login Error", "n" + "error de inicio de sesión de Facebook" + error.toString());
-                }
-            });
-        }
-    }
-
-    private void DatosPerfil(Profile perfil) {
-        user.setNombre(perfil.getFirstName());
-        user.setApellido(perfil.getLastName());
-        user.setImagenPerfilFacebook(perfil.getProfilePictureUri(400, 400));
-    }
-
-    private boolean isLoggedIn() {
-        boolean user, expirado, vacio;
-        AccessToken accessToken = Token();
-        if (accessToken != null) {
-            user = (accessToken.getToken().equals(GeneralMethods.getFromSharedPreferences("token", LoginActivity.this)) ||
-                    accessToken.getUserId().equals(GeneralMethods.getFromSharedPreferences("userID", LoginActivity.this)));
-            expirado = !accessToken.isExpired();
-            vacio = !accessToken.getToken().isEmpty();
-
-            return (user && expirado && vacio);
-
-        }
-        return (false);
-    }
-
-    private AccessToken Token() {
-        return AccessToken.getCurrentAccessToken();
-    }
-
-    public void InicioSesionCorrecto() {
-
-        Intent i = new Intent(this, MainActivity.class);
-        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(i);
-        finish();
     }
 
     private void Inicializar() {
@@ -261,7 +120,7 @@ public class LoginActivity extends AppCompatActivity {
         return Validacion;
     }
 
-    private void Login() {
+    private void ClickBotonesLogin() {
         Inicializar();
         Iniciar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -282,6 +141,7 @@ public class LoginActivity extends AppCompatActivity {
         Registro.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                tipoDeLogin = 0;
                 FragmentsDialogs.context = LoginActivity.this;
                 FragmentsDialogs.activity = LoginActivity.this;
                 FragmentsDialogs.instaciaRegistro();
@@ -291,11 +151,12 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FacebookLogin();
+                tipoDeLogin = 1;
+                Facebook.callbackManager = callbackManager;
+                callbackManager = Facebook.FacebookLogin(LoginActivity.this, LoginActivity.this,loginButton);
             }
         });
     }
 
-
-    }
+}
 
