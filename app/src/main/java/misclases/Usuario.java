@@ -22,11 +22,11 @@ public class Usuario {
         this.email = email;
     }
 
-    public Usuario(String email, String contraseña) {
-        this.email = email;
-        this.contraseña = contraseña;
-    }
 
+    public Usuario(String email, String nombre) {
+        this.email = email;
+        this.nombre = nombre;
+    }
     public Usuario(String nombre, String apellido, String facebook, String email, String contraseña, Uri imagenPerfil) {
 
         this.nombre = nombre;
@@ -37,7 +37,13 @@ public class Usuario {
         this.imagenPerfilFacebook = imagenPerfil;
     }
 
+    public Usuario(String nombre, String apellido, String email, String contraseña) {
 
+        this.nombre = nombre;
+        this.apellido = apellido;
+        this.email = email;
+        this.contraseña = contraseña;
+    }
 
     public String getImagenPerfilBase() {
         return imagenPerfilBase;

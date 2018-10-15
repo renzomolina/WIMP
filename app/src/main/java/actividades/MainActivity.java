@@ -304,7 +304,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             Intent intent = new Intent(Intent.ACTION_SEND);
             intent.setType("text/plain");
             intent.putExtra(Intent.EXTRA_TEXT,"https://wwww.facebook.com/wimp.ulp.5");
-            startActivity(Intent.createChooser(intent,"Compartir"));
+            startActivity(Intent.createChooser(intent,"COMPARTIR"));
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
