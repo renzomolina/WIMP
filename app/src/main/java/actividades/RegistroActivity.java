@@ -59,8 +59,8 @@ import misclases.VolleySingleton;
 import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
-public class RegistroActivity extends AppCompatActivity implements View.OnClickListener{
-
+public class RegistroActivity extends AppCompatActivity{
+/*
     //Componentes
     private CardView btnRegistrar;
     private EditText etNombre, etApellido, etCorreo, etContraseña, etConfimarContraseña;
@@ -99,7 +99,7 @@ public class RegistroActivity extends AppCompatActivity implements View.OnClickL
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_registro);
+        setContentView(R.layout.dialog_registro);
         InicializarEditText();
         ValidarLogin();
     }
@@ -225,10 +225,10 @@ public class RegistroActivity extends AppCompatActivity implements View.OnClickL
             withImage = false;
             btnImagenPerfilCircular.setImageDrawable(getResources().getDrawable(R.drawable.icon_app));
         }
-        /*else{
+        else{
             if(codigoOpcion != 0)
                 enviarImagenDB(codigoOpcion);
-        }*/
+        }
     }
 
     private void enviarImagenDB(int tipoOpcion){
@@ -688,4 +688,5 @@ public class RegistroActivity extends AppCompatActivity implements View.OnClickL
         VolleySingleton.getIntanciaVolley(this).addToRequestQueue(stringRequest);
 
     }
+    */
 }

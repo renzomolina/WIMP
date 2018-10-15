@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">WIMP?</string>
-    <string name="fb_login_protocol_scheme">fb468154103661801</string>
     <string name="alert">Alert</string>
     <string name="ok">Ok</string>
     <string name="no_internet_conexion">No Internet connection</string>
@@ -10,7 +9,6 @@
     <string name="olvidocontraseña">OlvidoContraseña</string>
     <string name="registrarse">Registrarse</string>
     <string name="imagen_perfil">Imagen Perfil</string>
-    <string name="continuar_facebook">Continuar con Facebook</string>
     <string name="confirmar_contrase_a">Confirmar Contraseña</string>
     <string name="contrase_a">Contraseña</string>
     <string name="registrar">Registrar</string>
@@ -25,11 +23,14 @@
     <string name="configuracion">CONFIGURACION</string>
     //--------------------------------FACEBOOK-------------------------------------------------
     <string name="facebook_app_id">468154103661801</string>
+    <string name="fb_login_protocol_scheme">fb468154103661801</string>
+    <string name="continuar_facebook">Continuar con Facebook</string>
 
     //--------------------------------FIREBASE-------------------------------------------------
     <string name="auth_failed">Lo siento, pero la autentificacion fallo</string>
     <string name="loading">Cargando…</string>
     //--------------------------------MENSAJES-------------------------------------------------
-
+    //--------------------------------GOOGLE-------------------------------------------------
+    <string name="continuar_google">Continuar con Google</string>
 
 </resources>

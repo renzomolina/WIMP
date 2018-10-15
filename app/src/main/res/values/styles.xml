@@ -10,7 +10,10 @@
         <item name="android:layout_marginBottom">10dp</item>
         <item name="android:layout_gravity">center_horizontal</item>
     </style>
-    <style name="LoginFireBase">
-
+    <style name="LoginGoogle">
+        <item name="android:text">@string/continuar_google</item>
+        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:layout_marginBottom">10dp</item>
+        <item name="android:layout_gravity">center_horizontal</item>
     </style>
 </resources>

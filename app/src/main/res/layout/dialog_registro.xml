@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -7,38 +7,55 @@
     android:layout_height="match_parent"
     android:background="@drawable/gradient_login">
 
-    <RelativeLayout
-        android:id="@+id/ImagenBD"
-        android:layout_width="match_parent"
-        android:layout_height="132dp"
-        android:layout_alignParentStart="true"
+    <View
+        android:id="@+id/divider_config2"
+        android:layout_width="300dp"
+        android:layout_height="3dp"
         android:layout_alignParentTop="true"
-        android:layout_marginBottom="0dp"
-        android:gravity="center_horizontal"
-        android:orientation="horizontal">
+        android:layout_centerHorizontal="true"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:background="#C8C9CB"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imgPerfilDB_Registro" />
 
-        <android.support.v7.widget.AppCompatImageView
-            android:id="@+id/imgPerfilDB"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_marginTop="30dp"
-            android:contentDescription="@string/perfildb" />
-    </RelativeLayout>
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/imgPerfilDB_Registro"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:contentDescription="@string/perfildb"
+        android:src="@drawable/com_facebook_profile_picture_blank_square"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
 
     <RelativeLayout
         android:id="@+id/DatosPersonales"
         android:layout_width="match_parent"
-        android:layout_height="436dp"
+        android:layout_height="440dp"
         android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="158dp">
+        android:layout_alignTop="@+id/divider_config2"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/divider_config2">
 
         <EditText
-            android:id="@+id/nombre"
+            android:id="@+id/nombreRegistro"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
-            android:layout_alignParentStart="true"
+            android:layout_height="61dp"
             android:layout_alignParentTop="true"
+            android:layout_marginTop="11dp"
             android:background="#11000000"
             android:drawableStart="@drawable/ic_action_user"
             android:ems="10"
@@ -50,13 +67,12 @@
             tools:layout_editor_absoluteY="16dp" />
 
         <EditText
-            android:id="@+id/apellido"
+            android:id="@+id/apellidoRegistro"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
+            android:layout_height="61dp"
 
-            android:layout_marginTop="89dp"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="79dp"
             android:background="#11000000"
             android:drawableStart="@drawable/ic_action_user"
             android:ems="10"
@@ -64,17 +80,16 @@
             android:inputType="textPersonName"
             android:textColor="@android:color/white"
             android:textColorHint="@android:color/white"
-            app:layout_constraintTop_toBottomOf="@+id/nombre"
+            app:layout_constraintTop_toBottomOf="@+id/nombreRegistro"
             tools:layout_editor_absoluteX="16dp" />
 
         <EditText
-            android:id="@+id/email"
+            android:id="@+id/emailRegistro"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
+            android:layout_height="61dp"
 
-            android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
-            android:layout_marginTop="181dp"
+            android:layout_marginTop="148dp"
             android:background="#11000000"
             android:drawableStart="@drawable/ic_action_mail"
             android:ems="10"
@@ -86,12 +101,28 @@
             tools:layout_editor_absoluteX="16dp" />
 
         <EditText
-            android:id="@+id/pass"
+            android:id="@+id/confirmar_emailRegistro"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
+            android:layout_height="61dp"
+
             android:layout_alignParentBottom="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginBottom="100dp"
+            android:layout_marginBottom="162dp"
+            android:background="#11000000"
+            android:drawableStart="@drawable/ic_action_mail"
+            android:ems="10"
+            android:hint="Confirmar Correo Electronico"
+            android:inputType="textPersonName"
+            android:textColor="@android:color/white"
+            android:textColorHint="@android:color/white"
+            tools:ignore="TextFields"
+            tools:layout_editor_absoluteX="16dp" />
+
+        <EditText
+            android:id="@+id/passRegistro"
+            android:layout_width="match_parent"
+            android:layout_height="61dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="93dp"
             android:background="#11000000"
             android:drawableStart="@drawable/ic_action_pass"
             android:ems="10"
@@ -102,12 +133,11 @@
             tools:layout_editor_absoluteX="0dp" />
 
         <EditText
-            android:id="@+id/confirmpass"
+            android:id="@+id/confirmpassRegistro"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
+            android:layout_height="61dp"
             android:layout_alignParentBottom="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginBottom="13dp"
+            android:layout_marginBottom="23dp"
             android:background="#11000000"
             android:drawableStart="@drawable/ic_action_pass"
             android:ems="10"
@@ -121,11 +151,20 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="64dp"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
-        android:layout_marginBottom="25dp"
+        android:layout_below="@+id/DatosPersonales"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         android:gravity="center_horizontal"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/DatosPersonales"
+        app:layout_constraintVertical_bias="0.387">
 
         <android.support.v7.widget.CardView
             android:id="@+id/CheckIn"
@@ -153,4 +192,4 @@
         </android.support.v7.widget.CardView>
     </RelativeLayout>
 
-</RelativeLayout>
+</android.support.constraint.ConstraintLayout>
