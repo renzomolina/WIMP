@@ -265,7 +265,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         }
     }
 
-    //------------------------------------------------
 
     //---------------------------------------FIREBASE EMAIL---------------------------------------------------
     private void LoginEmailPassword() {
