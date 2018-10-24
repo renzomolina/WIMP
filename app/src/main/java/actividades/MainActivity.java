@@ -88,9 +88,8 @@ import java.util.Locale;
 import java.util.Objects;
 
 import misclases.CustomInfoWindowAdapter;
-import misclases.Marcador;
+import Modelo.Mascota;
 import misclases.VolleySingleton;
-import misclases.WebServiceJSON;
 
 import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
@@ -113,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     private String  UrlConsultarUsuario ="http://www.secsanluis.com.ar/servicios/varios/wimp/W_ConsultarCliente.php";
     static final String TAG = MainActivity.class.getSimpleName();
     private SharedPreferences sharedPreferences;
-    private ArrayList<Marcador> listaMarcador;
+    private ArrayList<Mascota> listaMarcador;
 
 
 
@@ -152,7 +151,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             }
         }catch (Exception ignored) { }
 
-        WebServiceJSON.ConsultarPerfil(this,this);
     }
 
 
@@ -331,8 +329,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                             for(int indice = 0; indice < listaMascotas.length(); indice++) {
                                 JSONObject json_data = listaMascotas.getJSONObject(indice);
 
-                                Marcador markersPets = new Marcador();
-                                markersPets.setId_Marcador(json_data.getInt("idMarcador"));
+                                Mascota markersPets = new Mascota();
+                                //markersPets.setId_Marcador(json_data.getInt("idMarcador"));
                                 markersPets.setNombre(json_data.getString("nombre"));
                                 markersPets.setDescripcion(json_data.getString("descripcion"));
                                 markersPets.setLatitud(json_data.getString("latitud"));
@@ -361,11 +359,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         VolleySingleton.getIntanciaVolley(this).addToRequestQueue(jsonObjectRequest);
     }
 
-    private void CargarMarcadores(final Marcador myMarker){
+    private void CargarMarcadores(final Mascota myMarker){
         LatLng latLng = new LatLng(Double.valueOf(myMarker.getLatitud()),Double.valueOf(myMarker.getLongitud()));
         googleMap.addMarker(new MarkerOptions()
                 .position(latLng)
-                .title(String.valueOf(myMarker.getId_Marcador()))
+                //.title(String.valueOf(myMarker.getId_Marcador()))
                 .snippet(myMarker.getDescripcion())
                 .draggable(true)
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.pet_markers)));
@@ -379,8 +377,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             @Override
             public boolean onMarkerClick(Marker marker) {
                 imgPetsMarker = findViewById(R.id.imgMarcadorMascota);
-                for (Marcador m : listaMarcador) {
-                    if (m.getId_Marcador() == Integer.valueOf(marker.getTitle())) {
+                for (Mascota m : listaMarcador) {
+                    //if (m.getId_Marcador() == Integer.valueOf(marker.getTitle())) {
                         googleMap.setInfoWindowAdapter(new CustomInfoWindowAdapter(LayoutInflater.from(getApplicationContext()), m, MainActivity.this));
                     /*Picasso.get()
                             .load(m.getFoto())
@@ -389,7 +387,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                             .centerInside()
                             .into(imgPetsMarker);*/
                     }
-                }
+                //}
                 return false;
             }
         });
@@ -465,13 +463,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         private String pathCapturePets;
         private Uri pathSelectPets;
         private Bitmap bitmap;
-        private Marcador marcador;
+        private Mascota marcador;
 
 
         public DialogMascota(GoogleMap map, LatLng latLng) {
             this.latLng = latLng;
             this.map = map;
-            marcador = new Marcador();
+            marcador = new Mascota();
         }
 
         @NonNull
@@ -498,18 +496,18 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
                     marcador.setNombre(nombre.getText().toString());
                     marcador.setDescripcion(descripcion.getText().toString());
-                    marcador.setCreador(WebServiceJSON.getFromSharedPreferences("correo", MainActivity.this));
+                    //marcador.setCreador(WebServiceJSON.getFromSharedPreferences("correo", MainActivity.this));
                     marcador.setTipo("pet");
                     marcador.setLatitud(String.valueOf(latLng.latitude));
                     marcador.setLongitud(String.valueOf(latLng.longitude));
                     switch (COD_OPCION) {
                         case COD_SELECCIONA: {
-                            marcador.CheckInPets(MainActivity.this, getPath(pathSelectPets), COD_OPCION, withImage);
+                           // WebServiceJSON.CheckInPets(MainActivity.this, getPath(pathSelectPets), COD_OPCION, withImage);
 
                         }
                         break;
                         case COD_FOTO: {
-                            marcador.CheckInPets(MainActivity.this, pathCapturePets, COD_OPCION, withImage);
+                            //WebServiceJSON.CheckInPets(MainActivity.this, pathCapturePets, COD_OPCION, withImage);
                         }
                         break;
                         default:
@@ -533,7 +531,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             googleMap.setInfoWindowAdapter(new CustomInfoWindowAdapter(LayoutInflater.from(getApplicationContext()), marcador, MainActivity.this));
             googleMap.addMarker(new MarkerOptions()
                     .position(latLng)
-                    .title(String.valueOf(marcador.getId_Marcador()))
+                   // .title(String.valueOf(marcador.getId_Marcador()))
                     .snippet(marcador.getDescripcion())
                     .draggable(true)
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.pet_markers)));
@@ -541,6 +539,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
         public String getPath(Uri uri) {
             Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+            assert cursor != null;
             cursor.moveToFirst();
             String document_id = cursor.getString(0);
             document_id = document_id.substring(document_id.lastIndexOf(":") + 1);
@@ -549,6 +548,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             cursor = getContentResolver().query(
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                     null, MediaStore.Images.Media._ID + " = ? ", new String[]{document_id}, null);
+            assert cursor != null;
             cursor.moveToFirst();
             String path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
             cursor.close();
@@ -582,10 +582,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                         abriCamara();
                     } else {
                         if (opciones[i].equals("Elegir de Galeria")) {
-                            Intent intent = new Intent(Intent.ACTION_PICK,
-                                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                            Intent intent = new Intent(Intent.ACTION_PICK);
                             intent.setType("image/");
-                            startActivityForResult(intent.createChooser(intent, "Seleccione"), COD_SELECCIONA);
+                            startActivityForResult(Intent.createChooser(intent, "Seleccione"), COD_SELECCIONA);
                         } else {
                             dialogInterface.dismiss();
                         }
@@ -814,8 +813,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         String[] TO = {"whereismypetulp@gmail.com"};
         String[] CC = {""};
         Intent emailIntent = new Intent(Intent.ACTION_SEND);
-        emailIntent.setData(Uri.parse("mailto:"));
-        emailIntent.setType("text/plain");
+        emailIntent.setDataAndType(Uri.parse("mailto:"),"text/plain");
         emailIntent.putExtra(Intent.EXTRA_EMAIL, TO);
         emailIntent.putExtra(Intent.EXTRA_CC, CC);
 // Esto podrás modificarlo si quieres, el asunto y el cuerpo del mensaje
@@ -826,7 +824,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             finish();
         } catch (android.content.ActivityNotFoundException ex) {
             Toast.makeText(MainActivity.this,
-                    "No tienes clientes de email instalados.", Toast.LENGTH_SHORT).show();
+                    "No tienes ningun programa para enviar email instalado.", Toast.LENGTH_SHORT).show();
         }
     }
 

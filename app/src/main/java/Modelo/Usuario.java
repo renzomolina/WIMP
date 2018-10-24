@@ -1,4 +1,4 @@
-package misclases;
+package Modelo;
 
 import android.net.Uri;
 
@@ -10,6 +10,7 @@ public class Usuario {
     private String facebook;
     private String email;
     private String contraseña;
+
 
 
     private String imagenPerfilBase;

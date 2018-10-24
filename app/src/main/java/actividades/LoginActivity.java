@@ -11,7 +11,6 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.media.MediaScannerConnection;
@@ -20,7 +19,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
@@ -64,6 +62,7 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import com.google.firebase.storage.FirebaseStorage;
@@ -75,13 +74,16 @@ import com.whereismypet.whereismypet.R;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import misclases.Usuario;
+import Modelo.Usuario;
+import finalClass.GeneralMethod;
 
 import static android.widget.Toast.LENGTH_SHORT;
 import static android.Manifest.permission.CAMERA;
@@ -90,17 +92,11 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 public class LoginActivity extends BaseActivity implements View.OnClickListener {
 
 
-    private CheckBox mRecordarUsuarioCheckBox;
-    private TextView mRegistroTextView,mOlvidoContraseñaTextView;
-    private CardView mIniciarCardView,mRestablecerCardView;
     private EditText mEmailEditText,mPasswordEditText;
-    private boolean CheckEditText, Validacion=true;
     private String tipoDeLogin;
-    private  Usuario user;
 
     //FIREBASE-----
     private FirebaseAuth mFirebaseAuth;
-    private FirebaseDatabase mFirebaseDatabase;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private FirebaseUser mUserFireBase;
     public static final int RC_SIGN_IN = 1;
@@ -108,8 +104,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     private CallbackManager callbackManager;
     private LoginButton loginButton;
     private List<String> permisosNecesariosFacebook = Arrays.asList("email","user_birthday","user_friends","public_profile");
-    //GOOGLE
-    private SignInButton mSignInButton;
     private GoogleSignInClient mGoogleSignInClient;
 
 
@@ -119,24 +113,25 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         setContentView(R.layout.activity_login);
 
         //Auth-Database FIREBASE
-        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
         mFirebaseAuth = FirebaseAuth.getInstance();
 
         //Inicializar las vistas
-        mIniciarCardView = findViewById(R.id.btnIniciarLogin);
-        mRegistroTextView = findViewById(R.id.tvRegistrarseLogin);
-        mOlvidoContraseñaTextView = findViewById(R.id.tvOlvidoContraseñaLogin);
-        mEmailEditText = findViewById(R.id.Correo);
-        mPasswordEditText = findViewById(R.id.Password);
-        mRecordarUsuarioCheckBox = findViewById(R.id.RecordarSesion);
+        CardView mIniciarCardView = findViewById(R.id.btnIniciarLogin);
+        TextView mRegistroTextView = findViewById(R.id.tvRegistrarseLogin);
+        TextView mOlvidoContrasenaTextView = findViewById(R.id.tvOlvidoContraseñaLogin);
+        mEmailEditText = findViewById(R.id.CorreoLogin);
+        mPasswordEditText = findViewById(R.id.PasswordLogin);
+        CheckBox mRecordarUsuarioCheckBox = findViewById(R.id.RecordarSesion);
         loginButton = findViewById(R.id.login_button);
-        mSignInButton = findViewById(R.id.sign_in_button);
+        //GOOGLE
+        SignInButton mSignInButton = findViewById(R.id.sign_in_button);
         callbackManager = CallbackManager.Factory.create();
 
         //Botones
         mIniciarCardView.setOnClickListener(this);
         mRegistroTextView.setOnClickListener(this);
-        mOlvidoContraseñaTextView.setOnClickListener(this);
+        mOlvidoContrasenaTextView.setOnClickListener(this);
         loginButton.setOnClickListener(this);
         mSignInButton.setOnClickListener(this);
 
@@ -160,7 +155,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
         super.onResume();
         mFirebaseAuth.addAuthStateListener(mAuthStateListener);
-
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
         ValidarLogin();
     }
@@ -208,9 +202,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     }
 
 
-
-
-
     private void ValidarLogin(){
         mEmailEditText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -221,16 +212,22 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
             @Override
             public void afterTextChanged(Editable s) {
-                if(!Patterns.EMAIL_ADDRESS.matcher(mEmailEditText.getText().toString()).matches()) {
-                    Drawable msgerror = getResources().getDrawable(R.drawable.icon_error);
-                    msgerror.setBounds(0, 0, msgerror.getIntrinsicWidth(), msgerror.getIntrinsicHeight());
-                    mEmailEditText.setError("Correo Invalido",msgerror);
-                    Validacion = false;
-                }
-                else {
-                    mEmailEditText.setError(null);
-                    Validacion = true;
-                }
+                GeneralMethod.RegexLogin("correo",LoginActivity.this);
+                GeneralMethod.RegexLogin("correovacio",LoginActivity.this);
+
+
+            }
+        });
+        mPasswordEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) { }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                GeneralMethod.RegexLogin("contrasenavacio",LoginActivity.this);
             }
         });
     }
@@ -244,7 +241,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
         switch (v.getId()) {
             case R.id.btnIniciarLogin: {
-                if (Validacion && checkEditTextIsEmpty()) {
+                if (checkEditTextIsEmpty()) {
                     tipoDeLogin="EmailPassword";
                     LoginEmailPassword();
                 }
@@ -267,6 +264,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
             default:break;
         }
     }
+
+    //------------------------------------------------
 
     //---------------------------------------FIREBASE EMAIL---------------------------------------------------
     private void LoginEmailPassword() {
@@ -422,12 +421,11 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     //--------------------------DIALOGO REGISTRO---------------------------------------------------------------
     @SuppressLint("ValidFragment")
     private class RegistroDialog extends DialogFragment implements View.OnClickListener {
+        //Componentes Registro
         private CardView btnRegistro;
         private EditText mNombreRegistroEditText, mApellidoRegistroEditText, mEmailRegistroEditText, mPassRegistroEditText;
-        private ImageView mImgPerfilDBRegistro;
-        private FirebaseAuth mFirebaseAuthRegistro;
+        private ImageView mImgPerfilDBRegistroImageView;
         private ProgressDialog progressDialog;
-
         //Permisos
         private static final int MIS_PERMISOS = 100;
         private static final int COD_SELECCIONA = 10;
@@ -437,13 +435,13 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         private static final String CARPETA_IMAGEN = "imagenes";//carpeta donde se guardan las fotos
         private static final String DIRECTORIO_IMAGEN = CARPETA_PRINCIPAL + CARPETA_IMAGEN;//ruta carpeta de directorios
         //Imagen
-        private Bitmap bitmapImagenPerfil;
         private File fileImagen;
         private String pathTomarFoto;
         private Uri uriSeleccionarFoto;
-        private boolean withImage = false;
-        private int  uploadStatus = 0;
-        private Uri mIMGUPLOAD;
+        private Uri mFotoPerfilRegistro;
+
+        //Firebase
+        private FirebaseAuth mFirebaseAuthRegistro;
         private StorageReference mStorageReference;
 
         @RequiresApi(api = Build.VERSION_CODES.O)
@@ -452,17 +450,22 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
             LayoutInflater inflater = getActivity().getLayoutInflater();
             View content = inflater.inflate(R.layout.dialog_registro, null);
 
-            mStorageReference=FirebaseStorage.getInstance().getReference();
+            //Firebase
+            mStorageReference = FirebaseStorage.getInstance().getReference();
+            mFirebaseAuthRegistro = FirebaseAuth.getInstance();
 
+
+            //Vistas
             btnRegistro = content.findViewById(R.id.CheckIn);
             mNombreRegistroEditText = content.findViewById(R.id.nombreRegistro);
             mApellidoRegistroEditText = content.findViewById(R.id.apellidoRegistro);
             mEmailRegistroEditText = content.findViewById(R.id.emailRegistro);
             mPassRegistroEditText = content.findViewById(R.id.passRegistro);
-            mImgPerfilDBRegistro = content.findViewById(R.id.imgPerfilDBRegistro);
+            mImgPerfilDBRegistroImageView = content.findViewById(R.id.imgPerfilDBRegistro);
+            mImgPerfilDBRegistroImageView.setImageBitmap(GeneralMethod.getBitmapClip(BitmapFactory.decodeResource(getResources(),R.drawable.com_facebook_profile_picture_blank_square)));
             btnRegistro.setOnClickListener(this);
-            mImgPerfilDBRegistro.setOnClickListener(this);
-            mFirebaseAuthRegistro = FirebaseAuth.getInstance();
+            mImgPerfilDBRegistroImageView.setOnClickListener(this);
+
             final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setView(content);
             builder.setOnKeyListener(new DialogInterface.OnKeyListener() {
@@ -475,89 +478,57 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                 }
             });
 
+            EscuchandoEstadoDeAutentificacion();
             return builder.create();
         }
+
+        private void EscuchandoEstadoDeAutentificacion() {
+
+            mAuthStateListener = new FirebaseAuth.AuthStateListener() {
+                @Override
+                public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                    mUserFireBase = firebaseAuth.getCurrentUser();
+                    if (mUserFireBase != null) {
+                        dismiss();
+                    }
+                }
+            };
+        }
+
         @Override
         public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
             super.onActivityResult(requestCode, resultCode, data);
-            switch (requestCode) {
-                case COD_SELECCIONA:
-                    if (data != null) {
-                        uriSeleccionarFoto = data.getData();
-                        mImgPerfilDBRegistro.setImageURI(uriSeleccionarFoto);
-                        mIMGUPLOAD = uriSeleccionarFoto;
+            if (resultCode == RESULT_OK) {
+                switch (requestCode) {
+                    case COD_SELECCIONA:
+                        uriSeleccionarFoto = Objects.requireNonNull(data).getData();
+                        mImgPerfilDBRegistroImageView.setImageURI(uriSeleccionarFoto);
+                        mFotoPerfilRegistro = uriSeleccionarFoto;
                         try {
-                            bitmapImagenPerfil = MediaStore.Images.Media.getBitmap(LoginActivity.this.getContentResolver(), uriSeleccionarFoto);
-                            mImgPerfilDBRegistro.setImageBitmap(bitmapImagenPerfil);
-                            withImage = true;
+                            mImgPerfilDBRegistroImageView.setImageBitmap(GeneralMethod.getBitmapClip(MediaStore.Images.Media.getBitmap(LoginActivity.this.getContentResolver(), uriSeleccionarFoto)));
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                    }
-                    break;
-                case COD_FOTO:
-                    MediaScannerConnection.scanFile(LoginActivity.this, new String[]{pathTomarFoto}, null,
-                            new MediaScannerConnection.OnScanCompletedListener() {
-                                @Override
-                                public void onScanCompleted(String path, Uri uri) {
-                                    Log.i("Path", "" + path);
-                                }
-                            });
-                    bitmapImagenPerfil = BitmapFactory.decodeFile(pathTomarFoto);
-                    mImgPerfilDBRegistro.setImageBitmap(bitmapImagenPerfil);
-                    mIMGUPLOAD = Uri.fromFile(new File(pathTomarFoto));
-                    withImage = true;
-                    break;
-            }
-            if(bitmapImagenPerfil == null){
-                withImage = false;
-                mImgPerfilDBRegistro.setImageDrawable(getResources().getDrawable(R.drawable.com_facebook_profile_picture_blank_square));
-            }
-
-        }
-        private void RegistrarUsuarioEmailPassword() {
-            if (EditTextIsEmpty()) {
-                final String
-                        mNombreString = mNombreRegistroEditText.getText().toString(),
-                        mApellidoString = mApellidoRegistroEditText.getText().toString(),
-                        mEmailString = mEmailRegistroEditText.getText().toString().trim(),
-                        mPassString = mPassRegistroEditText.getText().toString();
-                progressDialog = new ProgressDialog(LoginActivity.this);
-                progressDialog.setMessage("Registrando...");
-                progressDialog.show();
-
-                mFirebaseAuthRegistro.createUserWithEmailAndPassword(mEmailString, mPassString)
-                        .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                progressDialog.dismiss();
-                                if (task.isSuccessful()) {
-
-                                    final FirebaseUser firebaseUser = Objects.requireNonNull(task.getResult()).getUser();
-                                    firebaseUser.sendEmailVerification();
-                                    storageIMG();
-                                    dismiss();
-                                    Toast.makeText(LoginActivity.this, "Registrado con exito", Toast.LENGTH_SHORT).show();
-
-                                } else {
-                                    //userDelete
-                                    Toast.makeText(LoginActivity.this, "Ocurrio un inconveniente al intentar registrar el email, por favor, vuelva a intentarlo",
-                                            Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        });
-
+                        break;
+                    case COD_FOTO:
+                        MediaScannerConnection.scanFile(LoginActivity.this, new String[]{pathTomarFoto}, null,
+                                new MediaScannerConnection.OnScanCompletedListener() {
+                                    @Override
+                                    public void onScanCompleted(String path, Uri uri) {
+                                        Log.i("Path", "" + path);
+                                    }
+                                });
+                        mImgPerfilDBRegistroImageView.setImageBitmap(GeneralMethod.getBitmapClip(BitmapFactory.decodeFile(pathTomarFoto)));
+                        mFotoPerfilRegistro = Uri.fromFile(new File(pathTomarFoto));
+                        break;
+                }
             } else {
-                Toast.makeText(LoginActivity.this, "VACIOS", Toast.LENGTH_SHORT).show();
+                mImgPerfilDBRegistroImageView.setImageBitmap(GeneralMethod.getBitmapClip(BitmapFactory.decodeResource(getResources(),R.drawable.com_facebook_profile_picture_blank_square)));
             }
+
         }
 
-        private boolean EditTextIsEmpty() {
-            return (!TextUtils.isEmpty(mNombreRegistroEditText.getText().toString().trim()) &&
-                    !TextUtils.isEmpty(mApellidoRegistroEditText.getText().toString().trim()) &&
-                    !TextUtils.isEmpty(mPassRegistroEditText.getText().toString().trim()));
-        }
-
+        // Click de boton registar y imagenview de imagenPerfil
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
@@ -574,32 +545,79 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
             }
         }
 
-        public void storageIMG () {
-            String mIMGNombre;
-            if (!withImage) {
-                uploadStatus = 0;
-            } else {
+        //METODO DE REGISTRO FIREBASE
+        private void RegistrarUsuarioEmailPassword() {
+            if (EditTextIsEmpty()) {
+                final Usuario mUser = new Usuario(
+                        mNombreRegistroEditText.getText().toString(),
+                        mApellidoRegistroEditText.getText().toString(),
+                        mEmailRegistroEditText.getText().toString().trim(),
+                        mPassRegistroEditText.getText().toString());
+                progressDialog = new ProgressDialog(LoginActivity.this);
+                progressDialog.setMessage("Registrando...");
+                progressDialog.show();
 
-                mIMGNombre = "Imagenes/Perfil/" + mIMGUPLOAD.getLastPathSegment();
-                UploadTask mUploadTask = mStorageReference.child(mIMGNombre).putFile(mIMGUPLOAD);
-                mUploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        Toast.makeText(getApplicationContext(), "SUBIO", Toast.LENGTH_SHORT).show();
-                        mStorageReference.getDownloadUrl();
-                        uploadStatus = 1;
-                    }
-                });
-                mUploadTask.addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(getApplicationContext(), "NO SUBIO", Toast.LENGTH_SHORT).show();
-                        uploadStatus = 2;
-                    }
-                });
+                mFirebaseAuthRegistro.createUserWithEmailAndPassword(mUser.getEmail(), mUser.getContraseña())
+                        .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                            @Override
+                            public void onComplete(@NonNull Task<AuthResult> task) {
+                                progressDialog.dismiss();
+                                if (task.isSuccessful()) {
+                                    storageIMG(mUser);
+                                    Toast.makeText(LoginActivity.this, "Registrado con exito", Toast.LENGTH_SHORT).show();
+                                    final FirebaseUser firebaseUser = Objects.requireNonNull(task.getResult()).getUser();
+                                    firebaseUser.sendEmailVerification();
+                                    dismiss();
+                                    InicioSesionCorrecto();
+
+                                } else {
+                                    Toast.makeText(LoginActivity.this, "Ocurrio un inconveniente al intentar registrar el email, o la contraseña no cumple los " +
+                                                    "requisitos minimo, por favor, vuelva a intentarlo",
+                                            Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+
+            } else {
+                Toast.makeText(LoginActivity.this, "VACIOS", Toast.LENGTH_SHORT).show();
             }
         }
 
+        public void storageIMG (final Usuario mUserParam) {
+
+            final StorageReference mStorageImgPerfilUsuario = mStorageReference.child("Imagenes").child("Perfil").child(getRandomString());
+
+            mStorageImgPerfilUsuario.putFile(mFotoPerfilRegistro).addOnSuccessListener(LoginActivity.this, new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+                    DatabaseReference currentUserDB = mDatabase.child(Objects.requireNonNull(mFirebaseAuth.getCurrentUser()).getUid());
+                    currentUserDB.child("name").setValue(mUserParam.getNombre());
+                    currentUserDB.child("last_name").setValue(mUserParam.getApellido());
+                    currentUserDB.child("image").setValue(taskSnapshot.getStorage().getDownloadUrl().toString());
+
+                }
+            }).addOnFailureListener(LoginActivity.this, new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(LoginActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
+        // METODOS COMPROBACION CAMPOS Y GENERANDO NOMBRE IMAGEN
+        private boolean EditTextIsEmpty() {
+            return (!TextUtils.isEmpty(mNombreRegistroEditText.getText().toString().trim()) &&
+                    !TextUtils.isEmpty(mApellidoRegistroEditText.getText().toString().trim()) &&
+                    !TextUtils.isEmpty(mPassRegistroEditText.getText().toString().trim()));
+        }
+
+        public String getRandomString() {
+            SecureRandom random = new SecureRandom();
+            return new BigInteger(130, random).toString(32);
+        }
+
+        //CAMARA O SELECCION DE IMAGEN
         private void mostrarDialogOpciones() {
             final CharSequence[] opciones={"Tomar Foto","Elegir de Galeria","Cancelar"};
             final AlertDialog.Builder builder=new AlertDialog.Builder(LoginActivity.this);
@@ -613,7 +631,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                         if (opciones[i].equals("Elegir de Galeria")){
                             Intent intent=new Intent(Intent.ACTION_PICK);
                             intent.setType("image/");
-                            startActivityForResult(Intent.createChooser(intent,"Seleccione"),COD_SELECCIONA);
+                            if(intent.resolveActivity(getPackageManager()) != null)
+                                startActivityForResult(Intent.createChooser(intent,"Seleccione"),COD_SELECCIONA);
                         }else{
                             dialogInterface.dismiss();
                         }
@@ -654,8 +673,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                 }
                 startActivityForResult(intent,COD_FOTO);
             }
-
         }
+
         private void cargarDialogoRecomendacion() {
             AlertDialog.Builder dialogo=new AlertDialog.Builder(LoginActivity.this);
             dialogo.setTitle("Permisos Desactivados");
@@ -671,6 +690,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
             });
             dialogo.show();
         }
+
         //PERMISOS
         private boolean solicitaPermisosVersionesSuperiores() {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M){
@@ -696,32 +716,10 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                 if(grantResults.length==2 && grantResults[0]==PackageManager.PERMISSION_GRANTED && grantResults[1]==PackageManager.PERMISSION_GRANTED){//el dos representa los 2 permisos
                     Toast.makeText(getApplicationContext(),"Permisos aceptados",Toast.LENGTH_SHORT).show();
                 }
-            }else{
-                solicitarPermisosManual();
+
             }
         }
 
-        private void solicitarPermisosManual() {
-            final CharSequence[] opciones={"si","no"};
-            final AlertDialog.Builder alertOpciones=new AlertDialog.Builder(getApplicationContext());//estamos en fragment
-            alertOpciones.setTitle("¿Desea configurar los permisos de forma manual?");
-            alertOpciones.setItems(opciones, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    if (opciones[i].equals("si")){
-                        Intent intent=new Intent();
-                        intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                        Uri uri=Uri.fromParts("package",getApplicationContext().getPackageName(),null);
-                        intent.setData(uri);
-                        startActivity(intent);
-                    }else{
-                        Toast.makeText(getApplicationContext(),"Los permisos no fueron aceptados",Toast.LENGTH_SHORT).show();
-                        dialogInterface.dismiss();
-                    }
-                }
-            });
-            alertOpciones.show();
-        }
     }
 
     public void instanciarDialogRegistro() {

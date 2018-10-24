@@ -21,7 +21,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imgPerfilDBRegistro" />
 
-    <android.support.v7.widget.AppCompatImageView
+    <ImageView
         android:id="@+id/imgPerfilDBRegistro"
         android:layout_width="100dp"
         android:layout_height="100dp"
@@ -31,6 +31,8 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:contentDescription="@string/perfildb"
+        android:scaleType="fitXY"
+        android:layout_gravity="center"
         android:src="@drawable/com_facebook_profile_picture_blank_square"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
