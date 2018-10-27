@@ -87,6 +87,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
+import finalClass.GeneralMethod;
 import misclases.CustomInfoWindowAdapter;
 import Modelo.Mascota;
 import misclases.VolleySingleton;
@@ -136,6 +137,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             mapFragment.getMapAsync(this);
         }
         drawer = findViewById(R.id.drawer_layout);
+        perfil=findViewById(R.id.imgPerfilMenu);
+        //perfil.setImageBitmap(GeneralMethod.getBitmapClip(BitmapFactory.decodeResource(getResources(),R.drawable.com_facebook_profile_picture_blank_square)));
 
 
         ConectarAPI();
@@ -212,7 +215,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             Localizacion = LocationServices.FusedLocationApi.getLastLocation(apiClient);
             LocalizacionCoord = new LatLng(Localizacion.getLatitude(), Localizacion.getLongitude());
             ActualizarCamara(LocalizacionCoord);
-        } catch (Exception ex) { }
+        } catch (Exception ignored) { }
         googleMap.setMyLocationEnabled(true);
 
     }
@@ -392,6 +395,30 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             }
         });
     }
+    //-----------------------------------PREFERENCIAS---------------------------------------------------------------------------
+    public void SaveStyle(String key, String value){
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(key, value);
+        editor.apply();
+    }
+    private void SaveStyle2(boolean myPosition){
+        sharedPreferences2 = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences.Editor editor2 = sharedPreferences2.edit();
+        editor2.putBoolean("position",myPosition);
+        editor2.apply();
+    }
+    public String LoadStyle(){
+        String claveMapa;
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        claveMapa = sharedPreferences.getString("estilo_mapa", "default");
+
+        return claveMapa;
+    }
+    private boolean MyPosition(){
+        sharedPreferences2 = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        return  sharedPreferences2.getBoolean("position",true);
+    }
 
     //-----------------------------------CLASE INTERNA MAPA-------------------------------------------------
 
@@ -414,107 +441,34 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             });
         }
     }
+    //-------------------------------CLASE INTERNA DIALOG MARCADOR MASCOTA--------------MEJORADO CON FIREBASE--------------------------------------------------
 
-
-    //-----------------------------------PREFERENCIAS---------------------------------------------------------------------------
-    public void SaveStyle(String key, String value){
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(key, value);
-        editor.apply();
-    }
-
-    private void SaveStyle2(boolean myPosition){
-        sharedPreferences2 = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        SharedPreferences.Editor editor2 = sharedPreferences2.edit();
-        editor2.putBoolean("position",myPosition);
-        editor2.apply();
-    }
-    public String LoadStyle(){
-        String claveMapa;
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        claveMapa = sharedPreferences.getString("estilo_mapa", "default");
-
-        return claveMapa;
-    }
-    private boolean MyPosition(){
-        sharedPreferences2 = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        return  sharedPreferences2.getBoolean("position",true);
-    }
-
-    //-------------------------------CLASE INTERNA DIALOG MARCADOR MASCOTA----------------------------------------------------------------
     @SuppressLint("ValidFragment")
     public class DialogMascota extends DialogFragment implements View.OnClickListener {
-        private LatLng latLng;
-        private EditText nombre, descripcion;
-        private TextView titulo;
-        private ImageView imgPetsDialog;
-        private LinearLayout layout;
-        private GoogleMap map;
-        private static final String CARPETA_PRINCIPAL = "WIMP/";//directorio principal
-        private static final String CARPETA_IMAGEN = "imagenes";//carpeta donde se guardan las fotos
-        private static final String DIRECTORIO_IMAGEN = CARPETA_PRINCIPAL + CARPETA_IMAGEN;//ruta carpeta de directorios
-        private static final int MIS_PERMISOS = 100;
-        private static final int COD_SELECCIONA = 10;
-        private static final int COD_FOTO = 20;
-        private boolean withImage = false;
-        private int COD_OPCION;
-        private File fileImagen;
-        private String pathCapturePets;
-        private Uri pathSelectPets;
-        private Bitmap bitmap;
-        private Mascota marcador;
+        LatLng latLng;
+        GoogleMap map;
+        Mascota marcadorMascota;
 
 
         public DialogMascota(GoogleMap map, LatLng latLng) {
             this.latLng = latLng;
             this.map = map;
-            marcador = new Mascota();
+            marcadorMascota = new Mascota();
         }
-
         @NonNull
         @RequiresApi(api = Build.VERSION_CODES.O)
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             LayoutInflater inflater = Objects.requireNonNull(getActivity()).getLayoutInflater();
+
             @SuppressLint("InflateParams")
             View content = inflater.inflate(R.layout.dialog_pets, null);
-
-            imgPetsDialog = content.findViewById(R.id.imgMascota);
-            titulo = content.findViewById(R.id.Mascota);
-            nombre = content.findViewById(R.id.input_nombre);
-            descripcion = content.findViewById(R.id.input_descripcion);
-            layout = content.findViewById(R.id.ContenedorEditText);
-            imgPetsDialog.setOnClickListener(this);
-
-
             final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setView(content);
             builder.setPositiveButton("guardar", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int id) {
 
-                    marcador.setNombre(nombre.getText().toString());
-                    marcador.setDescripcion(descripcion.getText().toString());
-                    //marcador.setCreador(WebServiceJSON.getFromSharedPreferences("correo", MainActivity.this));
-                    marcador.setTipo("pet");
-                    marcador.setLatitud(String.valueOf(latLng.latitude));
-                    marcador.setLongitud(String.valueOf(latLng.longitude));
-                    switch (COD_OPCION) {
-                        case COD_SELECCIONA: {
-                           // WebServiceJSON.CheckInPets(MainActivity.this, getPath(pathSelectPets), COD_OPCION, withImage);
-
-                        }
-                        break;
-                        case COD_FOTO: {
-                            //WebServiceJSON.CheckInPets(MainActivity.this, pathCapturePets, COD_OPCION, withImage);
-                        }
-                        break;
-                        default:
-                            break;
-                    }
-                    CreateMarkers(latLng);
-                    //CrearRadio(map,latLng);
 
                 }
             });
@@ -524,237 +478,19 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                     dialog.dismiss();
                 }
             });
+
+
             return builder.create();
         }
 
-        private void CreateMarkers(LatLng latLng) {
-            googleMap.setInfoWindowAdapter(new CustomInfoWindowAdapter(LayoutInflater.from(getApplicationContext()), marcador, MainActivity.this));
-            googleMap.addMarker(new MarkerOptions()
-                    .position(latLng)
-                   // .title(String.valueOf(marcador.getId_Marcador()))
-                    .snippet(marcador.getDescripcion())
-                    .draggable(true)
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.pet_markers)));
-        }
-
-        public String getPath(Uri uri) {
-            Cursor cursor = getContentResolver().query(uri, null, null, null, null);
-            assert cursor != null;
-            cursor.moveToFirst();
-            String document_id = cursor.getString(0);
-            document_id = document_id.substring(document_id.lastIndexOf(":") + 1);
-            cursor.close();
-
-            cursor = getContentResolver().query(
-                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                    null, MediaStore.Images.Media._ID + " = ? ", new String[]{document_id}, null);
-            assert cursor != null;
-            cursor.moveToFirst();
-            String path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
-            cursor.close();
-
-            return path;
-        }
-
         @Override
-        public void onClick(View v) {
-            switch (v.getId()) {
-                case R.id.imgMascota: {
-                    if (solicitaPermisosVersionesSuperiores()) {
-                        mostrarDialogOpciones();
-                    }
-                }
-                break;
-                default:
-                    break;
-            }
+        public void onClick(View view) {
 
         }
 
-        private void mostrarDialogOpciones() {
-            final CharSequence[] opciones = {"Tomar Foto", "Elegir de Galeria", "Cancelar"};
-            final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle("Elige una Opción");
-            builder.setItems(opciones, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    if (opciones[i].equals("Tomar Foto")) {
-                        abriCamara();
-                    } else {
-                        if (opciones[i].equals("Elegir de Galeria")) {
-                            Intent intent = new Intent(Intent.ACTION_PICK);
-                            intent.setType("image/");
-                            startActivityForResult(Intent.createChooser(intent, "Seleccione"), COD_SELECCIONA);
-                        } else {
-                            dialogInterface.dismiss();
-                        }
-                    }
-                }
-            });
-            builder.show();
-        }
-
-        private void abriCamara() {
-            File miFile = new File(Environment.getExternalStorageDirectory(), DIRECTORIO_IMAGEN);
-            boolean isCreada = miFile.exists();
-
-            if (!isCreada) {
-                isCreada = miFile.mkdirs();
-            }
-
-            if (isCreada) {
-                Long consecutivo = System.currentTimeMillis() / 1000;
-                String nombre = consecutivo.toString() + ".jpg";
-
-                pathCapturePets = Environment.getExternalStorageDirectory() + File.separator + DIRECTORIO_IMAGEN
-                        + File.separator + nombre;//indicamos la ruta de almacenamiento
-
-                fileImagen = new File(pathCapturePets);
-
-                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(fileImagen));
-
-                ////
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    String authorities = getActivity().getPackageName() + ".provider";
-                    Uri imageUri = FileProvider.getUriForFile(getActivity(), authorities, fileImagen);
-                    intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-                } else {
-                    intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(fileImagen));
-                }
-                startActivityForResult(intent, COD_FOTO);
-
-            }
-
-        }
-
-        private Bitmap redimensionarImagen(Bitmap bitmap, float anchoNuevo, float altoNuevo) {
-            if (bitmap != null) {
-                int ancho = bitmap.getWidth();
-                int alto = bitmap.getHeight();
-
-                if (ancho > anchoNuevo || alto > altoNuevo) {
-                    float escalaAncho = anchoNuevo / ancho;
-                    float escalaAlto = altoNuevo / alto;
-
-                    Matrix matrix = new Matrix();
-                    matrix.postScale(escalaAncho, escalaAlto);
-
-                    return Bitmap.createBitmap(bitmap, 0, 0, ancho, alto, matrix, false);
-                }
-            }
-            return bitmap;
-        }
-
-        @Override
-        public void onActivityResult(int requestCode, int resultCode, Intent data) {
-            super.onActivityResult(requestCode, resultCode, data);
-
-            switch (requestCode) {
-                case COD_SELECCIONA:
-                    pathSelectPets = data.getData();
-                    imgPetsDialog.setImageURI(pathSelectPets);
-                    try {
-                        bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), pathSelectPets);
-                        imgPetsDialog.setImageBitmap(bitmap);
-                        marcador.setFoto(getPath(pathSelectPets));
-                        COD_OPCION = COD_SELECCIONA;
-                        withImage = true;
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
-                    break;
-                case COD_FOTO:
-                    MediaScannerConnection.scanFile(getActivity(), new String[]{pathCapturePets}, null,
-                            new MediaScannerConnection.OnScanCompletedListener() {
-                                @Override
-                                public void onScanCompleted(String path, Uri uri) {
-                                    Log.i("Path", "" + path);
-                                }
-                            });
-
-                    bitmap = BitmapFactory.decodeFile(pathCapturePets);
-                    imgPetsDialog.setImageBitmap(bitmap);
-                    marcador.setFoto(pathCapturePets);
-                    COD_OPCION = COD_FOTO;
-                    withImage = true;
-                    break;
-            }
-            if (bitmap == null) {
-                imgPetsDialog.setImageDrawable(getResources().getDrawable(R.drawable.huella_mascota));
-            } else
-                bitmap = redimensionarImagen(bitmap, 500, 500);
-        }
 
 
-        //PERMISOS
-        private boolean solicitaPermisosVersionesSuperiores() {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-                return true;
-            }
 
-            if ((checkSelfPermission(WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) && checkSelfPermission(CAMERA) == PackageManager.PERMISSION_GRANTED) {
-                return true;
-            }
-            if ((shouldShowRequestPermissionRationale(WRITE_EXTERNAL_STORAGE) || (shouldShowRequestPermissionRationale(CAMERA)))) {
-                cargarDialogoRecomendacion();
-            } else {
-                requestPermissions(new String[]{WRITE_EXTERNAL_STORAGE, CAMERA}, MIS_PERMISOS);
-            }
-
-            return false;
-        }
-
-        private void cargarDialogoRecomendacion() {
-            AlertDialog.Builder dialogo = new AlertDialog.Builder(getApplicationContext());
-            dialogo.setTitle("Permisos Desactivados");
-            dialogo.setMessage("Debe aceptar los permisos para el correcto funcionamiento de la App");
-
-            dialogo.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        requestPermissions(new String[]{WRITE_EXTERNAL_STORAGE, CAMERA}, 100);
-                    }
-                }
-            });
-            dialogo.show();
-        }
-
-        @Override
-        public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-            if (requestCode == MIS_PERMISOS) {
-                if (grantResults.length == 2 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {//el dos representa los 2 permisos
-                    Toast.makeText(getApplicationContext(), "Permisos aceptados", Toast.LENGTH_SHORT);
-                }
-            } else {
-                solicitarPermisosManual();
-            }
-        }
-
-        private void solicitarPermisosManual() {
-            final CharSequence[] opciones = {"si", "no"};
-            final AlertDialog.Builder alertOpciones = new AlertDialog.Builder(getApplicationContext());//estamos en fragment
-            alertOpciones.setTitle("¿Desea configurar los permisos de forma manual?");
-            alertOpciones.setItems(opciones, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    if (opciones[i].equals("si")) {
-                        Intent intent = new Intent();
-                        intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                        Uri uri = Uri.fromParts("package", getApplicationContext().getPackageName(), null);
-                        intent.setData(uri);
-                        startActivity(intent);
-                    } else {
-                        Toast.makeText(getApplicationContext(), "Los permisos no fueron aceptados", Toast.LENGTH_SHORT).show();
-                        dialogInterface.dismiss();
-                    }
-                }
-            });
-            alertOpciones.show();
-        }
     }
     private void instanciarDialogoMarcadorMascota(GoogleMap map,LatLng latLng) {
         DialogMascota dialog = new DialogMascota(map,latLng); //Instanciamos la clase con el dialogo
@@ -762,6 +498,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         assert dialog.getFragmentManager() != null;
         dialog.show(getFragmentManager(), "NEWPOSITION");// Mostramos el dialogo
     }
+
     //------------------------------DIALOG AJUSTE----------------------------
     @SuppressLint("ValidFragment")
     private class AjusteDialog extends DialogFragment implements View.OnClickListener{
@@ -816,7 +553,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         emailIntent.setDataAndType(Uri.parse("mailto:"),"text/plain");
         emailIntent.putExtra(Intent.EXTRA_EMAIL, TO);
         emailIntent.putExtra(Intent.EXTRA_CC, CC);
-// Esto podrás modificarlo si quieres, el asunto y el cuerpo del mensaje
         emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Asunto");
         emailIntent.putExtra(Intent.EXTRA_TEXT, "Escribe aquí tu mensaje");
         try {
@@ -827,11 +563,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                     "No tienes ningun programa para enviar email instalado.", Toast.LENGTH_SHORT).show();
         }
     }
-
-
-    //----------------------DIALOG MAPAS----------------------------------------------
+    //----------------------DIALOG AJUSTE MAPAS----------------------------------------------
     @SuppressLint("ValidFragment")
-    class MapasDialog extends DialogFragment implements View.OnClickListener {
+    class SettingMapsDialog extends DialogFragment implements View.OnClickListener {
         ImageView mapa_config;
         ImageButton fondoBlue, fondoBlack, fondoCandy, fondoVintage;
 
@@ -925,7 +659,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         }
     }
     private void instanciarMapas() {
-        MapasDialog dialog = new MapasDialog();  //Instanciamos la clase con el dialogo
+        SettingMapsDialog dialog = new SettingMapsDialog();  //Instanciamos la clase con el dialogo
         dialog.setCancelable(false);
         dialog.show(getFragmentManager(), "AJUSTES");// Mostramos el dialogo
 

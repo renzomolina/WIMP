@@ -8,18 +8,22 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.widget.EditText;
 
 import com.whereismypet.whereismypet.R;
 
 import java.util.regex.Pattern;
 
+
 public final class GeneralMethod {
 
     //-----------------------------------VALIDACIONES REGEX-------------------------------------------------------------
     private static final String REGEX_LETRAS = "^[a-zA-ZáÁéÉíÍóÓúÚñÑüÜ\\s]+$";
-    private static final String REGEX_EMAIL= "^[a-zA-Z0-9\\._-]+@[a-zA-Z0-9]{2,}[.] [a-zA-Z] {2,4}$";
+    private static final String REGEX_EMAIL ="^[a-zA-Z0-9\\._-]+@[a-zA-Z0-9-]{2,}[.][a-zA-Z]{2,4}$";
+    private static final String REGEX_PASSWORD = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})$";
 
 
     //-----------------------------------Imagen Circular----------------------------------------------------------------
@@ -51,88 +55,74 @@ public final class GeneralMethod {
                         etCorreo = activity.findViewById(R.id.emailRegistro),
                         etContrasena = activity.findViewById(R.id.passRegistro),
                         etConfimarContrasena = activity.findViewById(R.id.confirmpassRegistro);
-
         switch (edit) {
             case "nombre": {
-                Pattern p = Pattern.compile(REGEX_LETRAS);
-                if (!p.matcher(etNombre.getText().toString()).matches()) {
-                    etNombre.setError("Este campo permite solo letras", msgerror);
-                } else {
-                    etNombre.setError(null);
-                    respuestaValidacion = true;
-
+                if (CheckEditTextIsEmptyOrNot(etNombre)) {
+                    etNombre.setError("Campo Vacio", msgerror);
+                }
+                else {
+                    Pattern p = Pattern.compile(REGEX_LETRAS);
+                    if (!p.matcher(etNombre.getText().toString()).matches()) {
+                        etNombre.setError("Este campo permite solo letras", msgerror);
+                    }
+                    else {
+                        etNombre.setError(null);
+                        respuestaValidacion = true;
+                    }
                 }
             }break;
             case "apellido": {
-                Pattern p = Pattern.compile(REGEX_LETRAS);
-                if (!p.matcher(etApellido.getText().toString()).matches()) {
-                    etApellido.setError("Este campo permite solo letras", msgerror);
-                    return false;
-                } else {
-                    etApellido.setError(null);
-                    respuestaValidacion = true;
-                }
-            }break;
-            case "email": {
-
-                Pattern p = Pattern.compile(REGEX_EMAIL);
-                if (!p.matcher(etCorreo.getText().toString()).matches()) {
-                    etCorreo.setError("Correo Invalido", msgerror);
-                } else {
-                    etCorreo.setError(null);
-                    respuestaValidacion = true;                }
-            }break;
-
-            case "nombrevacio": {
-                if (CheckEditTextIsEmptyOrNot(etNombre)) {
-                    etNombre.setError("Campo Vacio", msgerror);
-                } else {
-                    respuestaValidacion = true;
-                }
-            }break;
-
-            case "apellidovacio": {
-
                 if (CheckEditTextIsEmptyOrNot(etApellido)) {
                     etApellido.setError("Campo Vacio", msgerror);
-                } else {
-                    respuestaValidacion = true;
                 }
+                else{
+                    Pattern p = Pattern.compile(REGEX_LETRAS);
+                    if (!p.matcher(etApellido.getText().toString()).matches()) {
+                        etApellido.setError("Este campo permite solo letras", msgerror);
+                    } else {
+                        etApellido.setError(null);
+                        respuestaValidacion = true;
+                    }
+                }
+
             }break;
-
-            case "correovacio": {
-
+            case "email": {
                 if (CheckEditTextIsEmptyOrNot(etCorreo)) {
                     etCorreo.setError("Campo Vacio", msgerror);
                 } else {
-                    respuestaValidacion = true;
+                    Pattern p = Pattern.compile(REGEX_EMAIL);
+                    if (!p.matcher(etCorreo.getText().toString()).matches()) {
+                        etCorreo.setError("Correo Invalido", msgerror);
+                    } else {
+                        etCorreo.setError(null);
+                        respuestaValidacion = true;
+                    }
                 }
-
             }break;
-
-            case "contraseñavacio": {
-
+            case "password":{
                 if (CheckEditTextIsEmptyOrNot(etContrasena)) {
                     etContrasena.setError("Campo Vacio", msgerror);
-                } else {
-                    respuestaValidacion = true;
                 }
-            }break;
-
-            case "confirmacontraseñavacio": {
-                if (CheckEditTextIsEmptyOrNot(etConfimarContrasena)) {
-                    etConfimarContrasena.setError("Campo Vacio", msgerror);
-                } else {
-                    respuestaValidacion = true;
-
+                else{
+                    Pattern p = Pattern.compile(REGEX_PASSWORD);
+                    if (!p.matcher(etContrasena.getText().toString()).matches()) {
+                        etContrasena.setError("La contraseña debe contener al menos 8 caracteres alfanumericos, 1 minuscula, 1 mayuscula, 1 numero, 8 caracteres o mas ", msgerror);
+                    } else {
+                        etContrasena.setError(null);
+                        respuestaValidacion = true;
+                    }
                 }
             }break;
 
             case "confirmacontraseña": {
-                if (etContrasena.getText().toString().equals(etConfimarContrasena.getText().toString())) {
-                    respuestaValidacion = true;
+                if (CheckEditTextIsEmptyOrNot(etConfimarContrasena)) {
+                    etConfimarContrasena.setError("Campo Vacio", msgerror);
                 } else {
-                    etConfimarContrasena.setError("Debe coincidir con Contraseña", msgerror);
+                    if (etContrasena.getText().toString().equals(etConfimarContrasena.getText().toString())) {
+                        respuestaValidacion = true;
+                    } else {
+                        etConfimarContrasena.setError("Debe coincidir con Contraseña", msgerror);
+                    }
                 }
             }break;
         }
@@ -147,27 +137,22 @@ public final class GeneralMethod {
                         etContrasenaLogin = activity.findViewById(R.id.PasswordLogin);
         switch (edit) {
             case "correo": {
-                Pattern p = Pattern.compile(REGEX_EMAIL);
-                if (!p.matcher(etCorreoLogin.getText().toString()).matches()) {
-                    etCorreoLogin.setError("Correo Invalido", msgerror);
-                } else {
-                    etCorreoLogin.setError(null);
-                    respuestaValidacion = true;
-                }
-            }break;
-
-            case "correovacio": {
-
-                if (CheckEditTextIsEmptyOrNot(etCorreoLogin)) {
+                if (CheckEditTextIsEmptyOrNot(etCorreoLogin)){
                     etCorreoLogin.setError("Campo Vacio", msgerror);
-                } else {
-                    respuestaValidacion = true;
                 }
-
+                else{
+                    Pattern p = Pattern.compile(REGEX_EMAIL);
+                    if (!p.matcher(etCorreoLogin.getText().toString()).matches()) {
+                        etCorreoLogin.setError("Correo Invalido", msgerror);
+                    }
+                    else {
+                        etCorreoLogin.setError(null);
+                        respuestaValidacion = true;
+                    }
+                }
             }break;
 
             case "contrasenavacio": {
-
                 if (CheckEditTextIsEmptyOrNot(etContrasenaLogin)) {
                     etContrasenaLogin.setError("Campo Vacio", msgerror);
                 } else {
@@ -181,6 +166,28 @@ public final class GeneralMethod {
     private static boolean CheckEditTextIsEmptyOrNot(EditText editText){
         return (TextUtils.isEmpty(editText.getText().toString().trim()));
     }
+    //--------------------------CLASE TEXT WATCHER-------------------------------------------------------------
+    public static class AddListenerOnTextChange implements TextWatcher {
+        private Activity mActivity;
+        EditText mEditTextView;
 
+        public AddListenerOnTextChange(Activity activity, EditText editText) {
+            super();
+            this.mActivity = activity;
+            this.mEditTextView = editText;
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) { }
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            RegexLogin("correo", mActivity);
+            RegexLogin("correovacio",mActivity);
+        }
+    }
 
 }

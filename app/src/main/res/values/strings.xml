@@ -32,5 +32,9 @@
     //--------------------------------MENSAJES-------------------------------------------------
     //--------------------------------GOOGLE-------------------------------------------------
     <string name="continuar_google">Continuar con Google</string>
+    <string name="imagenperf_lmenudesplegable">ImagenPerf lMenuDesplegable</string>
+    <string name="imageniconappmenudesplegable">ImagenIconAppMenuDesplegable</string>
+    <string name="where_is_my_pet">Where is my pet?</string>
+    <string name="tus_mascotas_en_un_solo_lugar">Tus mascotas en un solo lugar</string>
 
 </resources>
