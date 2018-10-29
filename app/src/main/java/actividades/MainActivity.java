@@ -60,6 +60,10 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.facebook.AccessToken;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
@@ -74,26 +78,32 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 import com.whereismypet.whereismypet.R;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
+import dialogsFragments.DialogMarkerPet;
 import finalClass.GeneralMethod;
 import misclases.CustomInfoWindowAdapter;
 import Modelo.Mascota;
 import misclases.VolleySingleton;
 
-import static android.Manifest.permission.CAMERA;
-import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+
+import static android.widget.Toast.LENGTH_SHORT;
 
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener,
@@ -103,21 +113,23 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     GoogleMap googleMap;
     GoogleApiClient apiClient = null;
     LatLng LocalizacionCoord;
-    SharedPreferences sharedPreferences2;
     LocationManager locationManager;
     AlertDialog alertGPS = null;
     Location Localizacion;
     DrawerLayout drawer;
     ImageView mImgFotoPerfil,imgPetsMarker;
     private static final String URL_MARCADORES = "http://www.secsanluis.com.ar/servicios/varios/wimp/W_ListarMarcadores.php";
-    private String  UrlConsultarUsuario ="http://www.secsanluis.com.ar/servicios/varios/wimp/W_ConsultarCliente.php";
     static final String TAG = MainActivity.class.getSimpleName();
     private SharedPreferences sharedPreferences;
     private ArrayList<Mascota> listaMarcador;
-
-
-
     static final int PETICION_PERMISO_LOCALIZACION = 0;
+    //FIREBASE
+    private FirebaseAuth mFirebaseAuth;
+    private FirebaseAuth.AuthStateListener mAuthStateListener;
+    private FirebaseUser mUserFireBase;
+    //GOOGLE
+    private GoogleSignInClient mGoogleSignInClient;
+
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
@@ -139,6 +151,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         }
 
         ConectarAPI();
+        mFirebaseAuth = FirebaseAuth.getInstance();
+        EscuchandoEstadoDeAutenticacion();
+        LoginGoogle();
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         try {
             assert locationManager != null;
@@ -155,6 +170,22 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         mImgFotoPerfil.setImageBitmap(GeneralMethod.getBitmapClip(BitmapFactory.decodeResource(getResources(),R.drawable.com_facebook_profile_picture_blank_square)));
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //ConsultarPerfil();
+    }
+
+    private void ConsultarPerfil() {
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        String re = "Aca esta el error tomo este activity result la foto";
+
+    }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
@@ -175,6 +206,57 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         Toast.makeText(this, "Error al conectar con Google Play Services", Toast.LENGTH_SHORT).show();
     }
 
+    //----------------------------FIREBASE-----------------------------------------
+    private void EscuchandoEstadoDeAutenticacion() {
+
+        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                mUserFireBase = firebaseAuth.getCurrentUser();
+                if (AccessToken.getCurrentAccessToken() != null) {
+                    Toast.makeText(MainActivity.this, "Faceboook", LENGTH_SHORT).show();
+                    VolverAlLogin();
+                }
+                if (mUserFireBase != null) {
+                    VolverAlLogin();
+                }
+                /*if(mUserFireBase!=null)
+                {
+                    user = new Usuario();
+                    //user.setNombre(userFireBase.getDisplayName());
+                    user.setEmail(mUserFireBase.getEmail());
+                }*/
+            }
+        };
+    }
+    private void LoginGoogle() {
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+    }
+    private void signOut() {
+        // Firebase sign out
+        mFirebaseAuth.signOut();
+
+        // Google sign out
+        mGoogleSignInClient.signOut().addOnCompleteListener(this,
+                new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        VolverAlLogin();
+                    }
+                });
+    }
+    private  void VolverAlLogin(){
+        Intent i = new Intent(this, LoginActivity.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(i);
+        finish();
+    }
     //----------------------------LocationListener----------------------------------
     @Override
     public void onLocationChanged(Location location) {
@@ -220,17 +302,16 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     }
 
     private void ActualizarCamara(LatLng COORDS) {
-        if(MyPosition()) {
-            CameraPosition CamPos = new CameraPosition
-                    .Builder()
-                    .target(COORDS)
-                    .zoom(16)
-                    .bearing(-10)
-                    .tilt(0)
-                    .build();
-            CameraUpdate camUpdate = CameraUpdateFactory.newCameraPosition(CamPos);
-            googleMap.animateCamera(camUpdate);
-        }
+        CameraPosition CamPos = new CameraPosition
+                .Builder()
+                .target(COORDS)
+                .zoom(16)
+                .bearing(-10)
+                .tilt(0)
+                .build();
+        CameraUpdate camUpdate = CameraUpdateFactory.newCameraPosition(CamPos);
+        googleMap.animateCamera(camUpdate);
+
     }
 
     private void GpsDesactivado() {
@@ -271,11 +352,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         if(id == R.id.nav_salir){
-            Intent intent = new Intent(this, LoginActivity.class);
-            SharedPreferences sh = getSharedPreferences("Mis preferencias",Context.MODE_PRIVATE);
-            sh.edit().clear().apply();
-            startActivity(intent);
-            finish();
+            signOut();
 
         }
         else if(id == R.id.nav_ajustes) {
@@ -311,13 +388,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-
-
-    /*public String getFromSharedPreferences(String key){
-        SharedPreferences sharedPreferences = getSharedPreferences("Mis preferencias", Context.MODE_PRIVATE);
-        return sharedPreferences.getString(key,"");
-    }
-*/
 
     //---------------------------------CARGA DE MARCADORES EN MAPA---------------------------------------------------------
     private void ConsultarMarcadores(){
@@ -401,22 +471,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         editor.putString(key, value);
         editor.apply();
     }
-    private void SaveStyle2(boolean myPosition){
-        sharedPreferences2 = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        SharedPreferences.Editor editor2 = sharedPreferences2.edit();
-        editor2.putBoolean("position",myPosition);
-        editor2.apply();
-    }
+
     public String LoadStyle(){
         String claveMapa;
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         claveMapa = sharedPreferences.getString("estilo_mapa", "default");
-
         return claveMapa;
-    }
-    private boolean MyPosition(){
-        sharedPreferences2 = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        return  sharedPreferences2.getBoolean("position",true);
     }
 
     @Override
@@ -447,60 +507,16 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     }
     //-------------------------------CLASE INTERNA DIALOG MARCADOR MASCOTA--------------MEJORADO CON FIREBASE--------------------------------------------------
 
-    @SuppressLint("ValidFragment")
-    public class DialogMascota extends DialogFragment implements View.OnClickListener {
-        LatLng latLng;
-        GoogleMap map;
-        Mascota marcadorMascota;
 
-
-        public DialogMascota(GoogleMap map, LatLng latLng) {
-            this.latLng = latLng;
-            this.map = map;
-            marcadorMascota = new Mascota();
-        }
-        @NonNull
-        @RequiresApi(api = Build.VERSION_CODES.O)
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            LayoutInflater inflater = Objects.requireNonNull(getActivity()).getLayoutInflater();
-
-            @SuppressLint("InflateParams")
-            View content = inflater.inflate(R.layout.dialog_pets, null);
-            final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setView(content);
-            builder.setPositiveButton("guardar", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int id) {
-
-
-                }
-            });
-            builder.setNegativeButton("cancelar", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int id) {
-                    dialog.dismiss();
-                }
-            });
-
-
-            return builder.create();
-        }
-
-        @Override
-        public void onClick(View view) {
-
-        }
-
-
-
-
-    }
     private void instanciarDialogoMarcadorMascota(GoogleMap map,LatLng latLng) {
-        DialogMascota dialog = new DialogMascota(map,latLng); //Instanciamos la clase con el dialogo
-        dialog.setCancelable(false);
-        assert dialog.getFragmentManager() != null;
-        dialog.show(getFragmentManager(), "NEWPOSITION");// Mostramos el dialogo
+        DialogMarkerPet markerPet = new DialogMarkerPet()
+                .setLatLng(latLng)
+                .setGoogleMap(googleMap)
+                .setmActivity(MainActivity.this)
+                .setView(drawer);
+        markerPet.setCancelable(false);
+        markerPet.show(getFragmentManager(), "AJUSTES");
+
     }
 
     //------------------------------DIALOG AJUSTE----------------------------
@@ -704,6 +720,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         } catch (IOException e) {
             e.printStackTrace();
         }
+        assert direcciones != null;
         if (!direcciones.isEmpty()) {
             Address DirCalle = direcciones.get(0);
             address = DirCalle.getAddressLine(0);
@@ -729,9 +746,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             });
             return builder.create();
         }
-
-
-
     }
     private void instaciarTerminos(){
        TerminosDialog dialog = new TerminosDialog();  //Instanciamos la clase con el dialogo
@@ -758,15 +772,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             });
             return builder.create();
         }
-
-
-
     }
     private void instaciarNosotros(){
         NosotrosDialog dialog = new NosotrosDialog();  //Instanciamos la clase con el dialogo
         dialog.setCancelable(false);
         dialog.show(getFragmentManager(), "AJUSTES");// Mostramos el dialogo
-
     }
 
     // ------------------------ DIALOG PREMIUM-----------------------------------------
@@ -784,12 +794,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             mProgressBar = content.findViewById(R.id.progressBar);
             mRegularLayout = content.findViewById(R.id.regularLayout);
 
-
-
             StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectAll().penaltyLog()
                     .build());
-
-
 
             final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setView(content);
@@ -801,15 +807,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             });
             return builder.create();
         }
-
-
-
-
     }
     private void instaciarPremium(){
         PremiumDialog dialog = new PremiumDialog();  //Instanciamos la clase con el dialogo
         dialog.setCancelable(false);
         dialog.show(getFragmentManager(), "PREMIUM");// Mostramos el dialogo
     }
-
 }

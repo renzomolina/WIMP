@@ -1,21 +1,42 @@
 package finalClass;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.support.design.widget.Snackbar;
+import android.support.v4.content.FileProvider;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
 import com.whereismypet.whereismypet.R;
 
+import java.io.File;
+import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.regex.Pattern;
+
+import actividades.LoginActivity;
+
+import static android.Manifest.permission.CAMERA;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 
 public final class GeneralMethod {
@@ -24,8 +45,14 @@ public final class GeneralMethod {
     private static final String REGEX_LETRAS = "^[a-zA-ZáÁéÉíÍóÓúÚñÑüÜ\\s]+$";
     private static final String REGEX_EMAIL ="^[a-zA-Z0-9\\._-]+@[a-zA-Z0-9-]{2,}[.][a-zA-Z]{2,4}$";
     private static final String REGEX_PASSWORD = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})$";
-
-
+    //Permisos
+    private static final int MIS_PERMISOS = 100;
+    private static final int COD_SELECCIONA = 10;
+    private static final int COD_FOTO = 20;
+    //Url carpeta imagenes
+    private static final String CARPETA_PRINCIPAL = "WIMP/";//directorio principal
+    private static final String CARPETA_IMAGEN = "imagenes";//carpeta donde se guardan las fotos
+    private static final String DIRECTORIO_IMAGEN = CARPETA_PRINCIPAL + CARPETA_IMAGEN;//ruta carpeta de directorios
     //-----------------------------------Imagen Circular----------------------------------------------------------------
     public static Bitmap getBitmapClip(Bitmap bitmap) {
         int maxLenth = bitmap.getWidth() <= bitmap.getHeight() ? bitmap.getWidth() : bitmap.getHeight();
@@ -190,4 +217,118 @@ public final class GeneralMethod {
         }
     }
 
+    //CAMARA O SELECCION DE IMAGEN
+    public static void mostrarDialogOpciones(final Activity mActivity) {
+        final CharSequence[] opciones={"Tomar Foto","Elegir de Galeria","Cancelar"};
+        final AlertDialog.Builder builder=new AlertDialog.Builder(mActivity);
+        builder.setTitle("Elige una Opción");
+        builder.setItems(opciones, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                if (opciones[i].equals("Tomar Foto")){
+                    abrirCamara(mActivity);
+                }else{
+                    if (opciones[i].equals("Elegir de Galeria")){
+                        Intent intent=new Intent(Intent.ACTION_PICK);
+                        intent.setType("image/");
+                        if(intent.resolveActivity(mActivity.getPackageManager()) != null)
+                            mActivity.startActivityForResult(Intent.createChooser(intent,"Seleccione"),COD_SELECCIONA);
+                    }else{
+                        dialogInterface.dismiss();
+                    }
+                }
+            }
+        });
+        builder.show();
+    }
+
+    private static void abrirCamara(Activity mActivity) {
+        File miFile=new File(Environment.getExternalStorageDirectory(),DIRECTORIO_IMAGEN);
+        boolean isCreada=miFile.exists();
+
+        if(!isCreada){
+            isCreada=miFile.mkdirs();
+        }
+
+        if(isCreada){
+            Long consecutivo= System.currentTimeMillis()/1000;
+            String nombre=consecutivo.toString()+".jpg";
+
+            String pathTomarFoto = Environment.getExternalStorageDirectory() + File.separator + DIRECTORIO_IMAGEN
+                    + File.separator + nombre;
+
+            //Imagen
+            File fileImagen = new File(pathTomarFoto);
+
+            Intent intent=new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(fileImagen));
+
+            if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.N)
+            {
+                String authorities=mActivity.getPackageName()+".provider";
+                Uri imageUri= FileProvider.getUriForFile(mActivity,authorities, fileImagen);
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+            }else
+            {
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(fileImagen));
+            }
+            mActivity.startActivityForResult(intent,COD_FOTO);
+        }
+    }
+
+    private static void cargarDialogoRecomendacion(final Activity mActivity) {
+        AlertDialog.Builder dialogo=new AlertDialog.Builder(mActivity);
+        dialogo.setTitle("Permisos Desactivados");
+        dialogo.setMessage("Debe aceptar los permisos para el correcto funcionamiento de la App");
+
+        dialogo.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    mActivity.requestPermissions(new String[]{WRITE_EXTERNAL_STORAGE,CAMERA},100);
+                }
+            }
+        });
+        dialogo.show();
+    }
+
+    //PERMISOS
+    public static boolean solicitaPermisosVersionesSuperiores(final Activity mActivity) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M){
+            return true;
+        }
+
+        if((mActivity.checkSelfPermission(WRITE_EXTERNAL_STORAGE)== PackageManager.PERMISSION_GRANTED)&& mActivity.checkSelfPermission(CAMERA)==PackageManager.PERMISSION_GRANTED){
+            return true;
+        }
+        if ((mActivity.shouldShowRequestPermissionRationale(WRITE_EXTERNAL_STORAGE)||(mActivity.shouldShowRequestPermissionRationale(CAMERA)))){
+            cargarDialogoRecomendacion(mActivity);
+        }else{
+            mActivity.requestPermissions(new String[]{WRITE_EXTERNAL_STORAGE, CAMERA}, MIS_PERMISOS);
+        }
+
+        return false;
+    }
+
+    //-------------------------------------------METODO PARA MOSTRAR UN SNACKBAR CON LOS ERRORES(MEJOR QUE UN TOAST)----------------------------------
+    public static void showSnackback(String mMsgSnackbar,View view, Activity activity) {
+        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        if (imm != null) {
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+        final Snackbar mSnackbarEmptyField = Snackbar.make(view, mMsgSnackbar, Snackbar.LENGTH_LONG)
+                .setAction("Aceptar", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+
+                    }
+                })
+                .setActionTextColor(Color.MAGENTA);
+        mSnackbarEmptyField.show();
+    }
+    //------------------------------------------Nombre Random--------------------------------------------------
+    public static String getRandomString() {
+        SecureRandom random = new SecureRandom();
+        return new BigInteger(130, random).toString(32);
+    }
 }
