@@ -28,7 +28,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.content.FileProvider;
 import android.support.v7.widget.CardView;
 import android.text.Editable;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Base64;
 import android.util.Log;
@@ -57,7 +56,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.SignInButton;
-import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -72,7 +70,6 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import com.google.firebase.database.collection.LLRBNode;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -259,22 +256,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
             }
         });
     }
-    //-------------------------------------------METODO PARA MOSTRAR UN SNACKBAR CON LOS ERRORES(MEJOR QUE UN TOAST)----------------------------------
-    private void showSnackback(String mMsgSnackbar) {
-        InputMethodManager imm = (InputMethodManager) this.getSystemService(Activity.INPUT_METHOD_SERVICE);
-        if (imm != null) {
-            imm.hideSoftInputFromWindow(mContainerLogin.getWindowToken(), 0);
-        }
-        final Snackbar mSnackbarEmptyField = Snackbar.make(mContainerLogin, mMsgSnackbar, Snackbar.LENGTH_LONG)
-                .setAction("Aceptar", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
 
-                    }
-                })
-                .setActionTextColor(Color.MAGENTA);
-        mSnackbarEmptyField.show();
-    }
 
 
     //---------------------------------------FIREBASE EMAIL---------------------------------------------------
@@ -299,15 +281,15 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
                                             Toast.makeText(LoginActivity.this, "Iniciar", LENGTH_SHORT).show();
                                             InicioSesionCorrecto();
                                         } else
-                                            showSnackback(mMsgShowSnackBarEmailPassword);
+                                            GeneralMethod.showSnackback(mMsgShowSnackBarEmailPassword,mContainerLogin,LoginActivity.this);
                                     }
                                 });
                     } else
-                        showSnackback(mMsgShowSnackBarVerificado);
+                        GeneralMethod.showSnackback(mMsgShowSnackBarVerificado,mContainerLogin,LoginActivity.this);
                 }
             });
         } else
-            showSnackback(mMsgShowSnackBarCurrentUser);
+            GeneralMethod.showSnackback(mMsgShowSnackBarCurrentUser,mContainerLogin,LoginActivity.this);
     }
 
 
@@ -333,11 +315,11 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            showSnackback("Bienvenido a WIMP?");
+                            GeneralMethod.showSnackback("Bienvenido a WIMP?",mContainerLogin,LoginActivity.this);
 
                         } else {
                             // If sign in fails, display a message to the user.
-                            showSnackback("Lo sentimos,pero la autentificacion fallo");
+                            GeneralMethod.showSnackback("Lo sentimos,pero la autentificacion fallo",mContainerLogin,LoginActivity.this);
                         }
                     }
                 });
@@ -348,18 +330,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
-    private void signOut() {
-        // Firebase sign out
-        mFirebaseAuth.signOut();
 
-        // Google sign out
-        mGoogleSignInClient.signOut().addOnCompleteListener(this,
-                new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                    }
-                });
-    }
 
     private void revokeAccess() {
         // Firebase sign out
@@ -451,7 +422,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
                     tipoDeLogin = "EmailPassword";
                     LoginEmailPassword();
                 } else
-                    showSnackback(mMsgShowSnackBar);
+                    GeneralMethod.showSnackback(mMsgShowSnackBar,mContainerLogin,LoginActivity.this);
             }
             break;
             case R.id.tvRegistrarseLogin: {
@@ -487,10 +458,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
         private static final int MIS_PERMISOS = 100;
         private static final int COD_SELECCIONA = 10;
         private static final int COD_FOTO = 20;
-        //Url carpeta imagenes
-        private static final String CARPETA_PRINCIPAL = "WIMP/";//directorio principal
-        private static final String CARPETA_IMAGEN = "imagenes";//carpeta donde se guardan las fotos
-        private static final String DIRECTORIO_IMAGEN = CARPETA_PRINCIPAL + CARPETA_IMAGEN;//ruta carpeta de directorios
+
         //Imagen
         private File fileImagen;
         private String pathTomarFoto,tipoDeFoto = "VACIO";
@@ -524,8 +492,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
             btnRegistro.setOnClickListener(this);
             mImgPerfilDBRegistroImageView.setOnClickListener(this);
             LimpiarEditText();
-
-
 
             final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setView(content);
@@ -569,7 +535,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
                 switch (requestCode) {
                     case COD_SELECCIONA: {
                         uriSeleccionarFoto = Objects.requireNonNull(data).getData();
-                        mImgPerfilDBRegistroImageView.setImageURI(uriSeleccionarFoto);
                         mFotoPerfilRegistro = uriSeleccionarFoto;
                         tipoDeFoto = "SELECCIONA";
                         try {
@@ -606,8 +571,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
                 }
                 break;
                 case R.id.imgPerfilDBRegistro: {
-                    if (solicitaPermisosVersionesSuperiores()) {
-                        mostrarDialogOpciones();
+                    if (GeneralMethod.solicitaPermisosVersionesSuperiores(LoginActivity.this)) {
+                        GeneralMethod.mostrarDialogOpciones(LoginActivity.this);
                     }
                 }
                 break;
@@ -636,14 +601,12 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
                                         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
                                         DatabaseReference currentUserDB = mDatabase.child(Objects.requireNonNull(mFirebaseAuth.getCurrentUser()).getUid());
                                         if(!tipoDeFoto.equals("VACIO")) {
-                                            storageIMG(currentUserDB);
+                                            storageIMG(currentUserDB,mUser);
                                         }
                                         else{
                                             currentUserDB.child("image").setValue("defaultUser");
                                         }
 
-                                        currentUserDB.child("name").setValue(mUser.getNombre());
-                                        currentUserDB.child("last_name").setValue(mUser.getApellido());
                                         Toast.makeText(LoginActivity.this, "Registrado con exito", Toast.LENGTH_SHORT).show();
                                         final FirebaseUser firebaseUser = Objects.requireNonNull(task.getResult()).getUser();
                                         firebaseUser.sendEmailVerification();
@@ -661,13 +624,15 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
             }
         }
 
-        public void storageIMG (final DatabaseReference currentUserDB) {
+        public void storageIMG (final DatabaseReference currentUserDB, final Usuario mUser) {
 
-            final StorageReference mStorageImgPerfilUsuario = mStorageReference.child("Imagenes").child("Perfil").child(getRandomString());
+            final StorageReference mStorageImgPerfilUsuario = mStorageReference.child("Imagenes").child("Perfil").child(GeneralMethod.getRandomString());
 
             mStorageImgPerfilUsuario.putFile(mFotoPerfilRegistro).addOnSuccessListener(LoginActivity.this, new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    currentUserDB.child("Usuarios").child("name").setValue(mUser.getNombre());
+                    currentUserDB.child("Usuarios").child("last_name").setValue(mUser.getApellido());
                     currentUserDB.child("image").setValue(taskSnapshot.getStorage().getDownloadUrl().toString());
 
                 }
@@ -743,114 +708,19 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
             });
             return RespuestaValidacion;
         }
-        public String getRandomString() {
-            SecureRandom random = new SecureRandom();
-            return new BigInteger(130, random).toString(32);
-        }
 
-        //CAMARA O SELECCION DE IMAGEN
-        private void mostrarDialogOpciones() {
-            final CharSequence[] opciones={"Tomar Foto","Elegir de Galeria","Cancelar"};
-            final AlertDialog.Builder builder=new AlertDialog.Builder(LoginActivity.this);
-            builder.setTitle("Elige una Opción");
-            builder.setItems(opciones, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    if (opciones[i].equals("Tomar Foto")){
-                        abrirCamara();
-                    }else{
-                        if (opciones[i].equals("Elegir de Galeria")){
-                            Intent intent=new Intent(Intent.ACTION_PICK);
-                            intent.setType("image/");
-                            if(intent.resolveActivity(getPackageManager()) != null)
-                                startActivityForResult(Intent.createChooser(intent,"Seleccione"),COD_SELECCIONA);
-                        }else{
-                            dialogInterface.dismiss();
-                        }
-                    }
-                }
-            });
-            builder.show();
-        }
 
-        private void abrirCamara() {
-            File miFile=new File(Environment.getExternalStorageDirectory(),DIRECTORIO_IMAGEN);
-            boolean isCreada=miFile.exists();
 
-            if(!isCreada){
-                isCreada=miFile.mkdirs();
-            }
-
-            if(isCreada){
-                Long consecutivo= System.currentTimeMillis()/1000;
-                String nombre=consecutivo.toString()+".jpg";
-
-                pathTomarFoto=Environment.getExternalStorageDirectory()+File.separator+DIRECTORIO_IMAGEN
-                        +File.separator+nombre;//indicamos la ruta de almacenamiento
-
-                fileImagen=new File(pathTomarFoto);
-
-                Intent intent=new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(fileImagen));
-
-                if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.N)
-                {
-                    String authorities=LoginActivity.this.getPackageName()+".provider";
-                    Uri imageUri= FileProvider.getUriForFile(LoginActivity.this,authorities,fileImagen);
-                    intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-                }else
-                {
-                    intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(fileImagen));
-                }
-                startActivityForResult(intent,COD_FOTO);
-            }
-        }
-
-        private void cargarDialogoRecomendacion() {
-            AlertDialog.Builder dialogo=new AlertDialog.Builder(LoginActivity.this);
-            dialogo.setTitle("Permisos Desactivados");
-            dialogo.setMessage("Debe aceptar los permisos para el correcto funcionamiento de la App");
-
-            dialogo.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        requestPermissions(new String[]{WRITE_EXTERNAL_STORAGE,CAMERA},100);
-                    }
-                }
-            });
-            dialogo.show();
-        }
-
-        //PERMISOS
-        private boolean solicitaPermisosVersionesSuperiores() {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M){
-                return true;
-            }
-
-            if((LoginActivity.this.checkSelfPermission(WRITE_EXTERNAL_STORAGE)== PackageManager.PERMISSION_GRANTED)&& LoginActivity.this.checkSelfPermission(CAMERA)==PackageManager.PERMISSION_GRANTED){
-                return true;
-            }
-            if ((shouldShowRequestPermissionRationale(WRITE_EXTERNAL_STORAGE)||(shouldShowRequestPermissionRationale(CAMERA)))){
-                cargarDialogoRecomendacion();
-            }else{
-                requestPermissions(new String[]{WRITE_EXTERNAL_STORAGE, CAMERA}, MIS_PERMISOS);
-            }
-
-            return false;
-        }
 
         @Override
         public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
             if (requestCode==MIS_PERMISOS){
                 if(grantResults.length==2 && grantResults[0]==PackageManager.PERMISSION_GRANTED && grantResults[1]==PackageManager.PERMISSION_GRANTED){//el dos representa los 2 permisos
-                    Toast.makeText(getApplicationContext(),"Permisos aceptados",Toast.LENGTH_SHORT).show();
+                    GeneralMethod.showSnackback("Gracias por aceptar los permisos..!",mContainerLogin,LoginActivity.this);
                 }
-
             }
         }
-
     }
 
     public void instanciarDialogRegistro() {
