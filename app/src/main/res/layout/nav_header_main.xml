@@ -16,6 +16,7 @@
         android:layout_marginStart="30dp"
         android:layout_marginTop="8dp"
         android:visibility="visible"
+        android:src="@drawable/com_facebook_profile_picture_blank_square"
         android:contentDescription="@string/imagenperf_lmenudesplegable" />
 
     <LinearLayout

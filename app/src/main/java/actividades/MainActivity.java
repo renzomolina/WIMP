@@ -98,7 +98,7 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener,
         GoogleApiClient.ConnectionCallbacks,AppCompatCallback,LocationListener,
-        NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
+        NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, View.OnClickListener {
 
     GoogleMap googleMap;
     GoogleApiClient apiClient = null;
@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     AlertDialog alertGPS = null;
     Location Localizacion;
     DrawerLayout drawer;
-    ImageView perfil,imgPetsMarker;
+    ImageView mImgFotoPerfil,imgPetsMarker;
     private static final String URL_MARCADORES = "http://www.secsanluis.com.ar/servicios/varios/wimp/W_ListarMarcadores.php";
     private String  UrlConsultarUsuario ="http://www.secsanluis.com.ar/servicios/varios/wimp/W_ConsultarCliente.php";
     static final String TAG = MainActivity.class.getSimpleName();
@@ -131,15 +131,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         NavigationView navigationView = findViewById(R.id.nav_view);
+        drawer = findViewById(R.id.drawer_layout);
         navigationView.setNavigationItemSelectedListener(this);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapa);
         if (mapFragment != null) {
             mapFragment.getMapAsync(this);
         }
-        drawer = findViewById(R.id.drawer_layout);
-        perfil=findViewById(R.id.imgPerfilMenu);
-        //perfil.setImageBitmap(GeneralMethod.getBitmapClip(BitmapFactory.decodeResource(getResources(),R.drawable.com_facebook_profile_picture_blank_square)));
-
 
         ConectarAPI();
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -153,7 +150,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 MyLocation();
             }
         }catch (Exception ignored) { }
-
+        mImgFotoPerfil = navigationView.findViewById(R.id.imgPerfilMenu);
+        mImgFotoPerfil.setOnClickListener(this);
+        mImgFotoPerfil.setImageBitmap(GeneralMethod.getBitmapClip(BitmapFactory.decodeResource(getResources(),R.drawable.com_facebook_profile_picture_blank_square)));
     }
 
 
@@ -258,7 +257,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        //DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
@@ -308,7 +307,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             startActivity(Intent.createChooser(intent,"COMPARTIR"));
         }
 
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        //DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -418,6 +417,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     private boolean MyPosition(){
         sharedPreferences2 = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         return  sharedPreferences2.getBoolean("position",true);
+    }
+
+    @Override
+    public void onClick(View view) {
+        String res = "Estoy aqui.........";
     }
 
     //-----------------------------------CLASE INTERNA MAPA-------------------------------------------------

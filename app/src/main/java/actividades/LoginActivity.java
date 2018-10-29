@@ -114,7 +114,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
     private List<String> permisosNecesariosFacebook = Arrays.asList("email", "user_birthday", "user_friends", "public_profile");
     //GOOGLE------
     private GoogleSignInClient mGoogleSignInClient;
-    private GoogleApiClient mGoogleApiClient;
 
     //----------------------------------------CICLOS DE VIDA DE ACTIVITY-------------------------------------
     @Override
@@ -320,7 +319,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
 
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
+        GoogleApiClient mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(this, this)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
