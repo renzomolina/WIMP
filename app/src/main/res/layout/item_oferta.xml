@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="270dp"
+    android:background="@drawable/gradient_login"
+    android:orientation="vertical"
+
+    >
+
+    <TextView
+        android:id="@+id/TvTitulo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:hint="@string/titulo_publicacion"
+        android:textColor="@android:color/white"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/IvOferta"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/TvPrecio"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:hint="@string/precio"
+        android:textColor="@android:color/white"
+        android:textSize="25sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.4"
+        app:layout_constraintStart_toEndOf="@+id/IvOferta"
+        app:layout_constraintTop_toBottomOf="@+id/TvDescripcion" />
+
+    <TextView
+        android:id="@+id/TvDescripcion"
+        android:layout_width="174dp"
+        android:layout_height="78dp"
+        android:layout_gravity="center"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
+        android:hint="@string/descripci_n"
+        android:textColor="@android:color/white"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.424"
+        app:layout_constraintStart_toEndOf="@+id/IvOferta"
+        app:layout_constraintTop_toBottomOf="@+id/TvTitulo" />
+
+    <TextView
+        android:id="@+id/TvDireccion"
+        android:layout_width="168dp"
+        android:layout_height="29dp"
+        android:layout_gravity="center"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:hint="@string/direcci_n"
+        android:textColor="@android:color/white"
+        android:textSize="15sp"
+        android:textStyle="normal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/IvOferta"
+        app:layout_constraintTop_toBottomOf="@+id/TvPrecio" />
+
+    <TextView
+        android:id="@+id/TvTelefono"
+        android:layout_width="122dp"
+        android:layout_height="24dp"
+        android:layout_gravity="center"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="56dp"
+        android:layout_marginBottom="8dp"
+        android:hint="@string/tel_fono"
+        android:textColor="@android:color/white"
+        android:textSize="15sp"
+        android:textStyle="normal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/IvOferta"
+        app:layout_constraintTop_toBottomOf="@+id/TvDireccion" />
+
+    <ImageView
+        android:id="@+id/IvOferta"
+        android:layout_width="191dp"
+        android:layout_height="239dp"
+        android:layout_gravity="center"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:contentDescription="@string/imagen"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</android.support.constraint.ConstraintLayout>

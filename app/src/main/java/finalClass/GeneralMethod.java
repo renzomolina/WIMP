@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -44,7 +45,7 @@ public final class GeneralMethod {
     //-----------------------------------VALIDACIONES REGEX-------------------------------------------------------------
     private static final String REGEX_LETRAS = "^[a-zA-ZáÁéÉíÍóÓúÚñÑüÜ\\s]+$";
     private static final String REGEX_EMAIL ="^[a-zA-Z0-9\\._-]+@[a-zA-Z0-9-]{2,}[.][a-zA-Z]{2,4}$";
-    private static final String REGEX_PASSWORD = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})$";
+    private static final String REGEX_PASSWORD = "^(?=\\w*\\d)(?=\\w*[A-Z])(?=\\w*[a-z])\\S{8,}$";
     //Permisos
     private static final int MIS_PERMISOS = 100;
     private static final int COD_SELECCIONA = 10;
@@ -53,6 +54,12 @@ public final class GeneralMethod {
     private static final String CARPETA_PRINCIPAL = "WIMP/";//directorio principal
     private static final String CARPETA_IMAGEN = "imagenes";//carpeta donde se guardan las fotos
     private static final String DIRECTORIO_IMAGEN = CARPETA_PRINCIPAL + CARPETA_IMAGEN;//ruta carpeta de directorios
+
+    private static String pathTomarFoto;
+
+    public static String getPathTomarFoto() {
+        return pathTomarFoto;
+    }
     //-----------------------------------Imagen Circular----------------------------------------------------------------
     public static Bitmap getBitmapClip(Bitmap bitmap) {
         int maxLenth = bitmap.getWidth() <= bitmap.getHeight() ? bitmap.getWidth() : bitmap.getHeight();
@@ -72,16 +79,16 @@ public final class GeneralMethod {
         return output;
     }
     //---------------------------------------VALIDACIONES DE COMPONENTES------------------------------------------------
-    public static boolean RegexRegistro(String edit, Activity activity) {
+    public static boolean RegexRegistro(String edit, View view) {
         boolean respuestaValidacion = false;
-        Drawable msgerror = activity.getResources().getDrawable(R.drawable.icon_error);
+        Drawable msgerror = view.getResources().getDrawable(R.drawable.icon_error);
         msgerror.setBounds(0, 0, msgerror.getIntrinsicWidth(), msgerror.getIntrinsicHeight());
 
-        final EditText etNombre = activity.findViewById(R.id.nombreRegistro),
-                        etApellido = activity.findViewById(R.id.apellidoRegistro),
-                        etCorreo = activity.findViewById(R.id.emailRegistro),
-                        etContrasena = activity.findViewById(R.id.passRegistro),
-                        etConfimarContrasena = activity.findViewById(R.id.confirmpassRegistro);
+        final EditText etNombre = view.findViewById(R.id.nombreRegistro),
+                        etApellido = view.findViewById(R.id.apellidoRegistro),
+                        etCorreo = view.findViewById(R.id.emailRegistro),
+                        etContrasena = view.findViewById(R.id.passRegistro),
+                        etConfimarContrasena = view.findViewById(R.id.confirmpassRegistro);
         switch (edit) {
             case "nombre": {
                 if (CheckEditTextIsEmptyOrNot(etNombre)) {
@@ -117,8 +124,7 @@ public final class GeneralMethod {
                 if (CheckEditTextIsEmptyOrNot(etCorreo)) {
                     etCorreo.setError("Campo Vacio", msgerror);
                 } else {
-                    Pattern p = Pattern.compile(REGEX_EMAIL);
-                    if (!p.matcher(etCorreo.getText().toString()).matches()) {
+                    if (!Pattern.compile(REGEX_EMAIL).matcher(etCorreo.getText().toString()).matches()) {
                         etCorreo.setError("Correo Invalido", msgerror);
                     } else {
                         etCorreo.setError(null);
@@ -131,8 +137,7 @@ public final class GeneralMethod {
                     etContrasena.setError("Campo Vacio", msgerror);
                 }
                 else{
-                    Pattern p = Pattern.compile(REGEX_PASSWORD);
-                    if (!p.matcher(etContrasena.getText().toString()).matches()) {
+                    if (!Pattern.compile(REGEX_PASSWORD).matcher(etContrasena.getText().toString()).matches()) {
                         etContrasena.setError("La contraseña debe contener al menos 8 caracteres alfanumericos, 1 minuscula, 1 mayuscula, 1 numero, 8 caracteres o mas ", msgerror);
                     } else {
                         etContrasena.setError(null);
@@ -226,7 +231,7 @@ public final class GeneralMethod {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 if (opciones[i].equals("Tomar Foto")){
-                    abrirCamara(mActivity);
+                   abrirCamara(mActivity);
                 }else{
                     if (opciones[i].equals("Elegir de Galeria")){
                         Intent intent=new Intent(Intent.ACTION_PICK);
@@ -245,7 +250,6 @@ public final class GeneralMethod {
     private static void abrirCamara(Activity mActivity) {
         File miFile=new File(Environment.getExternalStorageDirectory(),DIRECTORIO_IMAGEN);
         boolean isCreada=miFile.exists();
-
         if(!isCreada){
             isCreada=miFile.mkdirs();
         }
@@ -254,7 +258,7 @@ public final class GeneralMethod {
             Long consecutivo= System.currentTimeMillis()/1000;
             String nombre=consecutivo.toString()+".jpg";
 
-            String pathTomarFoto = Environment.getExternalStorageDirectory() + File.separator + DIRECTORIO_IMAGEN
+            pathTomarFoto = Environment.getExternalStorageDirectory() + File.separator + DIRECTORIO_IMAGEN
                     + File.separator + nombre;
 
             //Imagen
@@ -330,5 +334,24 @@ public final class GeneralMethod {
     public static String getRandomString() {
         SecureRandom random = new SecureRandom();
         return new BigInteger(130, random).toString(32);
+    }
+    //-------------------------------------------
+    public static String getPath(Uri uri,Activity mActivity) {
+        Cursor cursor = mActivity.getContentResolver().query(uri, null, null, null, null);
+        assert cursor != null;
+        cursor.moveToFirst();
+        String document_id = cursor.getString(0);
+        document_id = document_id.substring(document_id.lastIndexOf(":") + 1);
+        cursor.close();
+
+        cursor = mActivity.getContentResolver().query(
+                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                null, MediaStore.Images.Media._ID + " = ? ", new String[]{document_id}, null);
+        assert cursor != null;
+        cursor.moveToFirst();
+        String path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+        cursor.close();
+
+        return path;
     }
 }

@@ -61,6 +61,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.facebook.AccessToken;
+import com.facebook.login.LoginManager;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -96,6 +97,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
+
 import dialogsFragments.DialogMarkerPet;
 import finalClass.GeneralMethod;
 import misclases.CustomInfoWindowAdapter;
@@ -104,6 +106,8 @@ import misclases.VolleySingleton;
 
 
 import static android.widget.Toast.LENGTH_SHORT;
+import com.firebase.ui.auth.AuthUI;
+
 
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener,
@@ -237,7 +241,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
     }
-    private void signOut() {
+    private void signOutGoogle() {
         // Firebase sign out
         mFirebaseAuth.signOut();
 
@@ -245,10 +249,27 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         mGoogleSignInClient.signOut().addOnCompleteListener(this,
                 new OnCompleteListener<Void>() {
                     @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        VolverAlLogin();
+                        public void onComplete(@NonNull Task<Void> task) {
+                            VolverAlLogin();
                     }
                 });
+    }
+    private void signOutEmailPassword() {
+        AuthUI.getInstance().signOut(this).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                VolverAlLogin();
+            }
+        });
+    }
+
+
+    private void singOutFabebook(){
+
+        mFirebaseAuth.signOut();
+        LoginManager.getInstance().logOut();
+        VolverAlLogin();
+
     }
     private  void VolverAlLogin(){
         Intent i = new Intent(this, LoginActivity.class);
@@ -347,12 +368,25 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     }
 
 
+
+
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-        if(id == R.id.nav_salir){
-            signOut();
+        if(id == R.id.nav_salir) {
+
+            if (LoginManager.getInstance() != null) {
+                singOutFabebook();
+            }
+            else if (mFirebaseAuth.getCurrentUser()!=null) {
+           // mFirebaseAuth.signOut();
+                signOutEmailPassword();
+
+            }
+            else{
+                signOutGoogle();
+            }
 
         }
         else if(id == R.id.nav_ajustes) {

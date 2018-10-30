@@ -105,13 +105,21 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private FirebaseUser mUserFireBase;
     public static final int RC_SIGN_IN = 1;
+
     //FACEBOOK--
     private CallbackManager callbackManager;
     private LoginButton loginButton;
     private List<String> permisosNecesariosFacebook = Arrays.asList("email", "user_birthday", "user_friends", "public_profile");
     //GOOGLE------
     private GoogleSignInClient mGoogleSignInClient;
-
+    //IMAGEN REGISTRO
+    private static final int COD_SELECCIONA = 10;
+    private static final int COD_FOTO = 20;
+    //Imagen
+    private File fileImagen;
+    private String tipoDeFoto = "VACIO";
+    private Uri mFotoPerfilRegistro;
+    private ImageView mImgPerfilDBRegistroImageView;
     //----------------------------------------CICLOS DE VIDA DE ACTIVITY-------------------------------------
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -146,7 +154,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
         LoginGoogle();
         EscuchandoEstadoDeAutenticacion();
 
-        ///KeyHash();
+        //KeyHash();
     }
 
     @Override
@@ -178,10 +186,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
                 mUserFireBase = firebaseAuth.getCurrentUser();
                 if (AccessToken.getCurrentAccessToken() != null) {
                     Toast.makeText(LoginActivity.this, "Faceboook", LENGTH_SHORT).show();
-                    InicioSesionCorrecto();
-                }
-                if (mUserFireBase != null) {
-                    InicioSesionCorrecto();
+
                 }
                 /*if(mUserFireBase!=null)
                 {
@@ -189,6 +194,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
                     //user.setNombre(userFireBase.getDisplayName());
                     user.setEmail(mUserFireBase.getEmail());
                 }*/
+
             }
         };
     }
@@ -261,14 +267,14 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
     //---------------------------------------FIREBASE EMAIL---------------------------------------------------
     private void LoginEmailPassword() {
         mUserFireBase = mFirebaseAuth.getCurrentUser();
-        final String mMsgShowSnackBarVerificado = "El correo no se encuentra verificado, por favor vea su bandeja de entrada y verifique el correo para validar la cuenta",
+        final String mMsgShowSnackBarVerificado = "El correo no se encuentra verificado, por favor verifique el correo",
                 mMsgShowSnackBarEmailPassword = "Usuario o Contraseña incorrecto, por favor vuelva a ingresarlos.!",
                 mMsgShowSnackBarCurrentUser = "Cuenta invalida, registra la cuenta o elija alguna de las otras opciones de logueo...!";
         if (mUserFireBase != null) {
             mUserFireBase.reload().addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
-
+                    assert (mUserFireBase) != null;
                     if (mUserFireBase.isEmailVerified()) {
                         final String mEmailStringEditTextLogin = mEmailEditTextLogin.getText().toString().trim(),
                                 mPasswordStringEditTextLogin = mPasswordEditTextLogin.getText().toString();
@@ -314,6 +320,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
+                            InicioSesionCorrecto();
                             GeneralMethod.showSnackback("Bienvenido a WIMP?",mContainerLogin,LoginActivity.this);
 
                         } else {
@@ -400,8 +407,39 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
                 }
             }
             break;
-            default:
-                break;
+            case "ImagenRegistro":{
+                if (resultCode == RESULT_OK) {
+                    switch (requestCode) {
+                        case COD_SELECCIONA: {
+                            assert data != null;
+                            mFotoPerfilRegistro = data.getData();
+                            tipoDeFoto = "SELECCIONA";
+                            try {
+                                mImgPerfilDBRegistroImageView.setImageBitmap(GeneralMethod.getBitmapClip(MediaStore.Images.Media.getBitmap(getContentResolver(), mFotoPerfilRegistro)));
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+
+                        }break;
+                        case COD_FOTO: {
+                            String pathTomarFoto = GeneralMethod.getPathTomarFoto();
+                            assert (pathTomarFoto) != null;
+                            MediaScannerConnection.scanFile(this, new String[]{pathTomarFoto}, null,
+                                    new MediaScannerConnection.OnScanCompletedListener() {
+                                        @Override
+                                        public void onScanCompleted(String path, Uri uri) {
+                                            Log.i("Path",""+path);
+                                        }
+                                    });
+                            mImgPerfilDBRegistroImageView.setImageBitmap(GeneralMethod.getBitmapClip(BitmapFactory.decodeFile(pathTomarFoto)));
+                            mFotoPerfilRegistro = Uri.fromFile(new File(Objects.requireNonNull(pathTomarFoto)));
+                            tipoDeFoto = "FOTO";
+                        } break;
+
+                    }
+                }
+            }break;
+            default:break;
         }
 
 
@@ -449,20 +487,12 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
         //Componentes Registro
         private CardView btnRegistro;
         private EditText mNombreRegistroEditText, mApellidoRegistroEditText, mEmailRegistroEditText, mPassRegistroEditText, mPassConfirmRegistroEditText;
-        private ImageView mImgPerfilDBRegistroImageView;
         private ProgressDialog progressDialog;
+        private ConstraintLayout mContrainerRegistro;
         //Validaciones
         private boolean RespuestaValidacion = false;
         //Permisos
         private static final int MIS_PERMISOS = 100;
-        private static final int COD_SELECCIONA = 10;
-        private static final int COD_FOTO = 20;
-
-        //Imagen
-        private File fileImagen;
-        private String pathTomarFoto,tipoDeFoto = "VACIO";
-        private Uri uriSeleccionarFoto;
-        private Uri mFotoPerfilRegistro;
 
         //Firebase
         private FirebaseAuth mFirebaseAuthRegistro;
@@ -486,6 +516,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
             mEmailRegistroEditText = content.findViewById(R.id.emailRegistro);
             mPassRegistroEditText = content.findViewById(R.id.passRegistro);
             mPassConfirmRegistroEditText = content.findViewById(R.id.confirmpassRegistro);
+            mContrainerRegistro = content.findViewById(R.id.ContenedorRegistro);
             mImgPerfilDBRegistroImageView = content.findViewById(R.id.imgPerfilDBRegistro);
             mImgPerfilDBRegistroImageView.setImageBitmap(GeneralMethod.getBitmapClip(BitmapFactory.decodeResource(getResources(),R.drawable.com_facebook_profile_picture_blank_square)));
             btnRegistro.setOnClickListener(this);
@@ -511,6 +542,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
         @Override
         public void onResume() {
             super.onResume();
+            ValidarRegistro();
 
         }
         //--------------------------------------ESCUCHADOR DE AUTENTICACION, POR SI CAMBIA DE LOGUEO------------------------------------
@@ -526,40 +558,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
                 }
             };
         }
-        //--------------------------------------RESULTADO DEL DIALOGO------------------------------------------------------------
-        @Override
-        public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-            super.onActivityResult(requestCode, resultCode, data);
-            if (resultCode == RESULT_OK) {
-                switch (requestCode) {
-                    case COD_SELECCIONA: {
-                        uriSeleccionarFoto = Objects.requireNonNull(data).getData();
-                        mFotoPerfilRegistro = uriSeleccionarFoto;
-                        tipoDeFoto = "SELECCIONA";
-                        try {
-                            mImgPerfilDBRegistroImageView.setImageBitmap(GeneralMethod.getBitmapClip(MediaStore.Images.Media.getBitmap(LoginActivity.this.getContentResolver(), uriSeleccionarFoto)));
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }break;
-                    case COD_FOTO: {
-                        MediaScannerConnection.scanFile(LoginActivity.this, new String[]{pathTomarFoto}, null,
-                                new MediaScannerConnection.OnScanCompletedListener() {
-                                    @Override
-                                    public void onScanCompleted(String path, Uri uri) {
-                                        Log.i("Path", "" + path);
-                                    }
-                                });
-                        mImgPerfilDBRegistroImageView.setImageBitmap(GeneralMethod.getBitmapClip(BitmapFactory.decodeFile(pathTomarFoto)));
-                        mFotoPerfilRegistro = Uri.fromFile(new File(pathTomarFoto));
-                        tipoDeFoto = "FOTO";
-                    } break;
-                }
-            } else {
-                mImgPerfilDBRegistroImageView.setImageBitmap(GeneralMethod.getBitmapClip(BitmapFactory.decodeResource(getResources(),R.drawable.com_facebook_profile_picture_blank_square)));
-            }
-
-        }
 
         // Click de boton registar y imagenview de imagenPerfil
         @Override
@@ -570,6 +568,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
                 }
                 break;
                 case R.id.imgPerfilDBRegistro: {
+                    tipoDeLogin="ImagenRegistro";
                     if (GeneralMethod.solicitaPermisosVersionesSuperiores(LoginActivity.this)) {
                         GeneralMethod.mostrarDialogOpciones(LoginActivity.this);
                     }
@@ -600,45 +599,43 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
                                         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
                                         DatabaseReference currentUserDB = mDatabase.child(Objects.requireNonNull(mFirebaseAuth.getCurrentUser()).getUid());
                                         if(!tipoDeFoto.equals("VACIO")) {
-                                            storageIMG(currentUserDB,mUser);
+                                            storageIMG(currentUserDB,mUser,mDatabase);
                                         }
                                         else{
                                             currentUserDB.child("image").setValue("defaultUser");
                                         }
-
-                                        Toast.makeText(LoginActivity.this, "Registrado con exito", Toast.LENGTH_SHORT).show();
                                         final FirebaseUser firebaseUser = Objects.requireNonNull(task.getResult()).getUser();
                                         firebaseUser.sendEmailVerification();
                                         dismiss();
+                                        GeneralMethod.showSnackback("Registro exitoso, gracias por registrarse!",mContrainerRegistro,RegistroDialog.this.getActivity());
+
                                     } else {
-                                        Toast.makeText(LoginActivity.this, "Ocurrio un inconveniente al intentar registrar el email, o la contraseña no cumple los " +
-                                                        "requisitos minimo, por favor, vuelva a intentarlo",
+                                        Toast.makeText(RegistroDialog.this.getActivity(), "Ocurrio un inconveniente al intentar registrar el email, por favor, vuelva a intentarlo",
                                                 Toast.LENGTH_SHORT).show();
                                     }
                                 }
                             });
 
             } else {
-                Toast.makeText(LoginActivity.this, "VACIOS", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this.getActivity(), "VACIOS", Toast.LENGTH_SHORT).show();
             }
         }
 
-        public void storageIMG (final DatabaseReference currentUserDB, final Usuario mUser) {
+        public void storageIMG (final DatabaseReference currentUserDB, final Usuario mUser, final DatabaseReference mDatabase) {
 
             final StorageReference mStorageImgPerfilUsuario = mStorageReference.child("Imagenes").child("Perfil").child(GeneralMethod.getRandomString());
 
-            mStorageImgPerfilUsuario.putFile(mFotoPerfilRegistro).addOnSuccessListener(LoginActivity.this, new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            mStorageImgPerfilUsuario.putFile(mFotoPerfilRegistro).addOnSuccessListener(this.getActivity(), new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    currentUserDB.child("Usuarios").child("name").setValue(mUser.getNombre());
-                    currentUserDB.child("Usuarios").child("last_name").setValue(mUser.getApellido());
-                    currentUserDB.child("image").setValue(taskSnapshot.getStorage().getDownloadUrl().toString());
-
+                    mDatabase.child("Usuarios").child(Objects.requireNonNull(currentUserDB.getKey())).child("name").setValue(mUser.getNombre());
+                    mDatabase.child("Usuarios").child(Objects.requireNonNull(currentUserDB.getKey())).child("last_name").setValue(mUser.getApellido());
+                    mDatabase.child("Usuarios").child(Objects.requireNonNull(currentUserDB.getKey())).child("image").setValue(taskSnapshot.getStorage().getDownloadUrl().toString());
                 }
-            }).addOnFailureListener(LoginActivity.this, new OnFailureListener() {
+            }).addOnFailureListener(this.getActivity(), new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    Toast.makeText(LoginActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegistroDialog.this.getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -654,7 +651,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    RespuestaValidacion = GeneralMethod.RegexRegistro("nombre",LoginActivity.this);
+                    RespuestaValidacion = GeneralMethod.RegexRegistro("nombre",mContrainerRegistro);
                 }
             });
             mApellidoRegistroEditText.addTextChangedListener(new TextWatcher() {
@@ -666,7 +663,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    RespuestaValidacion = GeneralMethod.RegexRegistro("apellido",LoginActivity.this);
+                    RespuestaValidacion = GeneralMethod.RegexRegistro("apellido",mContrainerRegistro);
                 }
             });
             mEmailRegistroEditText.addTextChangedListener(new TextWatcher() {
@@ -678,7 +675,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    RespuestaValidacion = GeneralMethod.RegexRegistro("email",LoginActivity.this);
+                    RespuestaValidacion = GeneralMethod.RegexRegistro("email",mContrainerRegistro);
                 }
             });
             mPassRegistroEditText.addTextChangedListener(new TextWatcher() {
@@ -690,7 +687,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    RespuestaValidacion = GeneralMethod.RegexRegistro("password",LoginActivity.this);
+                    RespuestaValidacion = GeneralMethod.RegexRegistro("password",mContrainerRegistro);
                 }
             });
             mPassConfirmRegistroEditText.addTextChangedListener(new TextWatcher() {
@@ -702,7 +699,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    RespuestaValidacion = GeneralMethod.RegexRegistro("confirmacontraseña",LoginActivity.this);
+                    RespuestaValidacion = GeneralMethod.RegexRegistro("confirmacontraseña",mContrainerRegistro);
                 }
             });
             return RespuestaValidacion;
@@ -716,7 +713,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
             if (requestCode==MIS_PERMISOS){
                 if(grantResults.length==2 && grantResults[0]==PackageManager.PERMISSION_GRANTED && grantResults[1]==PackageManager.PERMISSION_GRANTED){//el dos representa los 2 permisos
-                    GeneralMethod.showSnackback("Gracias por aceptar los permisos..!",mContainerLogin,LoginActivity.this);
+                    GeneralMethod.showSnackback("Gracias por aceptar los permisos..!",mContrainerRegistro,LoginActivity.this);
                 }
             }
         }
@@ -727,4 +724,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
         dialog.setCancelable(false);
         dialog.show(getFragmentManager(), "REGISTRO");// Mostramos el dialogo
     }
+
+
+
+
 }
