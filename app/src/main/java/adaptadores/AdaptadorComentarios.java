@@ -1,14 +1,17 @@
-package actividades;
+package adaptadores;
 
-import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
+        import android.support.v7.widget.RecyclerView;
+        import android.view.LayoutInflater;
+        import android.view.View;
+        import android.view.ViewGroup;
+        import android.widget.ImageView;
+        import android.widget.TextView;
 
-import java.util.ArrayList;
-import com.whereismypet.whereismypet.R;
+        import java.util.ArrayList;
+        import com.whereismypet.whereismypet.R;
+
+        import Modelo.Comentario;
+
 public class AdaptadorComentarios extends RecyclerView.Adapter<AdaptadorComentarios.ViewHolderComentarios> implements View.OnClickListener{
 
     private View.OnClickListener listener;
@@ -26,7 +29,7 @@ public class AdaptadorComentarios extends RecyclerView.Adapter<AdaptadorComentar
         }
 
         public void asignarDatos(Comentario c) {
-          //  ImgUsuario.( c.getUsuario() );
+            //  ImgUsuario.( c.getUsuario() );
             tvCuerpo.setText( c.getCuerpo() );
         }
     }
@@ -54,6 +57,9 @@ public class AdaptadorComentarios extends RecyclerView.Adapter<AdaptadorComentar
 
     }
 
+
+
+
     @Override
     public int getItemCount() {
         return datos.size();
@@ -61,6 +67,9 @@ public class AdaptadorComentarios extends RecyclerView.Adapter<AdaptadorComentar
 
     public void setOnClickListener(View.OnClickListener listener){
         this.listener = listener;
+
+
+
     }
     @Override
     public void onClick(View v) {
@@ -71,3 +80,7 @@ public class AdaptadorComentarios extends RecyclerView.Adapter<AdaptadorComentar
 
 
 }
+
+
+
+

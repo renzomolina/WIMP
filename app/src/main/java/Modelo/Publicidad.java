@@ -1,4 +1,4 @@
-package actividades;
+package Modelo;
 
 /**
  * Created by dafunes on 12/10/2018.

@@ -37,4 +37,20 @@
     <string name="where_is_my_pet">Where is my pet?</string>
     <string name="tus_mascotas_en_un_solo_lugar">Tus mascotas en un solo lugar</string>
 
+    <string name="titulo_publicacion">Titulo publicacion</string>
+    <string name="precio">Precio</string>
+    <string name="descripci_n">DescripciÃ³n</string>
+    <string name="direcci_n">DirecciÃ³n</string>
+    <string name="tel_fono">TelÃ©fono</string>
+    <string name="cupon">Cupon</string>
+    <string name="imagen">Imagen</string>
+    <string name="descuentos">Descuentos</string>
+    <string name="publicar">Publicar</string>
+    <string name="subir_imagen">Subir imagen</string>
+    <string name="aceptar_y_publicar">Aceptar y publicar</string>
+    <string name="comentar">Comentar</string>
+    <string name="marcador">Marcador</string>
+    <string name="imagenmarcador">ImagenMarcador</string>
+
+
 </resources>

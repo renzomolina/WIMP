@@ -1,4 +1,4 @@
-package actividades;
+package Modelo;
 
 import android.widget.ImageView;
 

@@ -1,4 +1,4 @@
-package actividades;
+package adaptadores;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -8,6 +8,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import com.whereismypet.whereismypet.R;
 import java.util.ArrayList;
+
+import Modelo.Publicidad;
 
 public class AdaptadorPublicidades extends RecyclerView.Adapter<AdaptadorPublicidades.ViewHolderPublicidades> implements View.OnClickListener{
 

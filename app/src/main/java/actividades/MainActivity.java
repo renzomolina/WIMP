@@ -169,9 +169,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 MyLocation();
             }
         }catch (Exception ignored) { }
-        mImgFotoPerfil = navigationView.findViewById(R.id.imgPerfilMenu);
+        /*mImgFotoPerfil = navigationView.findViewById(R.id.imgPerfilMenu);
         mImgFotoPerfil.setOnClickListener(this);
-        mImgFotoPerfil.setImageBitmap(GeneralMethod.getBitmapClip(BitmapFactory.decodeResource(getResources(),R.drawable.com_facebook_profile_picture_blank_square)));
+        mImgFotoPerfil.setImageBitmap(GeneralMethod.getBitmapClip(BitmapFactory.decodeResource(getResources(),R.drawable.com_facebook_profile_picture_blank_square)));*/
     }
 
     @Override
@@ -244,7 +244,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     private void signOutGoogle() {
         // Firebase sign out
         mFirebaseAuth.signOut();
-
         // Google sign out
         mGoogleSignInClient.signOut().addOnCompleteListener(this,
                 new OnCompleteListener<Void>() {
@@ -255,17 +254,16 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 });
     }
     private void signOutEmailPassword() {
-        AuthUI.getInstance().signOut(this).addOnCompleteListener(new OnCompleteListener<Void>() {
+        /*AuthUI.getInstance().signOut(this).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                VolverAlLogin();
+
             }
-        });
+        });*/
     }
 
 
     private void singOutFabebook(){
-
         mFirebaseAuth.signOut();
         LoginManager.getInstance().logOut();
         VolverAlLogin();
@@ -376,16 +374,19 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         int id = item.getItemId();
         if(id == R.id.nav_salir) {
 
-            if (LoginManager.getInstance() != null) {
+            if(Objects.requireNonNull(mFirebaseAuth.getCurrentUser()).getProviderData().get(0).equals("facebook.com")){
                 singOutFabebook();
             }
-            else if (mFirebaseAuth.getCurrentUser()!=null) {
+
+            else if (Objects.requireNonNull(mFirebaseAuth.getCurrentUser()).getProviderData().get(0).equals("google.com")) {
            // mFirebaseAuth.signOut();
-                signOutEmailPassword();
+                //signOutEmailPassword();
+                signOutGoogle();
+
 
             }
             else{
-                signOutGoogle();
+                VolverAlLogin();
             }
 
         }

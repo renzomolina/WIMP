@@ -2,11 +2,13 @@ package finalClass;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -29,7 +31,11 @@ import android.widget.EditText;
 
 import com.whereismypet.whereismypet.R;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.regex.Pattern;
@@ -60,7 +66,11 @@ public final class GeneralMethod {
     public static String getPathTomarFoto() {
         return pathTomarFoto;
     }
+
+
     //-----------------------------------Imagen Circular----------------------------------------------------------------
+
+
     public static Bitmap getBitmapClip(Bitmap bitmap) {
         int maxLenth = bitmap.getWidth() <= bitmap.getHeight() ? bitmap.getWidth() : bitmap.getHeight();
         Bitmap output = Bitmap.createBitmap(maxLenth,
@@ -78,7 +88,11 @@ public final class GeneralMethod {
         canvas.drawBitmap(bitmap, rect, rect, paint);
         return output;
     }
+
+
     //---------------------------------------VALIDACIONES DE COMPONENTES------------------------------------------------
+
+
     public static boolean RegexRegistro(String edit, View view) {
         boolean respuestaValidacion = false;
         Drawable msgerror = view.getResources().getDrawable(R.drawable.icon_error);
@@ -87,8 +101,10 @@ public final class GeneralMethod {
         final EditText etNombre = view.findViewById(R.id.nombreRegistro),
                         etApellido = view.findViewById(R.id.apellidoRegistro),
                         etCorreo = view.findViewById(R.id.emailRegistro),
+                        etConfirmarCorreo=view.findViewById(R.id.confirmar_emailRegistro),
                         etContrasena = view.findViewById(R.id.passRegistro),
                         etConfimarContrasena = view.findViewById(R.id.confirmpassRegistro);
+
         switch (edit) {
             case "nombre": {
                 if (CheckEditTextIsEmptyOrNot(etNombre)) {
@@ -132,6 +148,17 @@ public final class GeneralMethod {
                     }
                 }
             }break;
+            case "confirmaremail": {
+                if (CheckEditTextIsEmptyOrNot( etConfirmarCorreo)) {
+                    etConfirmarCorreo.setError("Campo Vacio", msgerror);
+                } else {
+                    if ( etCorreo.getText().toString().equals( etConfirmarCorreo.getText().toString())) {
+                        respuestaValidacion = true;
+                    } else {
+                        etConfirmarCorreo.setError("Debe coincidir con el correo ingresado anteriormente ", msgerror);
+                    }
+                }
+            }break;
             case "password":{
                 if (CheckEditTextIsEmptyOrNot(etContrasena)) {
                     etContrasena.setError("Campo Vacio", msgerror);
@@ -153,7 +180,7 @@ public final class GeneralMethod {
                     if (etContrasena.getText().toString().equals(etConfimarContrasena.getText().toString())) {
                         respuestaValidacion = true;
                     } else {
-                        etConfimarContrasena.setError("Debe coincidir con Contraseña", msgerror);
+                        etConfimarContrasena.setError("Debe coincidir con la Contraseña ingresada anteriormente ", msgerror);
                     }
                 }
             }break;
@@ -198,7 +225,11 @@ public final class GeneralMethod {
     private static boolean CheckEditTextIsEmptyOrNot(EditText editText){
         return (TextUtils.isEmpty(editText.getText().toString().trim()));
     }
+
+
     //--------------------------CLASE TEXT WATCHER-------------------------------------------------------------
+
+
     public static class AddListenerOnTextChange implements TextWatcher {
         private Activity mActivity;
         EditText mEditTextView;
@@ -222,7 +253,12 @@ public final class GeneralMethod {
         }
     }
 
-    //CAMARA O SELECCION DE IMAGEN
+
+
+    //-------------------------------------CAMARA O SELECCION DE IMAGEN--------------------------------
+
+
+
     public static void mostrarDialogOpciones(final Activity mActivity) {
         final CharSequence[] opciones={"Tomar Foto","Elegir de Galeria","Cancelar"};
         final AlertDialog.Builder builder=new AlertDialog.Builder(mActivity);
@@ -296,7 +332,7 @@ public final class GeneralMethod {
         dialogo.show();
     }
 
-    //PERMISOS
+    //-----------------------------------------------------PERMISOS----------------------------------------------------
     public static boolean solicitaPermisosVersionesSuperiores(final Activity mActivity) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M){
             return true;
@@ -315,6 +351,9 @@ public final class GeneralMethod {
     }
 
     //-------------------------------------------METODO PARA MOSTRAR UN SNACKBAR CON LOS ERRORES(MEJOR QUE UN TOAST)----------------------------------
+
+
+
     public static void showSnackback(String mMsgSnackbar,View view, Activity activity) {
         InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
         if (imm != null) {
@@ -330,7 +369,11 @@ public final class GeneralMethod {
                 .setActionTextColor(Color.MAGENTA);
         mSnackbarEmptyField.show();
     }
+
+
     //------------------------------------------Nombre Random--------------------------------------------------
+
+
     public static String getRandomString() {
         SecureRandom random = new SecureRandom();
         return new BigInteger(130, random).toString(32);
@@ -354,4 +397,70 @@ public final class GeneralMethod {
 
         return path;
     }
+
+
+
+    //------------------------------------------------REDUCIR TAMAÑO DE IMAGEN-------------------------
+
+
+
+    public static Uri getImageUri(Context inContext, Bitmap inImage) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
+        return Uri.parse(path);
+    }
+
+    public static  Uri reducirTamaño(Uri uri, Activity activity) {
+        InputStream in = null;
+        try {
+            final int IMAGE_MAX_SIZE = 1200000; // 1.2MP
+            in = activity.getContentResolver().openInputStream(uri);
+
+            // Decode image size
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeStream(in, null, options);
+            assert in != null;
+            in.close();
+
+            int scale = 1;
+            while ((options.outWidth * options.outHeight) * (1 / Math.pow(scale, 2)) > IMAGE_MAX_SIZE) {
+                scale++;
+            }
+
+            Bitmap resultBitmap;
+            in = activity.getContentResolver().openInputStream(uri);
+            if (scale > 1) {
+                scale--;
+                options = new BitmapFactory.Options();
+                options.inSampleSize = scale;
+                resultBitmap = BitmapFactory.decodeStream(in, null, options);
+
+                // resize to desired dimensions
+                assert resultBitmap != null;
+                int height = resultBitmap.getHeight();
+                int width = resultBitmap.getWidth();
+
+                double y = Math.sqrt(IMAGE_MAX_SIZE / (((double) width) / height));
+                double x = (y / height) * width;
+
+                Bitmap scaledBitmap = Bitmap.createScaledBitmap(resultBitmap, (int) x, (int) y, true);
+                resultBitmap.recycle();
+                resultBitmap = scaledBitmap;
+
+                System.gc();
+            } else {
+                resultBitmap = BitmapFactory.decodeStream(in);
+            }
+            assert in != null;
+            in.close();
+
+            return getImageUri(activity.getApplicationContext(),resultBitmap);
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+
 }

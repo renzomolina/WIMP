@@ -90,7 +90,7 @@
             android:layout_width="41dp"
             android:layout_height="37dp"
             android:visibility="invisible"
-            app:srcCompat="@drawable/corazon_rojo-48"
+            app:srcCompat="@drawable/corazon_rojo"
             tools:ignore="MissingConstraints"
             tools:layout_editor_absoluteX="16dp"
             tools:layout_editor_absoluteY="16dp" />

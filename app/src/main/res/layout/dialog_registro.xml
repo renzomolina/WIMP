@@ -24,7 +24,7 @@
     <ImageView
         android:id="@+id/imgPerfilDBRegistro"
         android:layout_width="100dp"
-        android:layout_height="84dp"
+        android:layout_height="102dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_gravity="center"
@@ -43,7 +43,7 @@
 
         android:id="@+id/DatosPersonales"
         android:layout_width="match_parent"
-        android:layout_height="437dp"
+        android:layout_height="406dp"
         android:layout_alignTop="@+id/divider_config2"
         android:layout_alignParentStart="true"
         android:layout_marginStart="8dp"
@@ -56,7 +56,7 @@
         <EditText
             android:id="@+id/nombreRegistro"
             android:layout_width="match_parent"
-            android:layout_height="61dp"
+            android:layout_height="58dp"
             android:layout_alignParentTop="true"
             android:layout_marginTop="11dp"
             android:background="#11000000"
@@ -72,10 +72,10 @@
         <EditText
             android:id="@+id/apellidoRegistro"
             android:layout_width="match_parent"
-            android:layout_height="61dp"
+            android:layout_height="58dp"
 
             android:layout_alignParentTop="true"
-            android:layout_marginTop="79dp"
+            android:layout_marginTop="75dp"
             android:background="#11000000"
             android:drawableStart="@drawable/ic_action_user"
             android:ems="10"
@@ -89,10 +89,10 @@
         <EditText
             android:id="@+id/emailRegistro"
             android:layout_width="match_parent"
-            android:layout_height="61dp"
+            android:layout_height="58dp"
 
             android:layout_alignParentTop="true"
-            android:layout_marginTop="148dp"
+            android:layout_marginTop="139dp"
             android:background="#11000000"
             android:drawableStart="@drawable/ic_action_mail"
             android:ems="10"
@@ -106,10 +106,12 @@
         <EditText
             android:id="@+id/confirmar_emailRegistro"
             android:layout_width="match_parent"
-            android:layout_height="61dp"
+            android:layout_height="58dp"
 
+            android:layout_below="@+id/emailRegistro"
             android:layout_alignParentBottom="true"
-            android:layout_marginBottom="162dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="157dp"
             android:background="#11000000"
             android:drawableStart="@drawable/ic_action_mail"
             android:ems="10"
@@ -123,7 +125,7 @@
         <EditText
             android:id="@+id/passRegistro"
             android:layout_width="match_parent"
-            android:layout_height="61dp"
+            android:layout_height="58dp"
             android:layout_alignParentBottom="true"
             android:layout_marginBottom="93dp"
             android:background="#11000000"
@@ -138,9 +140,9 @@
         <EditText
             android:id="@+id/confirmpassRegistro"
             android:layout_width="match_parent"
-            android:layout_height="61dp"
+            android:layout_height="58dp"
             android:layout_alignParentBottom="true"
-            android:layout_marginBottom="23dp"
+            android:layout_marginBottom="28dp"
             android:background="#11000000"
             android:drawableStart="@drawable/ic_action_pass"
             android:ems="10"
@@ -177,7 +179,9 @@
             android:layout_width="300dp"
             android:layout_height="45dp"
             android:layout_alignParentTop="true"
+            android:layout_alignParentBottom="true"
             android:layout_marginTop="0dp"
+            android:layout_marginBottom="19dp"
             app:cardBackgroundColor="@color/colorAccent"
             app:cardCornerRadius="25dp"
             app:cardElevation="10dp"
