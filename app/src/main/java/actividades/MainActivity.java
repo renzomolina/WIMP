@@ -16,6 +16,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.graphics.drawable.BitmapDrawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -133,6 +134,15 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     private FirebaseUser mUserFireBase;
     //GOOGLE
     private GoogleSignInClient mGoogleSignInClient;
+
+
+    //images d perfil quienes somos
+
+
+
+
+
+
 
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -791,11 +801,25 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     // ------------------------ DIALOG NOSOTROS-----------------------------------------
     @SuppressLint("ValidFragment")
     private class NosotrosDialog extends DialogFragment {
+
+
+
+        private ImageView imgPardo;
+        private ImageView imgQuinta;
+        private ImageView imgRivero;
+        private ImageView imgRenzo;
+
+
         @RequiresApi(api = Build.VERSION_CODES.O)
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            LayoutInflater inflater = getActivity().getLayoutInflater();
+
+
+       LayoutInflater inflater = getActivity().getLayoutInflater();
             View content = inflater.inflate(R.layout.dialog_we_are_us, null);
+
+
+
 
             final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setView(content);

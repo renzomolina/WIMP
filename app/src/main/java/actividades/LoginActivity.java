@@ -355,6 +355,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
                 });
     }
 
+
+
     //---------------------------------------FACEBOOK----------------------------------------------------------
     private void LoginFacebook() {
         LoginManager.getInstance().logInWithReadPermissions(this, permisosNecesariosFacebook);
