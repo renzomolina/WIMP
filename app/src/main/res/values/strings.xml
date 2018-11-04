@@ -39,8 +39,7 @@
 
     <string name="titulo_publicacion">Titulo publicacion</string>
     <string name="precio">Precio</string>
-    <string name="descripci_n">DescripciÃ³n</string>
-    <string name="direcci_n">DirecciÃ³n</string>
+
     <string name="tel_fono">TelÃ©fono</string>
     <string name="cupon">Cupon</string>
     <string name="imagen">Imagen</string>
@@ -62,6 +61,7 @@
     <string name="renzo_molina">Renzo Molina</string>
 
     <string name="version_1_1">Version 1.1</string>
+    <string name="descripcion">Descripcion</string>
 
 
 </resources>

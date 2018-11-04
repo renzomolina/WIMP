@@ -17,7 +17,7 @@ public class AdaptadorComentarios extends RecyclerView.Adapter<AdaptadorComentar
     private View.OnClickListener listener;
     private ArrayList<Comentario> datos;
 
-    public class ViewHolderComentarios extends RecyclerView.ViewHolder {
+    public static class ViewHolderComentarios extends RecyclerView.ViewHolder {
 
         private ImageView ImgUsuario;
         private TextView tvCuerpo;

@@ -29,18 +29,19 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
+import com.bumptech.glide.Glide;
 import com.whereismypet.whereismypet.R;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.regex.Pattern;
 
-import actividades.LoginActivity;
+import actividades.MainActivity;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
@@ -50,7 +51,7 @@ public final class GeneralMethod {
 
     //-----------------------------------VALIDACIONES REGEX-------------------------------------------------------------
     private static final String REGEX_LETRAS = "^[a-zA-ZáÁéÉíÍóÓúÚñÑüÜ\\s]+$";
-    private static final String REGEX_EMAIL ="^[a-zA-Z0-9\\._-]+@[a-zA-Z0-9-]{2,}[.][a-zA-Z]{2,4}$";
+    private static final String REGEX_EMAIL ="^[a-zA-Z0-9\\._-]+@[a-zA-Z0-9-]{2,}[.][a-zA-Z]{2,4}([.][a-zA-Z]{2,4})?$";
     private static final String REGEX_PASSWORD = "^(?=\\w*\\d)(?=\\w*[A-Z])(?=\\w*[a-z])\\S{8,}$";
     //Permisos
     private static final int MIS_PERMISOS = 100;
@@ -222,9 +223,117 @@ public final class GeneralMethod {
         return respuestaValidacion;
     }
 
+
+
+    public static boolean RegexActualizar(String edit, View view) {
+        boolean respuestaValidacion = false;
+        Drawable msgerror = view.getResources().getDrawable(R.drawable.icon_error);
+        msgerror.setBounds(0, 0, msgerror.getIntrinsicWidth(), msgerror.getIntrinsicHeight());
+
+        final EditText etNombreActualizar = view.findViewById(R.id.nombreActualizar),
+                etApellidoActualizar = view.findViewById(R.id.apellidoActualizar),
+                etCorreoActualizar = view.findViewById(R.id.emailActualizar),
+                etConfirmarCorreoActualizar=view.findViewById(R.id.confirmar_emailActualizar),
+                etContrasenaActualizar = view.findViewById(R.id.passActualizar),
+                etConfimarContrasenaActualizar = view.findViewById(R.id.confirmpassActualizar);
+
+        switch (edit) {
+            case "nombre": {
+                if (CheckEditTextIsEmptyOrNot(etNombreActualizar)) {
+                    etNombreActualizar.setError("Campo Vacio", msgerror);
+                }
+                else {
+                    Pattern p = Pattern.compile(REGEX_LETRAS);
+                    if (!p.matcher(etNombreActualizar.getText().toString()).matches()) {
+                        etNombreActualizar.setError("Este campo permite solo letras", msgerror);
+                    }
+                    else {
+                        etNombreActualizar.setError(null);
+                        respuestaValidacion = true;
+                    }
+                }
+            }break;
+            case "apellido": {
+                if (CheckEditTextIsEmptyOrNot(etApellidoActualizar)) {
+                    etApellidoActualizar.setError("Campo Vacio", msgerror);
+                }
+                else{
+                    Pattern p = Pattern.compile(REGEX_LETRAS);
+                    if (!p.matcher(etApellidoActualizar.getText().toString()).matches()) {
+                        etApellidoActualizar.setError("Este campo permite solo letras", msgerror);
+                    } else {
+                        etApellidoActualizar.setError(null);
+                        respuestaValidacion = true;
+                    }
+                }
+
+            }break;
+            case "email": {
+                if (CheckEditTextIsEmptyOrNot(etCorreoActualizar)) {
+                    etCorreoActualizar.setError("Campo Vacio", msgerror);
+                } else {
+                    if (!Pattern.compile(REGEX_EMAIL).matcher(etCorreoActualizar.getText().toString()).matches()) {
+                        etCorreoActualizar.setError("Correo Invalido", msgerror);
+                    } else {
+                        etCorreoActualizar.setError(null);
+                        respuestaValidacion = true;
+                    }
+                }
+            }break;
+            case "confirmaremail": {
+                if (CheckEditTextIsEmptyOrNot( etConfirmarCorreoActualizar)) {
+                    etConfirmarCorreoActualizar.setError("Campo Vacio", msgerror);
+                } else {
+                    if (etConfirmarCorreoActualizar.getText().toString().equals( etConfirmarCorreoActualizar.getText().toString())) {
+                        respuestaValidacion = true;
+                    } else {
+                        etConfirmarCorreoActualizar.setError("Debe coincidir con el correo ingresado anteriormente ", msgerror);
+                    }
+                }
+            }break;
+            case "password":{
+                if (CheckEditTextIsEmptyOrNot(etContrasenaActualizar)) {
+                    etContrasenaActualizar.setError("Campo Vacio", msgerror);
+                }
+                else{
+                    if (!Pattern.compile(REGEX_PASSWORD).matcher(etContrasenaActualizar.getText().toString()).matches()) {
+                        etContrasenaActualizar.setError("La contraseña debe contener al menos 8 caracteres alfanumericos, 1 minuscula, 1 mayuscula, 1 numero, 8 caracteres o mas ", msgerror);
+                    } else {
+                        etContrasenaActualizar.setError(null);
+                        respuestaValidacion = true;
+                    }
+                }
+            }break;
+
+            case "confirmacontraseña": {
+                if (CheckEditTextIsEmptyOrNot(etConfimarContrasenaActualizar)) {
+                    etConfimarContrasenaActualizar.setError("Campo Vacio", msgerror);
+                } else {
+                    if (etConfimarContrasenaActualizar.getText().toString().equals(etConfimarContrasenaActualizar.getText().toString())) {
+                        respuestaValidacion = true;
+                    } else {
+                        etConfimarContrasenaActualizar.setError("Debe coincidir con la Contraseña ingresada anteriormente ", msgerror);
+                    }
+                }
+            }break;
+        }
+        return respuestaValidacion;
+    }
+
+
+
+
+
+
+
+
     private static boolean CheckEditTextIsEmptyOrNot(EditText editText){
         return (TextUtils.isEmpty(editText.getText().toString().trim()));
     }
+
+
+
+
 
 
     //--------------------------CLASE TEXT WATCHER-------------------------------------------------------------
@@ -404,14 +513,14 @@ public final class GeneralMethod {
 
 
 
-    public static Uri getImageUri(Context inContext, Bitmap inImage) {
+    private static Uri getImageUri(Context inContext, Bitmap inImage) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
         String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
         return Uri.parse(path);
     }
 
-    public static  Uri reducirTamaño(Uri uri, Activity activity) {
+    public static  Uri reducirTamano(Uri uri, Activity activity) {
         InputStream in = null;
         try {
             final int IMAGE_MAX_SIZE = 1200000; // 1.2MP
@@ -460,6 +569,13 @@ public final class GeneralMethod {
         } catch (IOException e) {
             return null;
         }
+    }
+
+    //--------------------------------------------------LEER FOTO URL GLIDE
+    public static void GlideUrl(Activity mActivity, String mLoadImage, CircleImageView mIntoImageView){
+        Glide.with(mActivity)
+                .load(mLoadImage)
+                .into(mIntoImageView);
     }
 
 
