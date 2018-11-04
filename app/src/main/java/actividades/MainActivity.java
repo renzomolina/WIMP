@@ -25,6 +25,7 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.GravityCompat;
@@ -41,6 +42,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -72,10 +74,11 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-import com.google.firebase.auth.UserInfo;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -136,9 +139,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     private GoogleSignInClient mGoogleSignInClient;
 
 
-    //images d perfil quienes somos
+    // FLOATING ACTION BUTTON
+    FloatingActionButton mFloatingActionButtonMarkers;
+    private LinearLayout layoutFabPet;
+    private LinearLayout layoutFabShop;
 
-
+    private boolean fabExpanded = false;
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -178,6 +184,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         } catch (Exception ignored) { }
         mImgFotoPerfil = (navigationView.getHeaderView(0)).findViewById(R.id.imgPerfilMenu);
         mImgFotoPerfil.setOnClickListener(this);
+        mFloatingActionButtonMarkers = findViewById(R.id.floatingMarkers);
+        mFloatingActionButtonMarkers.setOnClickListener(this);
+        /*layoutFabPet = findViewById(R.id.layoutFabPet);
+        layoutFabShop = findViewById(R.id.layoutFabShop);
+        */
         ObtenerDatosPerfil();
 
     }
@@ -252,7 +263,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         mFirebaseAuth.signOut();
         LoginManager.getInstance().logOut();
         VolverAlLogin();
-
     }
 
     private void VolverAlLogin() {
@@ -296,17 +306,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     }
 
     @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-    }
-
+    public void onStatusChanged(String provider, int status, Bundle extras) { }
     @Override
-    public void onProviderEnabled(String provider) {
-    }
-
+    public void onProviderEnabled(String provider) { }
     @Override
-    public void onProviderDisabled(String provider) {
-    }
-
+    public void onProviderDisabled(String provider) { }
     //---------------------------------------------------------------------------------------------------------------
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private void ConectarAPI() {
@@ -334,10 +338,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             Localizacion = LocationServices.FusedLocationApi.getLastLocation(apiClient);
             LocalizacionCoord = new LatLng(Localizacion.getLatitude(), Localizacion.getLongitude());
             ActualizarCamara(LocalizacionCoord);
-        } catch (Exception ignored) {
-        }
+        } catch (Exception ignored) { }
         googleMap.setMyLocationEnabled(true);
-
     }
 
     private void ActualizarCamara(LatLng COORDS) {
@@ -350,7 +352,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 .build();
         CameraUpdate camUpdate = CameraUpdateFactory.newCameraPosition(CamPos);
         googleMap.animateCamera(camUpdate);
-
     }
 
     private void GpsDesactivado() {
@@ -529,9 +530,37 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 instaciarDialogoActualizar();
             }
             break;
+            case R.id.floatingMarkers:{
+                if(fabExpanded){
+                    //closeSubMenusFab();
+                    mFloatingActionButtonMarkers.setImageResource(R.drawable.icon_markers);
+                    fabExpanded = false;
+                }
+                else {
+                    //openSubMenusFab();
+                    mFloatingActionButtonMarkers.setImageResource(R.drawable.icon_markers_select);
+                    fabExpanded = true;
+                }
+            }break;
         }
     }
 
+    //closes FAB submenus
+    private void closeSubMenusFab(){
+        layoutFabPet.setVisibility(View.INVISIBLE);
+        layoutFabShop.setVisibility(View.INVISIBLE);
+
+
+    }
+
+    //Opens FAB submenus
+    private void openSubMenusFab(){
+        layoutFabPet.setVisibility(View.VISIBLE);
+        layoutFabShop.setVisibility(View.VISIBLE);
+        //Change settings icon to 'X' icon
+
+
+    }
     //-----------------------------------CLASE INTERNA MAPA-------------------------------------------------
 
     private class Mapa implements OnMapReadyCallback {
@@ -855,8 +884,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             LayoutInflater inflater = getActivity().getLayoutInflater();
             View content = inflater.inflate(R.layout.dialog_premium, null);
-            mProgressBar = content.findViewById(R.id.progressBar);
-            mRegularLayout = content.findViewById(R.id.regularLayout);
+
 
             StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectAll().penaltyLog()
                     .build());
@@ -930,8 +958,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
         public void sendPasswordReset() {
             // [START send_password_reset]
-            FirebaseAuth auth = FirebaseAuth.getInstance();
+            AuthCredential credential = EmailAuthProvider
+                    .getCredential("user@example.com", "password1234");
             String emailAddressNuevo = "user@example.com";
+
 
             mFirebaseAuth.sendPasswordResetEmail(emailAddressNuevo)
                     .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -993,11 +1023,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         }
     }
 
-        private void instaciarDialogoActualizar() {
-            DialogActualizar dialog = new DialogActualizar();  //Instanciamos la clase con el dialogo
-            dialog.setCancelable(false);
-            dialog.show(getFragmentManager(), "ACTUALIZAR");// Mostramos el dialogo
+    private void instaciarDialogoActualizar() {
+        DialogActualizar dialog = new DialogActualizar();  //Instanciamos la clase con el dialogo
+        dialog.setCancelable(false);
+        dialog.show(getFragmentManager(), "ACTUALIZAR");// Mostramos el dialogo
+    }
 
-        }
+
 }
 

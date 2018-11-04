@@ -321,20 +321,9 @@ public final class GeneralMethod {
     }
 
 
-
-
-
-
-
-
     private static boolean CheckEditTextIsEmptyOrNot(EditText editText){
         return (TextUtils.isEmpty(editText.getText().toString().trim()));
     }
-
-
-
-
-
 
     //--------------------------CLASE TEXT WATCHER-------------------------------------------------------------
 
