@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/gradient_login">
 
-    <de.hdodenhof.circleimageview.CircleImageView
+    <ImageView
         android:id="@+id/imgMarcadorMascota"
         android:layout_width="40dp"
         android:layout_height="40dp"

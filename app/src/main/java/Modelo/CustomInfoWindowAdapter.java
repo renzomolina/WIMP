@@ -1,4 +1,4 @@
-package misclases;
+package Modelo;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -24,7 +24,7 @@ public class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
         this.inflater = inflater;
         nombreMascota = pet.getNombre();
         descripcionMascota = pet.getDescripcion();
-        imgMascota = pet.getFoto();
+        imgMascota = pet.getImagen();
         this.context = context;
     }
 

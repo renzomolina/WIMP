@@ -5,37 +5,29 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
+
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
-import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.FileProvider;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
@@ -47,19 +39,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.DefaultRetryPolicy;
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.facebook.AccessToken;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -83,11 +67,12 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.whereismypet.whereismypet.R;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 
 import java.io.IOException;
@@ -97,10 +82,7 @@ import java.util.Locale;
 import java.util.Objects;
 
 import dialogsFragments.DialogMarkerPet;
-import finalClass.GeneralMethod;
-import misclases.CustomInfoWindowAdapter;
 import Modelo.Mascota;
-import misclases.VolleySingleton;
 
 
 import static android.widget.Toast.LENGTH_SHORT;
@@ -125,11 +107,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     static final int PETICION_PERMISO_LOCALIZACION = 0;
     //FIREBASE
     private FirebaseAuth mFirebaseAuth;
-    private FirebaseAuth.AuthStateListener mAuthStateListener;
     private FirebaseUser mUserFireBase;
     //GOOGLE
     private GoogleSignInClient mGoogleSignInClient;
-
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
@@ -165,26 +145,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 MyLocation();
             }
         }catch (Exception ignored) { }
-        mImgFotoPerfil = navigationView.findViewById(R.id.imgPerfilMenu);
-        mImgFotoPerfil.setOnClickListener(this);
-        mImgFotoPerfil.setImageBitmap(GeneralMethod.getBitmapClip(BitmapFactory.decodeResource(getResources(),R.drawable.com_facebook_profile_picture_blank_square)));
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        //ConsultarPerfil();
-    }
-
-    private void ConsultarPerfil() {
-
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        String re = "Aca esta el error tomo este activity result la foto";
-
+        //mImgFotoPerfil = navigationView.findViewById(R.id.imgPerfilMenu);
+        //mImgFotoPerfil.setOnClickListener(this);
+        //mImgFotoPerfil.setImageBitmap(GeneralMethod.getBitmapClip(BitmapFactory.decodeResource(getResources(),R.drawable.com_facebook_profile_picture_blank_square)));
     }
 
     @Override
@@ -209,7 +172,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     //----------------------------FIREBASE-----------------------------------------
     private void EscuchandoEstadoDeAutenticacion() {
 
-        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
+        FirebaseAuth.AuthStateListener mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 mUserFireBase = firebaseAuth.getCurrentUser();
@@ -243,12 +206,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
         // Google sign out
         mGoogleSignInClient.signOut().addOnCompleteListener(this,
-                new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        VolverAlLogin();
-                    }
-                });
+                task -> VolverAlLogin());
     }
     private  void VolverAlLogin(){
         Intent i = new Intent(this, LoginActivity.class);
@@ -257,6 +215,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         startActivity(i);
         finish();
     }
+
     //----------------------------LocationListener----------------------------------
     @Override
     public void onLocationChanged(Location location) {
@@ -318,21 +277,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("El sistema GPS esta desactivado, ¿Desea activarlo?")
                 .setCancelable(false)
-                .setPositiveButton("Si", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-                    }
-                })
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.cancel();
-                    }
-                });
+                .setPositiveButton("Si", (dialogInterface, i) -> startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)))
+                .setNegativeButton("No", (dialogInterface, i) -> dialogInterface.cancel());
         alertGPS = builder.create();
         alertGPS.show();
     }
+
 
     //-----------------------------------MENU LATERAL-----------------------------------------------------
 
@@ -345,7 +295,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             super.onBackPressed();
         }
     }
-
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -390,48 +339,40 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     }
 
     //---------------------------------CARGA DE MARCADORES EN MAPA---------------------------------------------------------
-    private void ConsultarMarcadores(){
-        listaMarcador = new ArrayList<>();
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, URL_MARCADORES, null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            JSONArray listaMascotas = response.getJSONArray("pet");
-                            for(int indice = 0; indice < listaMascotas.length(); indice++) {
-                                JSONObject json_data = listaMascotas.getJSONObject(indice);
 
-                                Mascota markersPets = new Mascota();
-                                //markersPets.setId_Marcador(json_data.getInt("idMarcador"));
-                                markersPets.setNombre(json_data.getString("nombre"));
-                                markersPets.setDescripcion(json_data.getString("descripcion"));
-                                markersPets.setLatitud(json_data.getString("latitud"));
-                                markersPets.setLongitud(json_data.getString("longitud"));
-                                markersPets.setTipo(json_data.getString("tipo"));
-                                markersPets.setCreador(json_data.getString("creador"));
-                                markersPets.setFoto(json_data.getString("foto"));
-                                listaMarcador.add(markersPets);
-                                CargarMarcadores(markersPets);
-                            }
-                            /*JSONArray listaTiendas = response.getJSONArray("shop");
-                            for(int indice =0; indice < listaTiendas.length(); indice++) {
-                                JSONObject json_data = listaTiendas.getJSONObject(indice);
-                                String imgPerfil = json_data.getString("imagen");
-                            }*/
-                        } catch (JSONException ignored) { }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError volleyError) {
-                        Toast.makeText(getApplicationContext(), volleyError.toString(), Toast.LENGTH_LONG).show();
-                    }
-                });
-        jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 2, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-        VolleySingleton.getIntanciaVolley(this).addToRequestQueue(jsonObjectRequest);
+
+    private void ConsultarMarcadores(){
+        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+        final String UserId = Objects.requireNonNull(mFirebaseAuth.getCurrentUser()).getUid();
+        mDatabase.child("Usuarios").child(Objects.requireNonNull(Objects.requireNonNull(mDatabase.child(UserId)).getKey())).child("Marcadores").child("Pet").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot mDataSnapshot : dataSnapshot.getChildren()){
+                    Mascota mMascotaMarcador = mDataSnapshot.getValue(Mascota.class);
+
+                    assert mMascotaMarcador != null;
+                    CargarMarcadoresMascota(mMascotaMarcador);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
-    private void CargarMarcadores(final Mascota myMarker){
+    private void CargarMarcadoresMascota(final Mascota myMarker){
+        LatLng latLng = new LatLng(Double.valueOf(myMarker.getLatitud()),Double.valueOf(myMarker.getLongitud()));
+        googleMap.addMarker(new MarkerOptions()
+                .position(latLng)
+                //.title(String.valueOf(myMarker.getId_Marcador()))
+                .snippet(myMarker.getDescripcion())
+                .draggable(true)
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.pet_markers)));
+
+    }
+    private void CargarMarcadoresTienda(final Mascota myMarker){
         LatLng latLng = new LatLng(Double.valueOf(myMarker.getLatitud()),Double.valueOf(myMarker.getLongitud()));
         googleMap.addMarker(new MarkerOptions()
                 .position(latLng)
@@ -449,7 +390,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             @Override
             public boolean onMarkerClick(Marker marker) {
                 imgPetsMarker = findViewById(R.id.imgMarcadorMascota);
-                for (Mascota m : listaMarcador) {
+                /*for (Mascota m : listaMarcador) {
                     //if (m.getId_Marcador() == Integer.valueOf(marker.getTitle())) {
                         googleMap.setInfoWindowAdapter(new CustomInfoWindowAdapter(LayoutInflater.from(getApplicationContext()), m, MainActivity.this));
                     /*Picasso.get()
@@ -457,22 +398,23 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                             .error(R.drawable.huella_mascota)
                             .fit()
                             .centerInside()
-                            .into(imgPetsMarker);*/
+                            .into(imgPetsMarker)
                     }
-                //}
+                //}*/
+
                 return false;
             }
         });
     }
     //-----------------------------------PREFERENCIAS---------------------------------------------------------------------------
-    public void SaveStyle(String key, String value){
+    private void SaveStyle(String value){
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(key, value);
+        editor.putString("estilo_mapa", value);
         editor.apply();
     }
 
-    public String LoadStyle(){
+    private String LoadStyle(){
         String claveMapa;
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         claveMapa = sharedPreferences.getString("estilo_mapa", "default");
@@ -481,7 +423,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
     @Override
     public void onClick(View view) {
-        String res = "Estoy aqui.........";
     }
 
     //-----------------------------------CLASE INTERNA MAPA-------------------------------------------------
@@ -492,28 +433,15 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             googleMap = mapa;
             googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
-            googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-                @Override
-                public void onMapClick(LatLng point) { }
-            });
-            googleMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
-                @RequiresApi(api = Build.VERSION_CODES.O)
-                @Override
-                public void onMapLongClick(LatLng latLng) {
-                    instanciarDialogoMarcadorMascota(googleMap,latLng);
-                }
-            });
+            googleMap.setOnMapClickListener(point -> {//CLICK EN EL MAPA EVENTO ONCLICK CON LAMDA
+                 });
+            googleMap.setOnMapLongClickListener(latLng -> instanciarDialogoMarcadorMascota(googleMap,latLng));
         }
     }
     //-------------------------------CLASE INTERNA DIALOG MARCADOR MASCOTA--------------MEJORADO CON FIREBASE--------------------------------------------------
 
-
     private void instanciarDialogoMarcadorMascota(GoogleMap map,LatLng latLng) {
-        DialogMarkerPet markerPet = new DialogMarkerPet()
-                .setLatLng(latLng)
-                .setGoogleMap(googleMap)
-                .setmActivity(MainActivity.this)
-                .setView(drawer);
+        DialogMarkerPet markerPet = new DialogMarkerPet(map, latLng);
         markerPet.setCancelable(false);
         markerPet.show(getFragmentManager(), "AJUSTES");
 
@@ -537,12 +465,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
             final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setView(content);
-            builder.setNegativeButton("cerrar", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int id) {
-                    dialog.dismiss();
-                }
-            });
+            builder.setNegativeButton("cerrar", (dialog, id) -> dialog.dismiss());
             return builder.create();
         }
 
@@ -621,56 +544,56 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 case R.id.btAzul: {
                     try {
                         boolean success = googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(getActivity(), R.raw.json_blue));
-                        SaveStyle("estilo_mapa", "json_blue");
+                        SaveStyle("json_blue");
                         if (!success) {
                             Log.e(TAG, "Style parsing failed.");
                         }
                     } catch (Resources.NotFoundException e) {
                         Log.e(TAG, "Can't find style. Error: ", e);
                     }
-                    Toast.makeText(MainActivity.this, "se cambio el estilo", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Se aplico el nuevo estilo de mapa", Toast.LENGTH_SHORT).show();
                     break;
                 }
                 case R.id.btBlack: {
                     try {
                         boolean success = googleMap.setMapStyle(
                                 MapStyleOptions.loadRawResourceStyle(getActivity(), R.raw.json_black));
-                        SaveStyle("estilo_mapa", "json_black");
+                        SaveStyle("json_black");
                         if (!success) {
                             Log.e(TAG, "Style parsing failed.");
                         }
                     } catch (Resources.NotFoundException e) {
                         Log.e(TAG, "Can't find style. Error: ", e);
                     }
-                    Toast.makeText(MainActivity.this, "se cambio el estilo", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Se aplico el nuevo estilo de mapa", Toast.LENGTH_SHORT).show();
                     break;
                 }
                 case R.id.btCandy: {
                     try {
                         boolean success = googleMap.setMapStyle(
                                 MapStyleOptions.loadRawResourceStyle(getActivity(), R.raw.json_candy));
-                        SaveStyle("estilo_mapa", "json_candy");
+                        SaveStyle("json_candy");
                         if (!success) {
                             Log.e(TAG, "Style parsing failed.");
                         }
                     } catch (Resources.NotFoundException e) {
                         Log.e(TAG, "Can't find style. Error: ", e);
                     }
-                    Toast.makeText(MainActivity.this, "se cambio el estilo", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Se aplico el nuevo estilo de mapa", Toast.LENGTH_SHORT).show();
                     break;
                 }
                 case R.id.btVintage: {
                     try {
                         boolean success = googleMap.setMapStyle(
                                 MapStyleOptions.loadRawResourceStyle(getActivity(), R.raw.json_vintage));
-                        SaveStyle("estilo_mapa", "json_vintage");
+                        SaveStyle("json_vintage");
                         if (!success) {
                             Log.e(TAG, "Style parsing failed.");
                         }
                     } catch (Resources.NotFoundException e) {
                         Log.e(TAG, "Can't find style. Error: ", e);
                     }
-                    Toast.makeText(MainActivity.this, "se cambio el estilo", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Se aplico el nuevo estilo de mapa", Toast.LENGTH_SHORT).show();
                     break;
                 }
                 default:
@@ -799,12 +722,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
             final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setView(content);
-            builder.setNegativeButton("cerrar", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int id) {
-                    dialog.dismiss();
-                }
-            });
+            builder.setNegativeButton("cerrar", (dialog, id) -> dialog.dismiss());
             return builder.create();
         }
     }

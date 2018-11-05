@@ -33,7 +33,6 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.regex.Pattern;
 
-import actividades.LoginActivity;
 
 import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
@@ -53,6 +52,11 @@ public final class GeneralMethod {
     private static final String CARPETA_PRINCIPAL = "WIMP/";//directorio principal
     private static final String CARPETA_IMAGEN = "imagenes";//carpeta donde se guardan las fotos
     private static final String DIRECTORIO_IMAGEN = CARPETA_PRINCIPAL + CARPETA_IMAGEN;//ruta carpeta de directorios
+    private static String pathTomarFoto;
+
+    public static String getPathTomarFoto() {
+        return pathTomarFoto;
+    }
     //-----------------------------------Imagen Circular----------------------------------------------------------------
     public static Bitmap getBitmapClip(Bitmap bitmap) {
         int maxLenth = bitmap.getWidth() <= bitmap.getHeight() ? bitmap.getWidth() : bitmap.getHeight();
@@ -243,7 +247,7 @@ public final class GeneralMethod {
     }
 
     private static void abrirCamara(Activity mActivity) {
-        File miFile=new File(Environment.getExternalStorageDirectory(),DIRECTORIO_IMAGEN);
+        File miFile = new File(Environment.getExternalStorageDirectory(),DIRECTORIO_IMAGEN);
         boolean isCreada=miFile.exists();
 
         if(!isCreada){
@@ -254,7 +258,7 @@ public final class GeneralMethod {
             Long consecutivo= System.currentTimeMillis()/1000;
             String nombre=consecutivo.toString()+".jpg";
 
-            String pathTomarFoto = Environment.getExternalStorageDirectory() + File.separator + DIRECTORIO_IMAGEN
+            pathTomarFoto = Environment.getExternalStorageDirectory() + File.separator + DIRECTORIO_IMAGEN
                     + File.separator + nombre;
 
             //Imagen

@@ -26,6 +26,7 @@ import android.support.annotation.RequiresApi;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.FileProvider;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -94,7 +95,7 @@ import static android.widget.Toast.LENGTH_SHORT;
 import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
-public class LoginActivity extends BaseActivity implements View.OnClickListener, GoogleApiClient.OnConnectionFailedListener {
+public class LoginActivity extends AppCompatActivity implements View.OnClickListener, GoogleApiClient.OnConnectionFailedListener {
 
 
     private EditText mEmailEditTextLogin, mPasswordEditTextLogin;
@@ -459,7 +460,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
         private static final int COD_FOTO = 20;
 
         //Imagen
-        private File fileImagen;
         private String pathTomarFoto,tipoDeFoto = "VACIO";
         private Uri uriSeleccionarFoto;
         private Uri mFotoPerfilRegistro;
@@ -494,14 +494,11 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
 
             final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setView(content);
-            builder.setOnKeyListener(new DialogInterface.OnKeyListener() {
-                @Override
-                public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
-                    if (keyCode == KeyEvent.KEYCODE_BACK) {
-                        dismiss();
-                    }
-                    return false;
+            builder.setOnKeyListener((dialog, keyCode, event) -> {
+                if (keyCode == KeyEvent.KEYCODE_BACK) {
+                    dismiss();
                 }
+                return false;
             });
 
             EscuchandoEstadoDeAutentificacion();
@@ -516,13 +513,10 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
         //--------------------------------------ESCUCHADOR DE AUTENTICACION, POR SI CAMBIA DE LOGUEO------------------------------------
         private void EscuchandoEstadoDeAutentificacion() {
 
-            mAuthStateListener = new FirebaseAuth.AuthStateListener() {
-                @Override
-                public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                    mUserFireBase = firebaseAuth.getCurrentUser();
-                    if (mUserFireBase != null) {
-                        dismiss();
-                    }
+            mAuthStateListener = firebaseAuth -> {
+                mUserFireBase = firebaseAuth.getCurrentUser();
+                if (mUserFireBase != null) {
+                    dismiss();
                 }
             };
         }
@@ -544,12 +538,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
                     }break;
                     case COD_FOTO: {
                         MediaScannerConnection.scanFile(LoginActivity.this, new String[]{pathTomarFoto}, null,
-                                new MediaScannerConnection.OnScanCompletedListener() {
-                                    @Override
-                                    public void onScanCompleted(String path, Uri uri) {
-                                        Log.i("Path", "" + path);
-                                    }
-                                });
+                                (path, uri) -> Log.i("Path", "" + path));
                         mImgPerfilDBRegistroImageView.setImageBitmap(GeneralMethod.getBitmapClip(BitmapFactory.decodeFile(pathTomarFoto)));
                         mFotoPerfilRegistro = Uri.fromFile(new File(pathTomarFoto));
                         tipoDeFoto = "FOTO";
@@ -592,29 +581,26 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
 
 
                     mFirebaseAuthRegistro.createUserWithEmailAndPassword(mUser.getEmail(), mUser.getContraseña())
-                            .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                                @Override
-                                public void onComplete(@NonNull Task<AuthResult> task) {
-                                    progressDialog.dismiss();
-                                    if (task.isSuccessful()) {
-                                        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-                                        DatabaseReference currentUserDB = mDatabase.child(Objects.requireNonNull(mFirebaseAuth.getCurrentUser()).getUid());
-                                        if(!tipoDeFoto.equals("VACIO")) {
-                                            storageIMG(currentUserDB,mUser);
-                                        }
-                                        else{
-                                            currentUserDB.child("image").setValue("defaultUser");
-                                        }
-
-                                        Toast.makeText(LoginActivity.this, "Registrado con exito", Toast.LENGTH_SHORT).show();
-                                        final FirebaseUser firebaseUser = Objects.requireNonNull(task.getResult()).getUser();
-                                        firebaseUser.sendEmailVerification();
-                                        dismiss();
-                                    } else {
-                                        Toast.makeText(LoginActivity.this, "Ocurrio un inconveniente al intentar registrar el email, o la contraseña no cumple los " +
-                                                        "requisitos minimo, por favor, vuelva a intentarlo",
-                                                Toast.LENGTH_SHORT).show();
+                            .addOnCompleteListener(task -> {
+                                progressDialog.dismiss();
+                                if (task.isSuccessful()) {
+                                    DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+                                    DatabaseReference currentUserDB = mDatabase.child(Objects.requireNonNull(mFirebaseAuth.getCurrentUser()).getUid());
+                                    if(!tipoDeFoto.equals("VACIO")) {
+                                        storageIMG(currentUserDB,mUser);
                                     }
+                                    else{
+                                        currentUserDB.child("Usuarios").child("Datos Personales").child("image").setValue("defaultUser");
+                                    }
+
+                                    Toast.makeText(LoginActivity.this, "Registrado con exito", Toast.LENGTH_SHORT).show();
+                                    final FirebaseUser firebaseUser = Objects.requireNonNull(task.getResult()).getUser();
+                                    firebaseUser.sendEmailVerification();
+                                    dismiss();
+                                } else {
+                                    Toast.makeText(LoginActivity.this, "Ocurrio un inconveniente al intentar registrar el email, o la contraseña no cumple los " +
+                                                    "requisitos minimo, por favor, vuelva a intentarlo",
+                                            Toast.LENGTH_SHORT).show();
                                 }
                             });
 
@@ -624,25 +610,13 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
         }
 
         public void storageIMG (final DatabaseReference currentUserDB, final Usuario mUser) {
-
             final StorageReference mStorageImgPerfilUsuario = mStorageReference.child("Imagenes").child("Perfil").child(GeneralMethod.getRandomString());
-
-            mStorageImgPerfilUsuario.putFile(mFotoPerfilRegistro).addOnSuccessListener(LoginActivity.this, new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    currentUserDB.child("Usuarios").child("name").setValue(mUser.getNombre());
-                    currentUserDB.child("Usuarios").child("last_name").setValue(mUser.getApellido());
-                    currentUserDB.child("image").setValue(taskSnapshot.getStorage().getDownloadUrl().toString());
-
-                }
-            }).addOnFailureListener(LoginActivity.this, new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Toast.makeText(LoginActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });
+            mStorageImgPerfilUsuario.putFile(mFotoPerfilRegistro).addOnSuccessListener(LoginActivity.this, taskSnapshot -> {
+                currentUserDB.child("Usuarios").child("Datos Personales").child("name").setValue(mUser.getNombre());
+                currentUserDB.child("Usuarios").child("Datos Personales").child("last_name").setValue(mUser.getApellido());
+                currentUserDB.child("Usuarios").child("Datos Personales").child("image").setValue(taskSnapshot.getStorage().getDownloadUrl().toString());
+            }).addOnFailureListener(LoginActivity.this, e -> Toast.makeText(LoginActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show());
         }
-
         // METODOS COMPROBACION CAMPOS Y GENERANDO NOMBRE IMAGEN
         private boolean ValidarRegistro(){
             mNombreRegistroEditText.addTextChangedListener(new TextWatcher() {
@@ -707,9 +681,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
             });
             return RespuestaValidacion;
         }
-
-
-
 
         @Override
         public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {

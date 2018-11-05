@@ -48,7 +48,6 @@
         </activity>
         <activity android:name = "actividades.MainActivity"/>
         <activity android:name = "actividades.LoginActivity"/>
-        <activity android:name = "actividades.RegistroActivity"/>
         <activity
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
