@@ -7,29 +7,26 @@ import android.widget.ImageView;
  */
 
 public class Comentario {
-    public void setUsuario(ImageView usuario) {
-        this.usuario = usuario;
-    }
-
-    public ImageView getUsuario() {
-        return usuario;
-    }
-
-    private ImageView usuario;
-    private String cuerpo;
-
-    public Comentario(ImageView usuario, String cuerpo) {
-        this.usuario = usuario;
-        this.cuerpo = cuerpo;
-    }
-
 
 
     public String getCuerpo() {
         return cuerpo;
     }
 
-    public void setCuerpo(String cuerpo) {
+    public Comentario setCuerpo(String cuerpo) {
         this.cuerpo = cuerpo;
+        return this;
     }
+
+    public String getIdUsuario() {
+        return idUsuario;
+    }
+
+    public Comentario setIdUsuario(String idUsuario) {
+        this.idUsuario = idUsuario;
+        return this;
+    }
+
+    String cuerpo;
+    String idUsuario;
 }

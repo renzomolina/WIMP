@@ -65,7 +65,7 @@
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/RecView"
-            android:layout_width="266dp"
+            android:layout_width="314dp"
             android:layout_height="241dp"
             android:layout_marginBottom="8dp"
             app:layout_constraintBottom_toTopOf="@+id/BtnComentar"
