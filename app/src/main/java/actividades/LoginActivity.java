@@ -9,6 +9,7 @@ import android.app.DialogFragment;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
@@ -106,23 +107,33 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private FirebaseUser mUserFireBase;
     public static final int RC_SIGN_IN = 1;
+
     //FACEBOOK--
     private CallbackManager callbackManager;
     private LoginButton loginButton;
     private List<String> permisosNecesariosFacebook = Arrays.asList("email", "user_birthday", "user_friends", "public_profile");
     //GOOGLE------
     private GoogleSignInClient mGoogleSignInClient;
-
+    //IMAGEN REGISTRO
+    private static final int COD_SELECCIONA = 10;
+    private static final int COD_FOTO = 20;
+    //Imagen
+    private File fileImagen;
+    private String tipoDeFoto = "VACIO";
+    private Uri mFotoPerfilRegistro;
+    private ImageView mImgPerfilDBRegistroImageView;
+    private final String defaultUser = "https://firebasestorage.googleapis.com/v0/b/wimp-219219.appspot.com/o/Imagenes%2FPerfil%2FdefaultUser.jpg?alt=media&token=0651674e-50a9-45f6-990e-f36e3928fe98";
     //----------------------------------------CICLOS DE VIDA DE ACTIVITY-------------------------------------
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         //Auth-Database FIREBASE
         FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
         mFirebaseAuth = FirebaseAuth.getInstance();
-
+        mUserFireBase = mFirebaseAuth.getCurrentUser();
         //Inicializar las vistas
         final CardView mIniciarCardView = findViewById(R.id.btnIniciarLogin);
         final TextView mRegistroTextView = findViewById(R.id.tvRegistrarseLogin);
@@ -147,14 +158,14 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         LoginGoogle();
         EscuchandoEstadoDeAutenticacion();
 
-        ///KeyHash();
+        //KeyHash();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         if (mAuthStateListener != null) {
-            mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
+            //mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
         }
     }
 
@@ -261,15 +272,14 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     //---------------------------------------FIREBASE EMAIL---------------------------------------------------
     private void LoginEmailPassword() {
-        mUserFireBase = mFirebaseAuth.getCurrentUser();
-        final String mMsgShowSnackBarVerificado = "El correo no se encuentra verificado, por favor vea su bandeja de entrada y verifique el correo para validar la cuenta",
+        final String mMsgShowSnackBarVerificado = "El correo no se encuentra verificado, por favor verifique el correo",
                 mMsgShowSnackBarEmailPassword = "Usuario o Contraseña incorrecto, por favor vuelva a ingresarlos.!",
                 mMsgShowSnackBarCurrentUser = "Cuenta invalida, registra la cuenta o elija alguna de las otras opciones de logueo...!";
         if (mUserFireBase != null) {
             mUserFireBase.reload().addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
-
+                    assert (mUserFireBase) != null;
                     if (mUserFireBase.isEmailVerified()) {
                         final String mEmailStringEditTextLogin = mEmailEditTextLogin.getText().toString().trim(),
                                 mPasswordStringEditTextLogin = mPasswordEditTextLogin.getText().toString();
@@ -278,7 +288,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                                     @Override
                                     public void onComplete(@NonNull Task<AuthResult> task) {
                                         if (task.isSuccessful()) {
-                                            Toast.makeText(LoginActivity.this, "Iniciar", LENGTH_SHORT).show();
+                                            Toast.makeText(LoginActivity.this, "Iniciando", LENGTH_SHORT).show();
                                             InicioSesionCorrecto();
                                         } else
                                             GeneralMethod.showSnackback(mMsgShowSnackBarEmailPassword,mContainerLogin,LoginActivity.this);
@@ -315,6 +325,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
+                            InicioSesionCorrecto();
                             GeneralMethod.showSnackback("Bienvenido a WIMP?",mContainerLogin,LoginActivity.this);
 
                         } else {
@@ -344,6 +355,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     }
                 });
     }
+
+
 
     //---------------------------------------FACEBOOK----------------------------------------------------------
     private void LoginFacebook() {
@@ -401,8 +414,41 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 }
             }
             break;
-            default:
-                break;
+            case "ImagenRegistro":{
+                if (resultCode == RESULT_OK) {
+                    switch (requestCode) {
+                        case COD_SELECCIONA: {
+                            assert data != null;
+                            try {
+                                mFotoPerfilRegistro = data.getData();
+                                mFotoPerfilRegistro = GeneralMethod.reducirTamano(mFotoPerfilRegistro,this);
+                                mImgPerfilDBRegistroImageView.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), mFotoPerfilRegistro));
+                                tipoDeFoto = "SELECCIONA";
+
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }break;
+                        case COD_FOTO: {
+                            String pathTomarFoto = GeneralMethod.getPathTomarFoto();
+                            assert (pathTomarFoto) != null;
+                            MediaScannerConnection.scanFile(this, new String[]{pathTomarFoto}, null,
+                                    new MediaScannerConnection.OnScanCompletedListener() {
+                                        @Override
+                                        public void onScanCompleted(String path, Uri uri) {
+                                            Log.i("Path",""+path);
+                                        }
+                                    });
+                            mImgPerfilDBRegistroImageView.setImageBitmap(BitmapFactory.decodeFile(pathTomarFoto));
+                            mFotoPerfilRegistro = Uri.fromFile(new File(Objects.requireNonNull(pathTomarFoto)));
+                            mFotoPerfilRegistro = GeneralMethod.reducirTamano(mFotoPerfilRegistro,this);
+                            tipoDeFoto = "FOTO";
+                        } break;
+
+                    }
+                }
+            }break;
+            default:break;
         }
 
 
@@ -449,21 +495,17 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private class RegistroDialog extends DialogFragment implements View.OnClickListener {
         //Componentes Registro
         private CardView btnRegistro;
-        private EditText mNombreRegistroEditText, mApellidoRegistroEditText, mEmailRegistroEditText, mPassRegistroEditText, mPassConfirmRegistroEditText;
-        private ImageView mImgPerfilDBRegistroImageView;
+        private EditText mNombreRegistroEditText, mApellidoRegistroEditText, mEmailRegistroEditText, mPassRegistroEditText, mPassConfirmRegistroEditText,mEmailConfirmarRegistroEditText;
         private ProgressDialog progressDialog;
+        private ConstraintLayout mContrainerRegistro;
         //Validaciones
         private boolean RespuestaValidacion = false;
         //Permisos
         private static final int MIS_PERMISOS = 100;
-        private static final int COD_SELECCIONA = 10;
-        private static final int COD_FOTO = 20;
-
         //Imagen
         private String pathTomarFoto,tipoDeFoto = "VACIO";
         private Uri uriSeleccionarFoto;
         private Uri mFotoPerfilRegistro;
-
         //Firebase
         private FirebaseAuth mFirebaseAuthRegistro;
         private StorageReference mStorageReference;
@@ -484,8 +526,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             mNombreRegistroEditText = content.findViewById(R.id.nombreRegistro);
             mApellidoRegistroEditText = content.findViewById(R.id.apellidoRegistro);
             mEmailRegistroEditText = content.findViewById(R.id.emailRegistro);
+            mEmailConfirmarRegistroEditText=content.findViewById(R.id.confirmar_emailRegistro);
             mPassRegistroEditText = content.findViewById(R.id.passRegistro);
             mPassConfirmRegistroEditText = content.findViewById(R.id.confirmpassRegistro);
+            mContrainerRegistro = content.findViewById(R.id.ContenedorRegistro);
             mImgPerfilDBRegistroImageView = content.findViewById(R.id.imgPerfilDBRegistro);
             mImgPerfilDBRegistroImageView.setImageBitmap(GeneralMethod.getBitmapClip(BitmapFactory.decodeResource(getResources(),R.drawable.com_facebook_profile_picture_blank_square)));
             btnRegistro.setOnClickListener(this);
@@ -508,6 +552,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         @Override
         public void onResume() {
             super.onResume();
+            ValidarRegistro();
 
         }
         //--------------------------------------ESCUCHADOR DE AUTENTICACION, POR SI CAMBIA DE LOGUEO------------------------------------
@@ -559,6 +604,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 }
                 break;
                 case R.id.imgPerfilDBRegistro: {
+                    tipoDeLogin="ImagenRegistro";
                     if (GeneralMethod.solicitaPermisosVersionesSuperiores(LoginActivity.this)) {
                         GeneralMethod.mostrarDialogOpciones(LoginActivity.this);
                     }
@@ -570,53 +616,69 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         //METODO DE REGISTRO FIREBASE
         private void RegistrarUsuarioEmailPassword() {
             if (ValidarRegistro()) {
-                final Usuario mUser = new Usuario(
-                        mNombreRegistroEditText.getText().toString(),
-                        mApellidoRegistroEditText.getText().toString(),
-                        mEmailRegistroEditText.getText().toString().trim(),
-                        mPassRegistroEditText.getText().toString());
+                final Usuario mUser = new Usuario()
+                        .setEmail(mEmailRegistroEditText.getText().toString().trim())
+                        .setContraseña(mPassRegistroEditText.getText().toString());
                 progressDialog = new ProgressDialog(LoginActivity.this);
                 progressDialog.setMessage("Registrando...");
                 progressDialog.show();
 
 
                     mFirebaseAuthRegistro.createUserWithEmailAndPassword(mUser.getEmail(), mUser.getContraseña())
-                            .addOnCompleteListener(task -> {
-                                progressDialog.dismiss();
-                                if (task.isSuccessful()) {
-                                    DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-                                    DatabaseReference currentUserDB = mDatabase.child(Objects.requireNonNull(mFirebaseAuth.getCurrentUser()).getUid());
-                                    if(!tipoDeFoto.equals("VACIO")) {
-                                        storageIMG(currentUserDB,mUser);
-                                    }
-                                    else{
-                                        currentUserDB.child("Usuarios").child("Datos Personales").child("image").setValue("defaultUser");
-                                    }
+                            .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task) {
+                                    progressDialog.dismiss();
+                                    if (task.isSuccessful()) {
+                                        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+                                        DatabaseReference currentUserDB = mDatabase.child(Objects.requireNonNull(mFirebaseAuth.getCurrentUser()).getUid());
+                                        final Usuario.UsuarioPublico mUserPublic = new Usuario.UsuarioPublico()
+                                                .setNombre(mNombreRegistroEditText.getText().toString())
+                                                .setApellido(mApellidoRegistroEditText.getText().toString());
+                                        if(!tipoDeFoto.equals("VACIO")) {
+                                            storageIMG(currentUserDB,mDatabase,mUserPublic);
+                                        }
+                                        else{
+                                            mDatabase.child("Usuarios").child(Objects.requireNonNull(currentUserDB.getKey())).child("Datos Personales").setValue(mUserPublic);
+                                            mDatabase.child("Usuarios").child(Objects.requireNonNull(currentUserDB.getKey())).child("Datos Personales").child("imagen").setValue(defaultUser);
+                                        }
+                                        final FirebaseUser firebaseUser = Objects.requireNonNull(task.getResult()).getUser();
+                                        firebaseUser.sendEmailVerification();
+                                        dismiss();
+                                        GeneralMethod.showSnackback("Registro exitoso, gracias por registrarse!",mContainerLogin,LoginActivity.this);
 
-                                    Toast.makeText(LoginActivity.this, "Registrado con exito", Toast.LENGTH_SHORT).show();
-                                    final FirebaseUser firebaseUser = Objects.requireNonNull(task.getResult()).getUser();
-                                    firebaseUser.sendEmailVerification();
-                                    dismiss();
-                                } else {
-                                    Toast.makeText(LoginActivity.this, "Ocurrio un inconveniente al intentar registrar el email, o la contraseña no cumple los " +
-                                                    "requisitos minimo, por favor, vuelva a intentarlo",
-                                            Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(RegistroDialog.this.getActivity(), "Ocurrio un inconveniente al intentar registrar el email, por favor, vuelva a intentarlo",
+                                                Toast.LENGTH_SHORT).show();
+                                    }
                                 }
                             });
 
             } else {
-                Toast.makeText(LoginActivity.this, "VACIOS", Toast.LENGTH_SHORT).show();
+                GeneralMethod.showSnackback("Algunos campos se encuentran vacios, por favor verifiquelos",mContrainerRegistro,RegistroDialog.this.getActivity());
             }
         }
 
-        public void storageIMG (final DatabaseReference currentUserDB, final Usuario mUser) {
+        public void storageIMG (final DatabaseReference currentUserDB, final DatabaseReference mDatabase, final Usuario.UsuarioPublico mUserPublic) {
+
             final StorageReference mStorageImgPerfilUsuario = mStorageReference.child("Imagenes").child("Perfil").child(GeneralMethod.getRandomString());
-            mStorageImgPerfilUsuario.putFile(mFotoPerfilRegistro).addOnSuccessListener(LoginActivity.this, taskSnapshot -> {
-                currentUserDB.child("Usuarios").child("Datos Personales").child("name").setValue(mUser.getNombre());
-                currentUserDB.child("Usuarios").child("Datos Personales").child("last_name").setValue(mUser.getApellido());
-                currentUserDB.child("Usuarios").child("Datos Personales").child("image").setValue(taskSnapshot.getStorage().getDownloadUrl().toString());
-            }).addOnFailureListener(LoginActivity.this, e -> Toast.makeText(LoginActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show());
+
+            mStorageImgPerfilUsuario.putFile(mFotoPerfilRegistro).addOnSuccessListener(this.getActivity(), new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    Task<Uri> taskUri = mStorageImgPerfilUsuario.getDownloadUrl();
+                    final String UrlFoto = Objects.requireNonNull(taskUri.getResult()).toString().replace("\"", "");
+                    mDatabase.child("Usuarios").child(Objects.requireNonNull(currentUserDB.getKey())).child("Datos Personales").setValue(mUserPublic);
+                    mDatabase.child("Usuarios").child(Objects.requireNonNull(currentUserDB.getKey())).child("Datos Personales").child("imagen").setValue(UrlFoto);
+                }
+            }).addOnFailureListener(this.getActivity(), new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(RegistroDialog.this.getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
         }
+
         // METODOS COMPROBACION CAMPOS Y GENERANDO NOMBRE IMAGEN
         private boolean ValidarRegistro(){
             mNombreRegistroEditText.addTextChangedListener(new TextWatcher() {
@@ -628,7 +690,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    RespuestaValidacion = GeneralMethod.RegexRegistro("nombre",LoginActivity.this);
+                    RespuestaValidacion = GeneralMethod.RegexRegistro("nombre",mContrainerRegistro);
                 }
             });
             mApellidoRegistroEditText.addTextChangedListener(new TextWatcher() {
@@ -640,7 +702,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    RespuestaValidacion = GeneralMethod.RegexRegistro("apellido",LoginActivity.this);
+                    RespuestaValidacion = GeneralMethod.RegexRegistro("apellido",mContrainerRegistro);
                 }
             });
             mEmailRegistroEditText.addTextChangedListener(new TextWatcher() {
@@ -652,7 +714,19 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    RespuestaValidacion = GeneralMethod.RegexRegistro("email",LoginActivity.this);
+                    RespuestaValidacion = GeneralMethod.RegexRegistro("email",mContrainerRegistro);
+                }
+            });
+            mEmailConfirmarRegistroEditText.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) { }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    RespuestaValidacion = GeneralMethod.RegexRegistro("confirmaremail",mContrainerRegistro);
                 }
             });
             mPassRegistroEditText.addTextChangedListener(new TextWatcher() {
@@ -664,7 +738,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    RespuestaValidacion = GeneralMethod.RegexRegistro("password",LoginActivity.this);
+                    RespuestaValidacion = GeneralMethod.RegexRegistro("password",mContrainerRegistro);
                 }
             });
             mPassConfirmRegistroEditText.addTextChangedListener(new TextWatcher() {
@@ -676,7 +750,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    RespuestaValidacion = GeneralMethod.RegexRegistro("confirmacontraseña",LoginActivity.this);
+                    RespuestaValidacion = GeneralMethod.RegexRegistro("confirmacontraseña",mContrainerRegistro);
                 }
             });
             return RespuestaValidacion;
@@ -687,7 +761,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
             if (requestCode==MIS_PERMISOS){
                 if(grantResults.length==2 && grantResults[0]==PackageManager.PERMISSION_GRANTED && grantResults[1]==PackageManager.PERMISSION_GRANTED){//el dos representa los 2 permisos
-                    GeneralMethod.showSnackback("Gracias por aceptar los permisos..!",mContainerLogin,LoginActivity.this);
+                    GeneralMethod.showSnackback("Gracias por aceptar los permisos..!",mContrainerRegistro,LoginActivity.this);
+                    GeneralMethod.mostrarDialogOpciones(this.getActivity());
                 }
             }
         }

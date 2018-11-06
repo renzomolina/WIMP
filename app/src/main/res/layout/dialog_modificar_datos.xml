@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/ContenedorRegistro"
+    android:id="@+id/ContenedorActualizar"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/gradient_login">
 
     <View
-        android:id="@+id/divider_config2"
+        android:id="@+id/divider_actualizar"
         android:layout_width="300dp"
         android:layout_height="3dp"
         android:layout_alignParentTop="true"
@@ -19,12 +20,12 @@
         android:background="#C8C9CB"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imgPerfilDBRegistro" />
+        app:layout_constraintTop_toBottomOf="@+id/imgPerfilDBActualizar" />
 
     <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/imgPerfilDBRegistro"
+        android:id="@+id/imgPerfilDBActualizar"
         android:layout_width="100dp"
-        android:layout_height="102dp"
+        android:layout_height="100dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_gravity="center"
@@ -35,25 +36,23 @@
         android:src="@drawable/com_facebook_profile_picture_blank_square"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-
+        app:layout_constraintTop_toTopOf="parent"/>
     <RelativeLayout
 
         android:id="@+id/DatosPersonales"
         android:layout_width="match_parent"
         android:layout_height="406dp"
-        android:layout_alignTop="@+id/divider_config2"
+        android:layout_alignTop="@+id/divider_actualizar"
         android:layout_alignParentStart="true"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/divider_config2">
+        app:layout_constraintTop_toTopOf="@+id/divider_actualizar">
 
         <EditText
-            android:id="@+id/nombreRegistro"
+            android:id="@+id/nombreActualizar"
             android:layout_width="match_parent"
             android:layout_height="58dp"
             android:layout_alignParentTop="true"
@@ -69,7 +68,7 @@
             tools:layout_editor_absoluteY="16dp" />
 
         <EditText
-            android:id="@+id/apellidoRegistro"
+            android:id="@+id/apellidoActualizar"
             android:layout_width="match_parent"
             android:layout_height="58dp"
 
@@ -86,7 +85,7 @@
             tools:layout_editor_absoluteX="16dp" />
 
         <EditText
-            android:id="@+id/emailRegistro"
+            android:id="@+id/emailActualizar"
             android:layout_width="match_parent"
             android:layout_height="58dp"
 
@@ -103,11 +102,11 @@
             tools:layout_editor_absoluteX="16dp" />
 
         <EditText
-            android:id="@+id/confirmar_emailRegistro"
+            android:id="@+id/confirmar_emailActualizar"
             android:layout_width="match_parent"
             android:layout_height="58dp"
 
-            android:layout_below="@+id/emailRegistro"
+            android:layout_below="@+id/emailActualizar"
             android:layout_alignParentBottom="true"
             android:layout_marginTop="5dp"
             android:layout_marginBottom="157dp"
@@ -122,7 +121,7 @@
             tools:layout_editor_absoluteX="16dp" />
 
         <EditText
-            android:id="@+id/passRegistro"
+            android:id="@+id/passActualizar"
             android:layout_width="match_parent"
             android:layout_height="58dp"
             android:layout_alignParentBottom="true"
@@ -137,7 +136,7 @@
             tools:layout_editor_absoluteX="0dp" />
 
         <EditText
-            android:id="@+id/confirmpassRegistro"
+            android:id="@+id/confirmpassActualizar"
             android:layout_width="match_parent"
             android:layout_height="58dp"
             android:layout_alignParentBottom="true"
@@ -145,7 +144,7 @@
             android:background="#11000000"
             android:drawableStart="@drawable/ic_action_pass"
             android:ems="10"
-            android:hint="@string/confirmar_contrase_a"
+            android:hint="Nueva contraseña"
             android:inputType="textPassword"
             android:textColor="@android:color/white"
             android:textColorHint="@android:color/white"
@@ -174,7 +173,7 @@
         app:layout_constraintVertical_bias="0.387">
 
         <android.support.v7.widget.CardView
-            android:id="@+id/CheckIn"
+            android:id="@+id/CheckInActualizar"
             android:layout_width="300dp"
             android:layout_height="45dp"
             android:layout_alignParentTop="true"
@@ -192,11 +191,12 @@
                 android:layout_height="match_parent">
 
                 <TextView
-                    android:id="@+id/tvRegistrar"
+                    android:id="@+id/tvActualizar"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:text="@string/registrar"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true"
+                    android:text="Actualizar"
                     android:textColor="#fff"
                     android:textSize="18sp" />
             </RelativeLayout>
