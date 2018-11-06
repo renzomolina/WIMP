@@ -33,6 +33,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatCallback;
+import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -94,6 +95,7 @@ import org.json.JSONObject;
 
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -137,7 +139,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     private Usuario.UsuarioPublico mUserPublic;
     //GOOGLE
     private GoogleSignInClient mGoogleSignInClient;
+    //URI DE MERCADO PAGO
 
+    private String Direccion_MercadoPago;
 
     // FLOATING ACTION BUTTON
     FloatingActionButton mFloatingActionButtonMarkers;
@@ -542,6 +546,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                     fabExpanded = true;
                 }
             }break;
+
         }
     }
 
@@ -626,21 +631,21 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         }
 
 
-        @Override
-        public void onClick(View v) {
-            switch (v.getId()) {
-                case R.id.ivConfigurar_config: {
-                    instanciarMapas();
-                }
-                break;
-                case R.id.ivContactar_config: {
-                    ContactarSoporte();
-                }
-                default:
-                    break;
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.ivConfigurar_config: {
+                instanciarMapas();
             }
+            break;
+            case R.id.ivContactar_config: {
+                ContactarSoporte();
+            }
+            default:
+                break;
         }
     }
+}
 
     private void instaciarAjustes() {
         AjusteDialog dialog = new AjusteDialog();  //Instanciamos la clase con el dialogo
@@ -875,20 +880,20 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
     // ------------------------ DIALOG PREMIUM-----------------------------------------
     @SuppressLint("ValidFragment")
-    private class PremiumDialog extends DialogFragment {
-        private ProgressBar mProgressBar;
-        private View mRegularLayout;
-
+    private class PremiumDialog extends DialogFragment implements View.OnClickListener {//IMPLEMENTAR EL CLICK EN EL DIALOGO
+        CardView mMensual,mTrimestral,mSemestral;
         @RequiresApi(api = Build.VERSION_CODES.O)
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             LayoutInflater inflater = getActivity().getLayoutInflater();
             View content = inflater.inflate(R.layout.dialog_premium, null);
-
-
-            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectAll().penaltyLog()
-                    .build());
-
+            //// ESTO AGREGUE
+            mMensual = content.findViewById(R.id.btnMensual);
+            mTrimestral = content.findViewById(R.id.btnTrimestral);
+            mSemestral = content.findViewById(R.id.btnSemestral);
+            mMensual.setOnClickListener(this);
+            mTrimestral.setOnClickListener(this);
+            mSemestral.setOnClickListener(this);
             final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setView(content);
             builder.setNegativeButton("cerrar", new DialogInterface.OnClickListener() {
@@ -899,6 +904,28 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             });
             return builder.create();
         }
+
+
+        public void onClick(View v) {
+            Uri uri = null;// version de prueba activarla.....?????
+            switch (v.getId()) {
+                case R.id.btnMensual: {
+                    uri = Uri.parse("https://www.mercadopago.com/mla/checkout/start?pref_id=149281286-4a8eff4d-c814-4946-bb3a-b8ef240a24c7");
+                }break;
+                case R.id.btnTrimestral: {
+                    uri = Uri.parse("https://www.mercadopago.com/mla/checkout/start?pref_id=149281286-ca9b679c-df47-4bab-9892-a5944cdeab97");
+                }break;
+                case R.id.btnSemestral: {
+                    uri = Uri.parse("https://www.mercadopago.com/mla/checkout/start?pref_id=149281286-135119e2-dbd2-4225-a0ac-8b19a721fbf5");
+                }break;
+            }
+            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+            startActivity(intent);
+        }
+
+
+
+
     }
 
     private void instaciarPremium() {
@@ -1029,6 +1056,21 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         dialog.show(getFragmentManager(), "ACTUALIZAR");// Mostramos el dialogo
     }
 
+
+    public void Redireccionar_mercadopago(String x){
+
+
+        Direccion_MercadoPago=x;
+        String url =x;
+        Intent i = new Intent(Intent.ACTION_VIEW);
+        i.setData(Uri.parse(url));
+        startActivity(i);
+
+
+
+
+
+    }
 
 }
 
