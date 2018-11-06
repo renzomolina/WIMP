@@ -40,6 +40,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 
+import Modelo.Marcadores;
 import Modelo.Mascota;
 import finalClass.GeneralMethod;
 
@@ -91,12 +92,13 @@ public class DialogMarkerPet extends DialogFragment implements View.OnClickListe
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(content);
         builder.setPositiveButton("GUARDAR", (dialog, id) -> {
-            Mascota mMascota = new Mascota();
-            mMascota.setNombre(mNombreMascotaMarcador.getText().toString());
-            mMascota.setDescripcion(mDescripcionMascotaMarcador.getText().toString());
-            mMascota.setLatitud(String.valueOf(latLng.latitude));
-            mMascota.setLongitud(String.valueOf(latLng.longitude));
-            RegistrarMarcadorDeMascota(mMascota);
+            Marcadores mMascota = new Mascota()
+                    .setIdMarcador(GeneralMethod.getRandomString())
+                    .setNombre(mNombreMascotaMarcador.getText().toString())
+                    .setDescripcion(mDescripcionMascotaMarcador.getText().toString())
+                    .setLatitud(String.valueOf(latLng.latitude))
+                    .setLongitud(String.valueOf(latLng.longitude));
+            RegistrarMarcadorDeMascota((Mascota) mMascota);
         });
         builder.setNegativeButton("CANCELAR", (dialog, id) -> dialog.dismiss());
         return builder.create();
@@ -129,14 +131,14 @@ public class DialogMarkerPet extends DialogFragment implements View.OnClickListe
 
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
         DatabaseReference currentUserDB = mDatabase.child(Objects.requireNonNull(mFirebaseAuth.getCurrentUser()).getUid());
-        String nombreAleatorio = GeneralMethod.getRandomString();
+
         if(!tipoDeFoto.equals("VACIO")) {
-            storageIMG(currentUserDB,mMascota,mDatabase,nombreAleatorio);
+            storageIMG(currentUserDB,mMascota,mDatabase,mMascota.getIdMarcador());
         }
         else{
 
-            SubirRealtimeDatabase(currentUserDB,mMascota,mDatabase,nombreAleatorio);
-            mDatabase.child("Usuarios").child(Objects.requireNonNull(currentUserDB.getKey())).child("Marcadores").child("Pet").child(nombreAleatorio).child("imagen").setValue("defaultPet");
+            SubirRealtimeDatabase(currentUserDB,mMascota,mDatabase,mMascota.getIdMarcador());
+            mDatabase.child("Usuarios").child(Objects.requireNonNull(currentUserDB.getKey())).child("Marcadores").child("Pet").child(mMascota.getIdMarcador()).child("imagen").setValue("defaultPet");
         }
 
 

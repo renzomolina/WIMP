@@ -159,7 +159,7 @@ public final class GeneralMethod {
                 }
                 else{
                     if (!Pattern.compile(REGEX_PASSWORD).matcher(etContrasena.getText().toString()).matches()) {
-                        etContrasena.setError("La contraseña debe contener al menos 8 caracteres alfanumericos, 1 minuscula, 1 mayuscula, 1 numero, 8 caracteres o mas ", msgerror);
+                        etContrasena.setError("La contraseña debe contener al menos 8 caracteres alfanumericos, 1 minuscula, 1 mayuscula, 1 numero", msgerror);
                     } else {
                         etContrasena.setError(null);
                         respuestaValidacion = true;
@@ -208,8 +208,14 @@ public final class GeneralMethod {
             case "contrasenavacio": {
                 if (CheckEditTextIsEmptyOrNot(etContrasenaLogin)) {
                     etContrasenaLogin.setError("Campo Vacio", msgerror);
-                } else {
-                    respuestaValidacion = true;
+                } else{
+                    if (!Pattern.compile(REGEX_PASSWORD).matcher(etContrasenaLogin.getText().toString()).matches()) {
+                        etContrasenaLogin.setError("Recuerde que su contraseña contiene al menos 8 caracteres alfanumericos, " +
+                                "1 minuscula, 1 mayuscula, 1 numero", msgerror);
+                    } else {
+                        etContrasenaLogin.setError(null);
+                        respuestaValidacion = true;
+                    }
                 }
             }break;
         }
@@ -454,6 +460,8 @@ public final class GeneralMethod {
                 .load(mLoadImage)
                 .into(mIntoImageView);
     }
+
+    //
 
 
 }

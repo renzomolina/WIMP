@@ -5,6 +5,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -44,6 +45,7 @@ import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.DefaultRetryPolicy;
@@ -89,7 +91,6 @@ import com.whereismypet.whereismypet.R;
 
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -100,6 +101,7 @@ import Modelo.Usuario;
 import de.hdodenhof.circleimageview.CircleImageView;
 import dialogsFragments.DialogMarkerPet;
 import Modelo.Mascota;
+import finalClass.GeneralMethod;
 
 
 import static android.widget.Toast.LENGTH_SHORT;
@@ -129,9 +131,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     private Usuario.UsuarioPublico mUserPublic;
     //GOOGLE
     private GoogleSignInClient mGoogleSignInClient;
-    //URI DE MERCADO PAGO
 
-    private String Direccion_MercadoPago;
+    //STRING DE LOGUEO
+    final String mFacebook = "facebook.com",
+                mGoogle = "google.com",
+                mPassword = "password";
 
     // FLOATING ACTION BUTTON
     FloatingActionButton mFloatingActionButtonMarkers;
@@ -162,7 +166,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         mFirebaseAuth = FirebaseAuth.getInstance();
         mUserFireBase = mFirebaseAuth.getCurrentUser();
         StorageReference mStorageReference = FirebaseStorage.getInstance().getReference();
-        UserId = Objects.requireNonNull(mUserFireBase).getUid();
+        if(mUserFireBase!=null){
+            UserId = mUserFireBase.getUid();
+        }
         EscuchandoEstadoDeAutenticacion();
         LoginGoogle();
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -206,26 +212,22 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
     //----------------------------FIREBASE-----------------------------------------
     private void EscuchandoEstadoDeAutenticacion() {
-
-        FirebaseAuth.AuthStateListener mAuthStateListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                mUserFireBase = firebaseAuth.getCurrentUser();
-                UserId = Objects.requireNonNull(mUserFireBase).getUid();
-                if (AccessToken.getCurrentAccessToken() != null) {
-                    Toast.makeText(MainActivity.this, "Faceboook", LENGTH_SHORT).show();
-                    VolverAlLogin();
-                }
-                if (mUserFireBase != null) {
-                    VolverAlLogin();
-                }
-                /*if(mUserFireBase!=null)
-                {
-                    user = new Usuario();
-                    //user.setNombre(userFireBase.getDisplayName());
-                    user.setEmail(mUserFireBase.getEmail());
-                }*/
+        FirebaseAuth.AuthStateListener mAuthStateListener = firebaseAuth -> {
+            mUserFireBase = firebaseAuth.getCurrentUser();
+            UserId = Objects.requireNonNull(mUserFireBase).getUid();
+            if (AccessToken.getCurrentAccessToken() != null) {
+                Toast.makeText(MainActivity.this, "Faceboook", LENGTH_SHORT).show();
+                VolverAlLogin(mFacebook);
             }
+            if (mUserFireBase != null) {
+                VolverAlLogin(mPassword);
+            }
+            /*if(mUserFireBase!=null)
+            {
+                user = new Usuario();
+                //user.setNombre(userFireBase.getDisplayName());
+                user.setEmail(mUserFireBase.getEmail());
+            }*/
         };
     }
 
@@ -243,16 +245,18 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         mFirebaseAuth.signOut();
         // Google sign out
         mGoogleSignInClient.signOut().addOnCompleteListener(this,
-                task -> VolverAlLogin());
+                task -> VolverAlLogin(mGoogle));
     }
 
     private void singOutFabebook() {
         mFirebaseAuth.signOut();
         LoginManager.getInstance().logOut();
-        VolverAlLogin();
+        VolverAlLogin(mFacebook);
     }
 
-    private void VolverAlLogin() {
+    private void VolverAlLogin(final String cerrar_sesion) {
+
+        GuardarTipoDeLogin(cerrar_sesion);
         Intent i = new Intent(this, LoginActivity.class);
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -368,17 +372,17 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.nav_salir) {
-
-            if (mUserFireBase.getProviderData().get(0).equals("facebook.com")) {
-                singOutFabebook();
-            } else if (mUserFireBase.getProviderData().get(0).equals("google.com")) {
-                // mFirebaseAuth.signOut();
-                //signOutEmailPassword();
-                signOutGoogle();
-
-
-            } else {
-                VolverAlLogin();
+            switch (mUserFireBase.getProviderData().get(1).getProviderId()) {
+                case "facebook.com":
+                    singOutFabebook();
+                    break;
+                case "google.com":
+                    signOutGoogle();
+                    break;
+                case "password":
+                    VolverAlLogin(mPassword);
+                    break;
+                default:break;
             }
 
         } else if (id == R.id.nav_ajustes) {
@@ -491,6 +495,15 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         return claveMapa;
     }
 
+    private void GuardarTipoDeLogin(final String cerrar_sesion){
+        SharedPreferences mSharedPreferences = this.getSharedPreferences("Login",Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putString("type_sign_out",cerrar_sesion);
+        editor.putBoolean("remember",false);
+
+        editor.apply();
+    }
+
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
@@ -510,7 +523,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                     fabExpanded = true;
                 }
             }break;
-
         }
     }
 
@@ -524,21 +536,15 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
             googleMap.setOnMapClickListener(point -> {//CLICK EN EL MAPA EVENTO ONCLICK CON LAMDA
-                 });
+            });
             googleMap.setOnMapLongClickListener(latLng -> instanciarDialogoMarcadorMascota(googleMap,latLng));
         }
     }
     //-------------------------------CLASE INTERNA DIALOG MARCADOR MASCOTA--------------MEJORADO CON FIREBASE--------------------------------------------------
 
     private void instanciarDialogoMarcadorMascota(GoogleMap map,LatLng latLng) {
-        DialogMarkerPet markerPet = new DialogMarkerPet(map, latLng);
 
-    private void instanciarDialogoMarcadorMascota(GoogleMap map, LatLng latLng) {
-        DialogMarkerPet markerPet = new DialogMarkerPet()
-                .setLatLng(latLng)
-                .setGoogleMap(googleMap)
-                .setmActivity(MainActivity.this)
-                .setView(drawer);
+        DialogMarkerPet markerPet = new DialogMarkerPet(map,latLng);
         markerPet.setCancelable(false);
         markerPet.show(getFragmentManager(), "AJUSTES");
 
@@ -568,21 +574,21 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         }
 
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.ivConfigurar_config: {
-                instanciarMapas();
-            }
-            break;
-            case R.id.ivContactar_config: {
-                ContactarSoporte();
-            }
-            default:
+        @Override
+        public void onClick(View v) {
+            switch (v.getId()) {
+                case R.id.ivConfigurar_config: {
+                    instanciarMapas();
+                }
                 break;
+                case R.id.ivContactar_config: {
+                    ContactarSoporte();
+                }
+                default:
+                    break;
+            }
         }
     }
-}
 
     private void instaciarAjustes() {
         AjusteDialog dialog = new AjusteDialog();  //Instanciamos la clase con el dialogo
@@ -828,7 +834,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             mSemestral.setOnClickListener(this);
             final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setView(content);
-            builder.setNegativeButton("cerrar", (dialog, id) -> dialog.dismiss());
+            builder.setNegativeButton("cerrar", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int id) {
+                    dialog.dismiss();
+                }
+            });
             return builder.create();
         }
 
@@ -861,7 +872,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         dialog.show(getFragmentManager(), "PREMIUM");// Mostramos el dialogo
     }
 
-
     // -------------------------------- Actualizar Datos De Perfil..........................................
     @SuppressLint("ValidFragment")
     private class DialogActualizar extends DialogFragment implements View.OnClickListener {
@@ -873,14 +883,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
             final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setView(content);
-            builder.setOnKeyListener(new DialogInterface.OnKeyListener() {
-                @Override
-                public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
-                    if (keyCode == KeyEvent.KEYCODE_BACK) {
-                        dismiss();
-                    }
-                    return false;
+            builder.setOnKeyListener((dialog, keyCode, event) -> {
+                if (keyCode == KeyEvent.KEYCODE_BACK) {
+                    dismiss();
                 }
+                return false;
             });
             CargarDatosPerfil(content);
             return builder.create();
@@ -983,21 +990,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         dialog.show(getFragmentManager(), "ACTUALIZAR");// Mostramos el dialogo
     }
 
-
-    public void Redireccionar_mercadopago(String x){
-
-
-        Direccion_MercadoPago=x;
-        String url =x;
-        Intent i = new Intent(Intent.ACTION_VIEW);
-        i.setData(Uri.parse(url));
-        startActivity(i);
-
-
-
-
-
-    }
 
 }
 

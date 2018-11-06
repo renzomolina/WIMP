@@ -2,31 +2,27 @@ package actividades;
 
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.constraint.ConstraintLayout;
-import android.support.design.widget.Snackbar;
-import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.text.Editable;
@@ -36,7 +32,6 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -65,6 +60,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -81,20 +77,18 @@ import com.whereismypet.whereismypet.R;
 
 import java.io.File;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import Modelo.PreferenciasLogin;
 import Modelo.Usuario;
 import finalClass.GeneralMethod;
 
 import static android.widget.Toast.LENGTH_SHORT;
-import static android.Manifest.permission.CAMERA;
-import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener, GoogleApiClient.OnConnectionFailedListener {
 
@@ -102,6 +96,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private EditText mEmailEditTextLogin, mPasswordEditTextLogin;
     private String tipoDeLogin;
     private ConstraintLayout mContainerLogin;
+    CheckBox mRecordarUsuarioCheckBox;
     //FIREBASE-----
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
@@ -118,11 +113,15 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private static final int COD_SELECCIONA = 10;
     private static final int COD_FOTO = 20;
     //Imagen
-    private File fileImagen;
     private String tipoDeFoto = "VACIO";
     private Uri mFotoPerfilRegistro;
     private ImageView mImgPerfilDBRegistroImageView;
     private final String defaultUser = "https://firebasestorage.googleapis.com/v0/b/wimp-219219.appspot.com/o/Imagenes%2FPerfil%2FdefaultUser.jpg?alt=media&token=0651674e-50a9-45f6-990e-f36e3928fe98";
+    //STRING DE LOGUEO
+    final String mFacebook = "facebook.com",
+            mGoogle = "google.com",
+            mPassword = "password";
+
     //----------------------------------------CICLOS DE VIDA DE ACTIVITY-------------------------------------
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,18 +130,22 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         //Auth-Database FIREBASE
-        FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
         mFirebaseAuth = FirebaseAuth.getInstance();
         mUserFireBase = mFirebaseAuth.getCurrentUser();
+        //Metodos de Login
+        LoginGoogle();
+        EscuchandoEstadoDeAutenticacion();
+
         //Inicializar las vistas
         final CardView mIniciarCardView = findViewById(R.id.btnIniciarLogin);
         final TextView mRegistroTextView = findViewById(R.id.tvRegistrarseLogin);
         final TextView mOlvidoContrasenaTextView = findViewById(R.id.tvOlvidoContraseñaLogin);
+        mRecordarUsuarioCheckBox = findViewById(R.id.RecordarSesion);
         mContainerLogin = findViewById(R.id.ContainerLogin);
         mEmailEditTextLogin = findViewById(R.id.CorreoLogin);
         mPasswordEditTextLogin = findViewById(R.id.PasswordLogin);
-        final CheckBox mRecordarUsuarioCheckBox = findViewById(R.id.RecordarSesion);
         loginButton = findViewById(R.id.login_button);
+
         //GOOGLE
         SignInButton mSignInButton = findViewById(R.id.sign_in_button);
         callbackManager = CallbackManager.Factory.create();
@@ -154,10 +157,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         loginButton.setOnClickListener(this);
         mSignInButton.setOnClickListener(this);
 
-        //Metodos de Login
-        LoginGoogle();
-        EscuchandoEstadoDeAutenticacion();
-
         //KeyHash();
     }
 
@@ -165,9 +164,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     protected void onPause() {
         super.onPause();
         if (mAuthStateListener != null) {
-            //mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
+            mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
         }
     }
+
+
 
     @Override
     protected void onResume() {
@@ -177,32 +178,49 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
         ValidarLogin();
         LimpiarEditText();
+
         /*mEmailEditText.addTextChangedListener(new GeneralMethod.addListenerOnTextChange(this,mEmailEditText,string tipo));
         mPasswordEditText.addTextChangedListener(new GeneralMethod.addListenerOnTextChange(this,mPasswordEditText));*/
     }
 
     //--------------------------------------ESCUCHADOR DE AUTENTICACION, POR SI CAMBIA DE LOGUEO------------------------------------
     private void EscuchandoEstadoDeAutenticacion() {
-
-        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                mUserFireBase = firebaseAuth.getCurrentUser();
-                if (AccessToken.getCurrentAccessToken() != null) {
-                    Toast.makeText(LoginActivity.this, "Faceboook", LENGTH_SHORT).show();
+        final PreferenciasLogin mPreferenciasLogin = LecturaDeTipoLogin();
+        mAuthStateListener = firebaseAuth -> {
+            mUserFireBase = firebaseAuth.getCurrentUser();
+            if (mUserFireBase != null) {
+                if(!mPreferenciasLogin.isRecordarUsuario()) {
+                    switch (mPreferenciasLogin.getTipoSignOut()) {
+                        case mFacebook:
+                            break;
+                        case mGoogle:
+                            break;
+                        case mPassword:
+                            PreferenciasDeAutoLogin(false);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                else {
                     InicioSesionCorrecto();
                 }
-                if (mUserFireBase != null) {
-                    InicioSesionCorrecto();
-                }
-                /*if(mUserFireBase!=null)
-                {
-                    user = new Usuario();
-                    //user.setNombre(userFireBase.getDisplayName());
-                    user.setEmail(mUserFireBase.getEmail());
-                }*/
             }
+
         };
+    }
+    //-------------------------------------------PREFERENCIAS------------------------------------------------------------------
+    private void PreferenciasDeAutoLogin(final boolean remember){
+        SharedPreferences mSharedPreferences = this.getSharedPreferences("Login",Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putBoolean("remember",remember);
+        editor.apply();
+    }
+    private PreferenciasLogin LecturaDeTipoLogin(){
+        SharedPreferences sharedPreferences = getSharedPreferences("Login", Context.MODE_PRIVATE);
+        return new PreferenciasLogin()
+                .setTipoSignOut(sharedPreferences.getString("type_sign_out",null))
+                .setRecordarUsuario(sharedPreferences.getBoolean("remember",true));
     }
 
     //-------------------------------------------OBTENER HASH DEL PROYECTO PARA IDENTIFICARLO----------------------------------
@@ -274,32 +292,34 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private void LoginEmailPassword() {
         final String mMsgShowSnackBarVerificado = "El correo no se encuentra verificado, por favor verifique el correo",
                 mMsgShowSnackBarEmailPassword = "Usuario o Contraseña incorrecto, por favor vuelva a ingresarlos.!",
-                mMsgShowSnackBarCurrentUser = "Cuenta invalida, registra la cuenta o elija alguna de las otras opciones de logueo...!";
-        if (mUserFireBase != null) {
-            mUserFireBase.reload().addOnCompleteListener(new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                    assert (mUserFireBase) != null;
+                mMsgShowSnackBarCurrentUser = "Cuenta no registrada, registra la cuenta o elija alguna de las opciones";
+        final String mEmailStringEditTextLogin = mEmailEditTextLogin.getText().toString().trim(),
+                  mPasswordStringEditTextLogin = mPasswordEditTextLogin.getText().toString();
+        if(mFirebaseAuth != null){
+            if (mUserFireBase != null) {
+                mUserFireBase.reload().addOnCompleteListener(task -> {
                     if (mUserFireBase.isEmailVerified()) {
-                        final String mEmailStringEditTextLogin = mEmailEditTextLogin.getText().toString().trim(),
-                                mPasswordStringEditTextLogin = mPasswordEditTextLogin.getText().toString();
+
                         mFirebaseAuth.signInWithEmailAndPassword(mEmailStringEditTextLogin, mPasswordStringEditTextLogin)
-                                .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<AuthResult> task) {
-                                        if (task.isSuccessful()) {
-                                            Toast.makeText(LoginActivity.this, "Iniciando", LENGTH_SHORT).show();
-                                            InicioSesionCorrecto();
-                                        } else
-                                            GeneralMethod.showSnackback(mMsgShowSnackBarEmailPassword,mContainerLogin,LoginActivity.this);
-                                    }
+                                .addOnCompleteListener(LoginActivity.this, taskSignInWithEmailAndPassword -> {
+                                    if (taskSignInWithEmailAndPassword.isSuccessful()) {
+                                        Toast.makeText(LoginActivity.this, "Iniciando", LENGTH_SHORT).show();
+                                        InicioSesionCorrecto();
+                                    } else
+                                        GeneralMethod.showSnackback(mMsgShowSnackBarEmailPassword,mContainerLogin,LoginActivity.this);
                                 });
                     } else
                         GeneralMethod.showSnackback(mMsgShowSnackBarVerificado,mContainerLogin,LoginActivity.this);
-                }
-            });
-        } else
-            GeneralMethod.showSnackback(mMsgShowSnackBarCurrentUser,mContainerLogin,LoginActivity.this);
+                });
+            } else {
+                AuthCredential mAuthCredential = EmailAuthProvider
+                        .getCredential(mEmailStringEditTextLogin, mPasswordStringEditTextLogin);
+                mFirebaseAuth.signInWithCredential(mAuthCredential)
+                        .addOnCompleteListener(task -> InicioSesionCorrecto())
+                        .addOnFailureListener(e -> GeneralMethod.showSnackback(mMsgShowSnackBarCurrentUser,mContainerLogin,LoginActivity.this));
+
+            }
+        }
     }
 
 
@@ -433,12 +453,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             String pathTomarFoto = GeneralMethod.getPathTomarFoto();
                             assert (pathTomarFoto) != null;
                             MediaScannerConnection.scanFile(this, new String[]{pathTomarFoto}, null,
-                                    new MediaScannerConnection.OnScanCompletedListener() {
-                                        @Override
-                                        public void onScanCompleted(String path, Uri uri) {
-                                            Log.i("Path",""+path);
-                                        }
-                                    });
+                                    (path, uri) -> Log.i("Path",""+path));
                             mImgPerfilDBRegistroImageView.setImageBitmap(BitmapFactory.decodeFile(pathTomarFoto));
                             mFotoPerfilRegistro = Uri.fromFile(new File(Objects.requireNonNull(pathTomarFoto)));
                             mFotoPerfilRegistro = GeneralMethod.reducirTamano(mFotoPerfilRegistro,this);
@@ -466,6 +481,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             case R.id.btnIniciarLogin: {
                 if (GeneralMethod.RegexLogin("correo", this) && GeneralMethod.RegexLogin("contrasenavacio", this)) {
                     tipoDeLogin = "EmailPassword";
+                    PreferenciasDeAutoLogin(mRecordarUsuarioCheckBox.isChecked());
                     LoginEmailPassword();
                 } else
                     GeneralMethod.showSnackback(mMsgShowSnackBar,mContainerLogin,LoginActivity.this);
@@ -502,10 +518,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         private boolean RespuestaValidacion = false;
         //Permisos
         private static final int MIS_PERMISOS = 100;
-        //Imagen
-        private String pathTomarFoto,tipoDeFoto = "VACIO";
-        private Uri uriSeleccionarFoto;
-        private Uri mFotoPerfilRegistro;
+
         //Firebase
         private FirebaseAuth mFirebaseAuthRegistro;
         private StorageReference mStorageReference;
@@ -565,36 +578,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 }
             };
         }
-        //--------------------------------------RESULTADO DEL DIALOGO------------------------------------------------------------
-        @Override
-        public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-            super.onActivityResult(requestCode, resultCode, data);
-            if (resultCode == RESULT_OK) {
-                switch (requestCode) {
-                    case COD_SELECCIONA: {
-                        uriSeleccionarFoto = Objects.requireNonNull(data).getData();
-                        mFotoPerfilRegistro = uriSeleccionarFoto;
-                        tipoDeFoto = "SELECCIONA";
-                        try {
-                            mImgPerfilDBRegistroImageView.setImageBitmap(GeneralMethod.getBitmapClip(MediaStore.Images.Media.getBitmap(LoginActivity.this.getContentResolver(), uriSeleccionarFoto)));
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }break;
-                    case COD_FOTO: {
-                        MediaScannerConnection.scanFile(LoginActivity.this, new String[]{pathTomarFoto}, null,
-                                (path, uri) -> Log.i("Path", "" + path));
-                        mImgPerfilDBRegistroImageView.setImageBitmap(GeneralMethod.getBitmapClip(BitmapFactory.decodeFile(pathTomarFoto)));
-                        mFotoPerfilRegistro = Uri.fromFile(new File(pathTomarFoto));
-                        tipoDeFoto = "FOTO";
-                    } break;
-                }
-            } else {
-                mImgPerfilDBRegistroImageView.setImageBitmap(GeneralMethod.getBitmapClip(BitmapFactory.decodeResource(getResources(),R.drawable.com_facebook_profile_picture_blank_square)));
-            }
-
-        }
-
         // Click de boton registar y imagenview de imagenPerfil
         @Override
         public void onClick(View v) {
@@ -625,32 +608,29 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
 
                     mFirebaseAuthRegistro.createUserWithEmailAndPassword(mUser.getEmail(), mUser.getContraseña())
-                            .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                                @Override
-                                public void onComplete(@NonNull Task<AuthResult> task) {
-                                    progressDialog.dismiss();
-                                    if (task.isSuccessful()) {
-                                        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-                                        DatabaseReference currentUserDB = mDatabase.child(Objects.requireNonNull(mFirebaseAuth.getCurrentUser()).getUid());
-                                        final Usuario.UsuarioPublico mUserPublic = new Usuario.UsuarioPublico()
-                                                .setNombre(mNombreRegistroEditText.getText().toString())
-                                                .setApellido(mApellidoRegistroEditText.getText().toString());
-                                        if(!tipoDeFoto.equals("VACIO")) {
-                                            storageIMG(currentUserDB,mDatabase,mUserPublic);
-                                        }
-                                        else{
-                                            mDatabase.child("Usuarios").child(Objects.requireNonNull(currentUserDB.getKey())).child("Datos Personales").setValue(mUserPublic);
-                                            mDatabase.child("Usuarios").child(Objects.requireNonNull(currentUserDB.getKey())).child("Datos Personales").child("imagen").setValue(defaultUser);
-                                        }
-                                        final FirebaseUser firebaseUser = Objects.requireNonNull(task.getResult()).getUser();
-                                        firebaseUser.sendEmailVerification();
-                                        dismiss();
-                                        GeneralMethod.showSnackback("Registro exitoso, gracias por registrarse!",mContainerLogin,LoginActivity.this);
-
-                                    } else {
-                                        Toast.makeText(RegistroDialog.this.getActivity(), "Ocurrio un inconveniente al intentar registrar el email, por favor, vuelva a intentarlo",
-                                                Toast.LENGTH_SHORT).show();
+                            .addOnCompleteListener(task -> {
+                                progressDialog.dismiss();
+                                if (task.isSuccessful()) {
+                                    DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+                                    DatabaseReference currentUserDB = mDatabase.child(Objects.requireNonNull(mFirebaseAuth.getCurrentUser()).getUid());
+                                    final Usuario.UsuarioPublico mUserPublic = new Usuario.UsuarioPublico()
+                                            .setNombre(mNombreRegistroEditText.getText().toString())
+                                            .setApellido(mApellidoRegistroEditText.getText().toString());
+                                    if(!tipoDeFoto.equals("VACIO")) {
+                                        storageIMG(currentUserDB,mDatabase,mUserPublic);
                                     }
+                                    else{
+                                        mDatabase.child("Usuarios").child(Objects.requireNonNull(currentUserDB.getKey())).child("Datos Personales").setValue(mUserPublic);
+                                        mDatabase.child("Usuarios").child(Objects.requireNonNull(currentUserDB.getKey())).child("Datos Personales").child("imagen").setValue(defaultUser);
+                                    }
+                                    final FirebaseUser firebaseUser = Objects.requireNonNull(task.getResult()).getUser();
+                                    firebaseUser.sendEmailVerification();
+                                    dismiss();
+                                    GeneralMethod.showSnackback("Registro exitoso, gracias por registrarse!",mContainerLogin,LoginActivity.this);
+                                        //poner este mensaje en el activity main porque se autologue de inicio
+                                } else {
+                                    Toast.makeText(RegistroDialog.this.getActivity(), "Ocurrio un inconveniente al intentar registrar el email, por favor, vuelva a intentarlo",
+                                            Toast.LENGTH_SHORT).show();
                                 }
                             });
 
@@ -663,14 +643,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
             final StorageReference mStorageImgPerfilUsuario = mStorageReference.child("Imagenes").child("Perfil").child(GeneralMethod.getRandomString());
 
-            mStorageImgPerfilUsuario.putFile(mFotoPerfilRegistro).addOnSuccessListener(this.getActivity(), new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    Task<Uri> taskUri = mStorageImgPerfilUsuario.getDownloadUrl();
-                    final String UrlFoto = Objects.requireNonNull(taskUri.getResult()).toString().replace("\"", "");
-                    mDatabase.child("Usuarios").child(Objects.requireNonNull(currentUserDB.getKey())).child("Datos Personales").setValue(mUserPublic);
-                    mDatabase.child("Usuarios").child(Objects.requireNonNull(currentUserDB.getKey())).child("Datos Personales").child("imagen").setValue(UrlFoto);
-                }
+            mStorageImgPerfilUsuario.putFile(mFotoPerfilRegistro).addOnSuccessListener(this.getActivity(), taskSnapshot -> {
+                Task<Uri> taskUri = mStorageImgPerfilUsuario.getDownloadUrl();
+                final String UrlFoto = Objects.requireNonNull(taskUri.getResult()).toString().replace("\"", "");
+                mDatabase.child("Usuarios").child(Objects.requireNonNull(currentUserDB.getKey())).child("Datos Personales").setValue(mUserPublic);
+                mDatabase.child("Usuarios").child(Objects.requireNonNull(currentUserDB.getKey())).child("Datos Personales").child("imagen").setValue(UrlFoto);
             }).addOnFailureListener(this.getActivity(), new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {

@@ -2,6 +2,9 @@ package Modelo;
 
 public class Marcadores  {
 
+
+
+    private String idMarcador;
     private String nombre;
     private String descripcion;
     private String imagen;
@@ -14,12 +17,19 @@ public class Marcadores  {
 
     public void setTelefono(String telefono) { this.telefono = telefono; }
 
-    public void setNombre(String nombre) { this.nombre = nombre; }
-    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
-    public void setLatitud(String posicion) { this.latitud = posicion; }
-    public void setLongitud(String longitud) { this.longitud = longitud; }
-    public void setImagen(String imagen) { this.imagen = imagen; }
+    public Marcadores setNombre(String nombre) { this.nombre = nombre; return this;}
+    public Marcadores setDescripcion(String descripcion) { this.descripcion = descripcion; return this;}
+    public Marcadores setLatitud(String posicion) { this.latitud = posicion; return this;}
+    public Marcadores setLongitud(String longitud) { this.longitud = longitud; return this;}
+    public Marcadores setImagen(String imagen) { this.imagen = imagen; return this;}
+    public String getIdMarcador() {
+        return idMarcador;
+    }
 
+    public Marcadores setIdMarcador(String idMarcador) {
+        this.idMarcador = idMarcador;
+        return this;
+    }
 
     public String getNombre() {
         return nombre;
@@ -36,4 +46,5 @@ public class Marcadores  {
     public String getImagen() {
         return imagen;
     }
+
 }
