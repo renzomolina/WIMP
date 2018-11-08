@@ -15,7 +15,9 @@ public class Marcadores  {
 
     public String getTelefono() { return telefono; }
 
-    public void setTelefono(String telefono) { this.telefono = telefono; }
+    public Marcadores setTelefono(String telefono) { this.telefono = telefono;
+        return this;
+    }
 
     public Marcadores setNombre(String nombre) { this.nombre = nombre; return this;}
     public Marcadores setDescripcion(String descripcion) { this.descripcion = descripcion; return this;}

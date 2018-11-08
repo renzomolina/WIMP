@@ -57,6 +57,13 @@ public final class GeneralMethod {
     private static final int MIS_PERMISOS = 100;
     private static final int COD_SELECCIONA = 10;
     private static final int COD_FOTO = 20;
+
+
+
+    public static String getDirectorioImagen() {
+        return DIRECTORIO_IMAGEN;
+    }
+
     //Url carpeta imagenes
     private static final String CARPETA_PRINCIPAL = "WIMP/";//directorio principal
     private static final String CARPETA_IMAGEN = "imagenes";//carpeta donde se guardan las fotos

@@ -10,14 +10,13 @@
         android:layout_width="match_parent"
         android:layout_height="317dp">
 
-        <android.support.v7.widget.AppCompatImageView
+        <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/imgMascota"
             android:layout_width="70dp"
             android:layout_height="80dp"
             android:layout_alignTop="@+id/ContenedorEditText"
             android:layout_centerHorizontal="true"
-            android:src="@drawable/huella_mascota"
-           />
+            android:src="@drawable/huella_mascota" />
 
         <TextView
             android:id="@+id/Mascota"

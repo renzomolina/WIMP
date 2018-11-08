@@ -3,6 +3,7 @@ package actividades;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
@@ -45,6 +46,7 @@ import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -90,6 +92,10 @@ import com.google.firebase.storage.StorageReference;
 import com.whereismypet.whereismypet.R;
 
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -97,11 +103,15 @@ import java.util.Locale;
 import java.util.Objects;
 
 
+import Modelo.Marcadores;
+import Modelo.Tienda;
 import Modelo.Usuario;
 import de.hdodenhof.circleimageview.CircleImageView;
 import dialogsFragments.DialogMarkerPet;
 import Modelo.Mascota;
+import dialogsFragments.DialogShop;
 import finalClass.GeneralMethod;
+import misclases.VolleySingleton;
 
 
 import static android.widget.Toast.LENGTH_SHORT;
@@ -136,9 +146,14 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     final String mFacebook = "facebook.com",
                 mGoogle = "google.com",
                 mPassword = "password";
+    //string tipo marcador
 
+    private String tipoMarcador = "pet";
     // FLOATING ACTION BUTTON
     FloatingActionButton mFloatingActionButtonMarkers;
+
+    private ArrayList<Marcadores>ListaMarcadoresMacota;
+    private ArrayList<Marcadores>ListaMarcadoresTienda;
 
     private boolean fabExpanded = false;
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -165,7 +180,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         //FIREBASE
         mFirebaseAuth = FirebaseAuth.getInstance();
         mUserFireBase = mFirebaseAuth.getCurrentUser();
-        StorageReference mStorageReference = FirebaseStorage.getInstance().getReference();
+
         if(mUserFireBase!=null){
             UserId = mUserFireBase.getUid();
         }
@@ -255,7 +270,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     }
 
     private void VolverAlLogin(final String cerrar_sesion) {
-
         GuardarTipoDeLogin(cerrar_sesion);
         Intent i = new Intent(this, LoginActivity.class);
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -413,18 +427,35 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
     //---------------------------------CARGA DE MARCADORES EN MAPA---------------------------------------------------------
 
-
     private void ConsultarMarcadores(){
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
         final String UserId = Objects.requireNonNull(mFirebaseAuth.getCurrentUser()).getUid();
+        ListaMarcadoresMacota = new ArrayList<>();
+        ListaMarcadoresTienda = new ArrayList<>();
         mDatabase.child("Usuarios").child(Objects.requireNonNull(Objects.requireNonNull(mDatabase.child(UserId)).getKey())).child("Marcadores").child("Pet").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot mDataSnapshot : dataSnapshot.getChildren()){
                     Mascota mMascotaMarcador = mDataSnapshot.getValue(Mascota.class);
-
+                    ListaMarcadoresMacota.add(mMascotaMarcador);
                     assert mMascotaMarcador != null;
                     CargarMarcadoresMascota(mMascotaMarcador);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+        mDatabase.child("Usuarios").child(Objects.requireNonNull(Objects.requireNonNull(mDatabase.child(UserId)).getKey())).child("Marcadores").child("Shop").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot mDataSnapshot : dataSnapshot.getChildren()){
+                    Tienda mTiendaMarcador = mDataSnapshot.getValue(Tienda.class);
+                    ListaMarcadoresTienda.add( mTiendaMarcador);
+                    assert mTiendaMarcador != null;
+                    CargarMarcadoresTienda(mTiendaMarcador);
                 }
             }
 
@@ -439,17 +470,17 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         LatLng latLng = new LatLng(Double.valueOf(myMarker.getLatitud()),Double.valueOf(myMarker.getLongitud()));
         googleMap.addMarker(new MarkerOptions()
                 .position(latLng)
-                //.title(String.valueOf(myMarker.getId_Marcador()))
+                .title(String.valueOf(myMarker.getIdMarcador()))
                 .snippet(myMarker.getDescripcion())
                 .draggable(true)
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.pet_markers)));
 
     }
-    private void CargarMarcadoresTienda(final Mascota myMarker){
+    private void CargarMarcadoresTienda(final Tienda myMarker){
         LatLng latLng = new LatLng(Double.valueOf(myMarker.getLatitud()),Double.valueOf(myMarker.getLongitud()));
         googleMap.addMarker(new MarkerOptions()
                 .position(latLng)
-                //.title(String.valueOf(myMarker.getId_Marcador()))
+                .title(String.valueOf(myMarker.getIdMarcador()))
                 .snippet(myMarker.getDescripcion())
                 .draggable(true)
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.pet_markers)));
@@ -459,25 +490,30 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     @Override
     public void onMapReady(final GoogleMap googleMap) {
         ConsultarMarcadores();
-        googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                imgPetsMarker = findViewById(R.id.imgMarcadorMascota);
-                /*for (Mascota m : listaMarcador) {
-                    //if (m.getId_Marcador() == Integer.valueOf(marker.getTitle())) {
-                        googleMap.setInfoWindowAdapter(new CustomInfoWindowAdapter(LayoutInflater.from(getApplicationContext()), m, MainActivity.this));
-                    /*Picasso.get()
-                            .load(m.getFoto())
-                            .error(R.drawable.huella_mascota)
-                            .fit()
-                            .centerInside()
-                            .into(imgPetsMarker)
-                    }
-                //}*/
-
-                return false;
+        try {
+            if(!LoadStyle().equals("default")) {
+                int resID = getRaw(this,LoadStyle());
+                boolean success = googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, resID));
+                if (!success) {
+                    Log.e(TAG, "Style parsing failed.");
+                }
             }
+        } catch (Resources.NotFoundException e) {
+            Log.e(TAG, "Can't find style. Error: ", e);
+        }
+
+        googleMap.setOnMarkerClickListener(marker -> {
+          for(Marcadores x :ListaMarcadoresMacota)
+          {
+              if(marker.getTitle().equals(x.getIdMarcador())) {
+                  instaciarDialogoMostrarMarcadorMascota((Mascota) x);
+              }
+          }
+            return false;
         });
+    }
+    private int getRaw(Context c, String name) {
+        return c.getResources().getIdentifier(name, "raw", c.getPackageName());
     }
 
     //-----------------------------------PREFERENCIAS---------------------------------------------------------------------------
@@ -489,23 +525,24 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     }
 
     private String LoadStyle(){
-        String claveMapa;
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        claveMapa = sharedPreferences.getString("estilo_mapa", "default");
-        return claveMapa;
+        return sharedPreferences.getString("estilo_mapa", "default");
+
     }
 
     private void GuardarTipoDeLogin(final String cerrar_sesion){
         SharedPreferences mSharedPreferences = this.getSharedPreferences("Login",Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = mSharedPreferences.edit();
         editor.putString("type_sign_out",cerrar_sesion);
-        editor.putBoolean("remember",false);
-
         editor.apply();
     }
 
     @Override
     public void onClick(View view) {
+
+
+
+
         switch (view.getId()) {
             case R.id.imgPerfilMenu: {
                 instaciarDialogoActualizar();
@@ -514,13 +551,23 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             case R.id.floatingMarkers:{
                 if(fabExpanded){
                     //closeSubMenusFab();
-                    mFloatingActionButtonMarkers.setImageResource(R.drawable.icon_markers);
+                    tipoMarcador = "pet";
+                    mFloatingActionButtonMarkers.setImageResource(R.drawable.mascota);
                     fabExpanded = false;
+                    Context context = getApplicationContext();
+                    int duration = Toast.LENGTH_SHORT;
+                    Toast toast = Toast.makeText(context,"Marcador de Mascota" , duration);
+                    toast.show();
                 }
                 else {
                     //openSubMenusFab();
-                    mFloatingActionButtonMarkers.setImageResource(R.drawable.icon_markers_select);
+                    tipoMarcador = "shop";
+                    mFloatingActionButtonMarkers.setImageResource(R.drawable.tienda);
                     fabExpanded = true;
+                    Context context = getApplicationContext();
+                    int duration = Toast.LENGTH_SHORT;
+                    Toast toast = Toast.makeText(context,"Marcador de Tienda" , duration);
+                    toast.show();
                 }
             }break;
         }
@@ -534,20 +581,33 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         public void onMapReady(GoogleMap mapa) {
             googleMap = mapa;
             googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-
             googleMap.setOnMapClickListener(point -> {//CLICK EN EL MAPA EVENTO ONCLICK CON LAMDA
             });
-            googleMap.setOnMapLongClickListener(latLng -> instanciarDialogoMarcadorMascota(googleMap,latLng));
+            googleMap.setOnMapLongClickListener(latLng -> {
+                switch (tipoMarcador)
+                {
+                    case "pet":
+                        instanciarDialogoMarcadorMascota(mapa,latLng);
+                        break;
+                    case "shop":
+                         instanciarDialogoMarcadorTienda(mapa,latLng);
+                        break;
+                }
+            });
         }
     }
     //-------------------------------CLASE INTERNA DIALOG MARCADOR MASCOTA--------------MEJORADO CON FIREBASE--------------------------------------------------
 
     private void instanciarDialogoMarcadorMascota(GoogleMap map,LatLng latLng) {
-
         DialogMarkerPet markerPet = new DialogMarkerPet(map,latLng);
         markerPet.setCancelable(false);
-        markerPet.show(getFragmentManager(), "AJUSTES");
+        markerPet.show(getFragmentManager(), "MARKER-PET");
+    }
 
+    private void instanciarDialogoMarcadorTienda(GoogleMap map,LatLng latLng){
+        DialogShop markerShop = new DialogShop(map,latLng);
+        markerShop.setCancelable(false);
+        markerShop.show(getFragmentManager(),"MARKER-SHOP");
     }
 
     //------------------------------DIALOG AJUSTE----------------------------
@@ -569,7 +629,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
             final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setView(content);
-            builder.setNegativeButton("cerrar", (dialog, id) -> dialog.dismiss());
+            builder.setOnKeyListener((dialog, keyCode, event) -> {
+                if (keyCode == KeyEvent.KEYCODE_BACK) {
+                    dismiss();
+                }
+                return false;
+            });
             return builder.create();
         }
 
@@ -619,7 +684,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     class SettingMapsDialog extends DialogFragment implements View.OnClickListener {
         ImageView mapa_config;
         ImageButton fondoBlue, fondoBlack, fondoCandy, fondoVintage;
-
+        ImageView imagen1, imagen2, imagen3, imagen4;
+        Switch swgoogle;
         @RequiresApi(api = Build.VERSION_CODES.O)
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -634,79 +700,149 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             fondoCandy.setOnClickListener(this);
             fondoVintage = content.findViewById(R.id.btVintage);
             fondoVintage.setOnClickListener(this);
+            imagen1=content.findViewById(R.id.checkmapa1);
+                    imagen2=content.findViewById(R.id.checkmapa2);
+                    imagen3=content.findViewById(R.id.checkmapa3);
+                    imagen4=content.findViewById(R.id.checkmapa4);
+                    swgoogle=content.findViewById(R.id.swEstiloGoogle);
+                    swgoogle.setOnClickListener(this);
+
+    //////----- PREFERECIAS------ MAPA SELECCIONADO----- CON UN SWICH Y LOADSTYLE
+            if(!LoadStyle().equals("default")) {
+                String style = LoadStyle();
+                switch(style){
+                    case "json_blue":{
+                        seleccionarMapa(imagen1,imagen2, imagen3, imagen4, swgoogle);
+
+                        break;
+                    }
+                    case "json_black":{
+                        seleccionarMapa(imagen2,imagen1, imagen4, imagen3, swgoogle);
+                        break;
+                    }
+                    case "json_candy":{
+                        seleccionarMapa(imagen3,imagen1, imagen2, imagen4, swgoogle);
+                        break;
+                    }
+                    case "json_vintage":{
+                        seleccionarMapa(imagen4,imagen1, imagen2, imagen3, swgoogle);
+                        break;
+                    }
+                }
+            }
 
             final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setView(content);
-            builder.setNegativeButton("cerrar", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int id) {
-                    dialog.dismiss();
+            builder.setOnKeyListener((dialog, keyCode, event) -> {
+                if (keyCode == KeyEvent.KEYCODE_BACK) {
+                    dismiss();
                 }
+                return false;
             });
             return builder.create();
         }
 
+        @SuppressLint("WrongConstant")
         @Override
         public void onClick(View v) {
+
+
             switch (v.getId()) {
                 case R.id.btAzul: {
                     try {
+
+                        seleccionarMapa(imagen1,imagen2, imagen3, imagen4, swgoogle);
                         boolean success = googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(getActivity(), R.raw.json_blue));
-                        SaveStyle("json_blue");
+
                         if (!success) {
+
                             Log.e(TAG, "Style parsing failed.");
                         }
                     } catch (Resources.NotFoundException e) {
                         Log.e(TAG, "Can't find style. Error: ", e);
                     }
+                    SaveStyle("json_blue");
+
                     Toast.makeText(MainActivity.this, "Se aplico el nuevo estilo de mapa", Toast.LENGTH_SHORT).show();
                     break;
                 }
                 case R.id.btBlack: {
                     try {
+                        seleccionarMapa(imagen2,imagen1, imagen4, imagen3, swgoogle);
+
                         boolean success = googleMap.setMapStyle(
                                 MapStyleOptions.loadRawResourceStyle(getActivity(), R.raw.json_black));
                         SaveStyle("json_black");
+
                         if (!success) {
+
                             Log.e(TAG, "Style parsing failed.");
                         }
                     } catch (Resources.NotFoundException e) {
                         Log.e(TAG, "Can't find style. Error: ", e);
                     }
+
                     Toast.makeText(MainActivity.this, "Se aplico el nuevo estilo de mapa", Toast.LENGTH_SHORT).show();
                     break;
                 }
                 case R.id.btCandy: {
                     try {
+                        seleccionarMapa(imagen3,imagen1, imagen2, imagen4, swgoogle);
                         boolean success = googleMap.setMapStyle(
                                 MapStyleOptions.loadRawResourceStyle(getActivity(), R.raw.json_candy));
                         SaveStyle("json_candy");
+
                         if (!success) {
+
                             Log.e(TAG, "Style parsing failed.");
                         }
                     } catch (Resources.NotFoundException e) {
                         Log.e(TAG, "Can't find style. Error: ", e);
                     }
+
                     Toast.makeText(MainActivity.this, "Se aplico el nuevo estilo de mapa", Toast.LENGTH_SHORT).show();
                     break;
                 }
                 case R.id.btVintage: {
                     try {
+                        seleccionarMapa(imagen4,imagen1, imagen2, imagen3, swgoogle);
                         boolean success = googleMap.setMapStyle(
                                 MapStyleOptions.loadRawResourceStyle(getActivity(), R.raw.json_vintage));
                         SaveStyle("json_vintage");
+
                         if (!success) {
+
+
                             Log.e(TAG, "Style parsing failed.");
                         }
                     } catch (Resources.NotFoundException e) {
                         Log.e(TAG, "Can't find style. Error: ", e);
                     }
+
                     Toast.makeText(MainActivity.this, "Se aplico el nuevo estilo de mapa", Toast.LENGTH_SHORT).show();
                     break;
                 }
-                default:
-                    break;
+                case R.id.swEstiloGoogle: {
+                    if(swgoogle.isChecked())
+                    {
+                        imagen1.setVisibility(View.INVISIBLE);
+                        imagen2.setVisibility(View.INVISIBLE);
+                        imagen3.setVisibility(View.INVISIBLE);
+                        imagen4.setVisibility(View.INVISIBLE);
+                        SaveStyle("default");
+                        googleMap.setMapStyle(new MapStyleOptions("º"));
+                    }
+                        break;
+                }
             }
+        }
+
+        private void seleccionarMapa(ImageView i1,ImageView i2,ImageView i3,ImageView i4,Switch s){
+                i1.setVisibility(View.VISIBLE);
+                i2.setVisibility(View.INVISIBLE);
+                i3.setVisibility(View.INVISIBLE);
+                i4.setVisibility(View.INVISIBLE);
+                s.setChecked(false);
         }
     }
 
@@ -727,11 +863,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             View content = inflater.inflate(R.layout.dialog_my_pets, null);
             final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setView(content);
-            builder.setNegativeButton("cerrar", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int id) {
-                    dialog.dismiss();
+            builder.setOnKeyListener((dialog, keyCode, event) -> {
+                if (keyCode == KeyEvent.KEYCODE_BACK) {
+                    dismiss();
                 }
+                return false;
             });
             return builder.create();
         }
@@ -834,27 +970,52 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             mSemestral.setOnClickListener(this);
             final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setView(content);
-            builder.setNegativeButton("cerrar", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int id) {
-                    dialog.dismiss();
+            builder.setOnKeyListener((dialog, keyCode, event) -> {
+                if (keyCode == KeyEvent.KEYCODE_BACK) {
+                    dismiss();
                 }
+                return false;
             });
             return builder.create();
         }
 
 
+
+     public  void ConsultarPremium(final String urlws){
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, urlws, null,
+                response -> {
+                    try {
+                        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+                        DatabaseReference currentUserDB = mDatabase.child(Objects.requireNonNull(mFirebaseAuth.getCurrentUser()).getUid());
+                        String IdPremium= GeneralMethod.getRandomString();
+                        JSONArray lista = response.getJSONArray("pago");
+                        JSONObject json_data = lista.getJSONObject(0);
+                        mDatabase.child("Usuarios").child(Objects.requireNonNull(currentUserDB.getKey())).child("Datos Personales").child("premium").setValue(IdPremium);
+                        mDatabase.child("Usuarios").child(Objects.requireNonNull(currentUserDB.getKey())).child("Premium").child(IdPremium).setValue(json_data);
+
+                    } catch (JSONException ignored) {
+                    }
+                },
+                volleyError -> Toast.makeText(MainActivity.this, volleyError.toString(), Toast.LENGTH_LONG).show());
+        jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 2, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        VolleySingleton.getIntanciaVolley(this.getActivity()).addToRequestQueue(jsonObjectRequest);
+    }
+
         public void onClick(View v) {
-            Uri uri = null;// version de prueba activarla.....?????
+            Uri uri = null;
             switch (v.getId()) {
                 case R.id.btnMensual: {
-                    uri = Uri.parse("https://www.mercadopago.com/mla/checkout/start?pref_id=149281286-4a8eff4d-c814-4946-bb3a-b8ef240a24c7");
+                   // uri = Uri.parse("http://www.secsanluis.com.ar/servicios/varios/wimp/W_Premium.php?link=1");
+                    ConsultarPremium("http://www.secsanluis.com.ar/servicios/varios/wimp/W_Premium.php?link=1");
                 }break;
                 case R.id.btnTrimestral: {
-                    uri = Uri.parse("https://www.mercadopago.com/mla/checkout/start?pref_id=149281286-ca9b679c-df47-4bab-9892-a5944cdeab97");
+                    //uri = Uri.parse("http://www.secsanluis.com.ar/servicios/varios/wimp/W_Premium.php?link=2");
+                    ConsultarPremium("http://www.secsanluis.com.ar/servicios/varios/wimp/W_Premium.php?link=2");
                 }break;
                 case R.id.btnSemestral: {
-                    uri = Uri.parse("https://www.mercadopago.com/mla/checkout/start?pref_id=149281286-135119e2-dbd2-4225-a0ac-8b19a721fbf5");
+                    //uri = Uri.parse("http://www.secsanluis.com.ar/servicios/varios/wimp/W_Premium.php?link=3");
+                    ConsultarPremium("http://www.secsanluis.com.ar/servicios/varios/wimp/W_Premium.php?link=3");
                 }break;
             }
             Intent intent = new Intent(Intent.ACTION_VIEW, uri);
@@ -989,7 +1150,55 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         dialog.setCancelable(false);
         dialog.show(getFragmentManager(), "ACTUALIZAR");// Mostramos el dialogo
     }
+    // -------------------------------- Mostrar datos de masctota..........................................
+    @SuppressLint("ValidFragment")
+    private class DialogMostrarMarcadorMascota extends DialogFragment implements View.OnClickListener {
+        Marcadores mDatosMascotas;
+        public DialogMostrarMarcadorMascota(Mascota mDatosMascotas){
+            this.mDatosMascotas = mDatosMascotas;
+        }
 
+        @RequiresApi(api = Build.VERSION_CODES.O)
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            LayoutInflater inflater = getActivity().getLayoutInflater();
+            View content = inflater.inflate(R.layout.dialog_marcador, null);
+
+            final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setView(content);
+            builder.setOnKeyListener((dialog, keyCode, event) -> {
+                if (keyCode == KeyEvent.KEYCODE_BACK) {
+                    dismiss();
+                }
+                return false;
+            });
+            CargarDatosMascota(content,(Mascota) mDatosMascotas);
+            return builder.create();
+        }
+
+        @Override
+        public void onClick(View v) {
+
+        }
+
+
+        private void CargarDatosMascota(View view, Mascota mMascota) {
+            final TextView eDescripcionMascota = view.findViewById(R.id.eDescripcionMascota),
+                    eNombreMascota = view.findViewById(R.id.eNombreMascota);
+            final CircleImageView imgMascota = view.findViewById(R.id.imgFotomascota);
+
+            eDescripcionMascota.setText(mMascota.getDescripcion());
+            eNombreMascota.setText(mMascota.getNombre());
+            GeneralMethod.GlideUrl(this.getActivity(), mMascota.getImagen(),imgMascota);
+
+
+        }
+    }
+    private void instaciarDialogoMostrarMarcadorMascota(Mascota mDatosMascota) {
+        DialogMostrarMarcadorMascota dialog = new DialogMostrarMarcadorMascota(mDatosMascota);  //Instanciamos la clase con el dialogo
+        dialog.setCancelable(false);
+        dialog.show(getFragmentManager(), "MASCOTA");// Mostramos el dialogo
+    }
 
 }
 

@@ -53,7 +53,7 @@
         android:focusable="true"
         app:backgroundTint="@color/colorAccent"
         app:fabSize="normal"
-        app:srcCompat="@drawable/icon_markers">
+        app:srcCompat="@drawable/mascota">
 
     </android.support.design.widget.FloatingActionButton>
 

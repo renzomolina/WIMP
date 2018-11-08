@@ -20,15 +20,16 @@ import android.support.annotation.RequiresApi;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.ImageView;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -42,13 +43,14 @@ import java.util.Objects;
 
 import Modelo.Marcadores;
 import Modelo.Mascota;
+import de.hdodenhof.circleimageview.CircleImageView;
 import finalClass.GeneralMethod;
 
 @SuppressLint("ValidFragment")
 public class DialogMarkerPet extends DialogFragment implements View.OnClickListener{
     //Componentes
     private EditText mNombreMascotaMarcador,mDescripcionMascotaMarcador;
-    private ImageView mFotoMascotaMarcador;
+    private CircleImageView mFotoMascotaMarcador;
     private String tipoDeFoto = "VACIO";
     //Firebase
     private FirebaseAuth mFirebaseAuth;
@@ -57,22 +59,20 @@ public class DialogMarkerPet extends DialogFragment implements View.OnClickListe
     //Mapa
     private LatLng latLng;
     private GoogleMap map;
-    private Mascota marcadorMacota;
     //Imagen
     private String pathCapturePets;
     private Uri mUriMascotaMarcador;
-    //Carpeta imagen
-    private static final String CARPETA_PRINCIPAL = "WIMP/";//directorio principal
-    private static final String CARPETA_IMAGEN = "imagenes";//carpeta donde se guardan las fotos
-    private static final String DIRECTORIO_IMAGEN = CARPETA_PRINCIPAL + CARPETA_IMAGEN;//ruta carpeta de directorios
+
     //Permisos
     private static final int COD_SELECCIONA = 10;
     private static final int COD_FOTO = 20;
     ProgressDialog progressDialog;
+
+    // STRING DEFAULT IMG PET
+    final String defaultPet = "https://firebasestorage.googleapis.com/v0/b/wimp-219219.appspot.com/o/Imagenes%2FMarcadores%2FPet%2FdefaultPet.png?alt=media&token=9b6a329a-58ca-4ff7-81ec-46def18e9798";
     public DialogMarkerPet(GoogleMap map, LatLng latLng) {
         this.latLng = latLng;
         this.map = map;
-        marcadorMacota = new Mascota();
     }
     @NonNull
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -86,7 +86,6 @@ public class DialogMarkerPet extends DialogFragment implements View.OnClickListe
         mDescripcionMascotaMarcador = content.findViewById(R.id.input_descripcion);
         mFotoMascotaMarcador = content.findViewById(R.id.imgMascota);
         mFotoMascotaMarcador.setOnClickListener(this);
-        mFotoMascotaMarcador.setImageBitmap(GeneralMethod.getBitmapClip(BitmapFactory.decodeResource(getResources(),R.drawable.huella_mascota)));
         mStorageReference = FirebaseStorage.getInstance().getReference();
         mFirebaseAuth = FirebaseAuth.getInstance();
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -100,16 +99,21 @@ public class DialogMarkerPet extends DialogFragment implements View.OnClickListe
                     .setLongitud(String.valueOf(latLng.longitude));
             RegistrarMarcadorDeMascota((Mascota) mMascota);
         });
-        builder.setNegativeButton("CANCELAR", (dialog, id) -> dialog.dismiss());
+        builder.setOnKeyListener((dialog, keyCode, event) -> {
+            if (keyCode == KeyEvent.KEYCODE_BACK) {
+                dismiss();
+            }
+            return false;
+        });
         return builder.create();
     }
 
-    private void CreateMarkers(LatLng latLng,GoogleMap googleMap) {
+    private void CreateMarkers(LatLng latLng,GoogleMap googleMap, Mascota mMarcadorMascota) {
        // googleMap.setInfoWindowAdapter(new CustomInfoWindowAdapter(LayoutInflater.from(DialogMarkerPet.this.getActivity().getApplicationContext()), marcadorMacota, DialogMarkerPet.this.getActivity()));
         googleMap.addMarker(new MarkerOptions()
                 .position(latLng)
-                .title(String.valueOf(marcadorMacota.getNombre()))
-                .snippet(marcadorMacota.getDescripcion())
+                .title(String.valueOf(mMarcadorMascota.getIdMarcador()))
+                .snippet(mMarcadorMascota.getDescripcion())
                 .draggable(true)
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.pet_markers)));
     }
@@ -138,7 +142,7 @@ public class DialogMarkerPet extends DialogFragment implements View.OnClickListe
         else{
 
             SubirRealtimeDatabase(currentUserDB,mMascota,mDatabase,mMascota.getIdMarcador());
-            mDatabase.child("Usuarios").child(Objects.requireNonNull(currentUserDB.getKey())).child("Marcadores").child("Pet").child(mMascota.getIdMarcador()).child("imagen").setValue("defaultPet");
+            mDatabase.child("Usuarios").child(Objects.requireNonNull(currentUserDB.getKey())).child("Marcadores").child("Pet").child(mMascota.getIdMarcador()).child("imagen").setValue(defaultPet);
         }
 
 
@@ -147,14 +151,14 @@ public class DialogMarkerPet extends DialogFragment implements View.OnClickListe
     private void SubirRealtimeDatabase(final DatabaseReference currentUserDB, final Mascota mMascota, final DatabaseReference mDatabase, final String nombreAleatorio){
         mDatabase.child("Usuarios").child(Objects.requireNonNull(currentUserDB.getKey())).child("Marcadores").child("Pet").child(nombreAleatorio).setValue(mMascota);
 
-        CreateMarkers(new LatLng(Double.valueOf(mMascota.getLatitud()),Double.valueOf(mMascota.getLongitud())),map);
+        CreateMarkers(new LatLng(Double.valueOf(mMascota.getLatitud()),Double.valueOf(mMascota.getLongitud())),map, mMascota);
         progressDialog.dismiss();
     }
     private void storageIMG(final DatabaseReference currentUserDB, final Mascota mMascota, final DatabaseReference mDatabase, final String nombreAleatorio ){
         final StorageReference mStorageImgMarkerPet = mStorageReference.child("Imagenes").child("Marcadores").child("Pets").child(GeneralMethod.getRandomString());
         mStorageImgMarkerPet.putFile(mUriMascotaMarcador).addOnSuccessListener(this.getActivity(), taskSnapshot -> {
             SubirRealtimeDatabase(currentUserDB,mMascota,mDatabase,nombreAleatorio);
-            mDatabase.child("Usuarios").child(Objects.requireNonNull(currentUserDB.getKey())).child("Marcadores").child("Pet").child(nombreAleatorio).child("imagen").setValue(taskSnapshot.getStorage().getDownloadUrl().toString());
+            mDatabase.child("Usuarios").child(Objects.requireNonNull(currentUserDB.getKey())).child("Marcadores").child("Pet").child(nombreAleatorio).child("imagen").setValue(mStorageImgMarkerPet.getDownloadUrl().getResult()).toString().replace("\"", "");
         }).addOnFailureListener(this.getActivity(), e -> {
             //GeneralMethod.showSnackback("Lo sentimos, pero ocurrio un incoveniente",,MainActivity.this);
         });
@@ -209,7 +213,7 @@ public class DialogMarkerPet extends DialogFragment implements View.OnClickListe
     }
 
     private void abriCamara() {
-        File miFile = new File(Environment.getExternalStorageDirectory(), DIRECTORIO_IMAGEN);
+        File miFile = new File(Environment.getExternalStorageDirectory(), GeneralMethod.getDirectorioImagen());
         boolean isCreada = miFile.exists();
 
         if (!isCreada) {
@@ -219,7 +223,7 @@ public class DialogMarkerPet extends DialogFragment implements View.OnClickListe
             Long consecutivo = System.currentTimeMillis() / 1000;
             String nombre = consecutivo.toString() + ".jpg";
 
-            pathCapturePets = Environment.getExternalStorageDirectory() + File.separator + DIRECTORIO_IMAGEN
+            pathCapturePets = Environment.getExternalStorageDirectory() + File.separator + GeneralMethod.getDirectorioImagen()
                     + File.separator + nombre;//indicamos la ruta de almacenamiento
 
             File fileImagen = new File(pathCapturePets);

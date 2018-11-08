@@ -55,8 +55,6 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
@@ -70,7 +68,6 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 import com.whereismypet.whereismypet.R;
 
 
@@ -118,9 +115,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private ImageView mImgPerfilDBRegistroImageView;
     private final String defaultUser = "https://firebasestorage.googleapis.com/v0/b/wimp-219219.appspot.com/o/Imagenes%2FPerfil%2FdefaultUser.jpg?alt=media&token=0651674e-50a9-45f6-990e-f36e3928fe98";
     //STRING DE LOGUEO
-    final String mFacebook = "facebook.com",
-            mGoogle = "google.com",
-            mPassword = "password";
+    final String mFacebook = "facebook.com";
+    final String mGoogle = "google.com";
+    final String mPassword = "password";
+    String mEstado = "logueo";
 
     //----------------------------------------CICLOS DE VIDA DE ACTIVITY-------------------------------------
     @Override
@@ -189,38 +187,31 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         mAuthStateListener = firebaseAuth -> {
             mUserFireBase = firebaseAuth.getCurrentUser();
             if (mUserFireBase != null) {
-                if(!mPreferenciasLogin.isRecordarUsuario()) {
+                if(mUserFireBase.isEmailVerified() && mPreferenciasLogin.getTipoSignOut() == null) {
+                    InicioSesionCorrecto();
+                }
+                else if(!mEstado.equals("logueo")) {
                     switch (mPreferenciasLogin.getTipoSignOut()) {
                         case mFacebook:
                             break;
                         case mGoogle:
                             break;
                         case mPassword:
-                            PreferenciasDeAutoLogin(false);
                             break;
                         default:
                             break;
                     }
                 }
-                else {
-                    InicioSesionCorrecto();
-                }
             }
-
+            /*else
+                GeneralMethod.showSnackback("El correo no se encuentra verificado, por favor verifique el correo",mContainerLogin,this);*/
         };
     }
     //-------------------------------------------PREFERENCIAS------------------------------------------------------------------
-    private void PreferenciasDeAutoLogin(final boolean remember){
-        SharedPreferences mSharedPreferences = this.getSharedPreferences("Login",Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putBoolean("remember",remember);
-        editor.apply();
-    }
     private PreferenciasLogin LecturaDeTipoLogin(){
         SharedPreferences sharedPreferences = getSharedPreferences("Login", Context.MODE_PRIVATE);
         return new PreferenciasLogin()
-                .setTipoSignOut(sharedPreferences.getString("type_sign_out",null))
-                .setRecordarUsuario(sharedPreferences.getBoolean("remember",true));
+                .setTipoSignOut(sharedPreferences.getString("type_sign_out",null));
     }
 
     //-------------------------------------------OBTENER HASH DEL PROYECTO PARA IDENTIFICARLO----------------------------------
@@ -369,11 +360,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         // Google revoke access
         mGoogleSignInClient.revokeAccess().addOnCompleteListener(this,
-                new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                    }
-                });
+                task -> { });
     }
 
 
@@ -402,16 +389,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private void handleFacebookAccessToken(AccessToken token) {
         AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
         mFirebaseAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            //FirebaseUser user = mFirebaseAuth.getCurrentUser();
-                            InicioSesionCorrecto();
-                        } else
-                            Toast.makeText(LoginActivity.this, R.string.auth_failed, LENGTH_SHORT).show();
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        //FirebaseUser user = mFirebaseAuth.getCurrentUser();
+                        InicioSesionCorrecto();
+                    } else
+                        Toast.makeText(LoginActivity.this, R.string.auth_failed, LENGTH_SHORT).show();
 
-                    }
                 });
     }
 
@@ -481,7 +465,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             case R.id.btnIniciarLogin: {
                 if (GeneralMethod.RegexLogin("correo", this) && GeneralMethod.RegexLogin("contrasenavacio", this)) {
                     tipoDeLogin = "EmailPassword";
-                    PreferenciasDeAutoLogin(mRecordarUsuarioCheckBox.isChecked());
                     LoginEmailPassword();
                 } else
                     GeneralMethod.showSnackback(mMsgShowSnackBar,mContainerLogin,LoginActivity.this);
@@ -616,6 +599,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                                     final Usuario.UsuarioPublico mUserPublic = new Usuario.UsuarioPublico()
                                             .setNombre(mNombreRegistroEditText.getText().toString())
                                             .setApellido(mApellidoRegistroEditText.getText().toString());
+                                    mEstado = "registro";
                                     if(!tipoDeFoto.equals("VACIO")) {
                                         storageIMG(currentUserDB,mDatabase,mUserPublic);
                                     }
@@ -648,12 +632,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 final String UrlFoto = Objects.requireNonNull(taskUri.getResult()).toString().replace("\"", "");
                 mDatabase.child("Usuarios").child(Objects.requireNonNull(currentUserDB.getKey())).child("Datos Personales").setValue(mUserPublic);
                 mDatabase.child("Usuarios").child(Objects.requireNonNull(currentUserDB.getKey())).child("Datos Personales").child("imagen").setValue(UrlFoto);
-            }).addOnFailureListener(this.getActivity(), new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Toast.makeText(RegistroDialog.this.getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });
+            }).addOnFailureListener(this.getActivity(), e -> Toast.makeText(RegistroDialog.this.getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show());
         }
 
         // METODOS COMPROBACION CAMPOS Y GENERANDO NOMBRE IMAGEN

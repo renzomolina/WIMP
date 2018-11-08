@@ -8,16 +8,18 @@ public class Tienda extends Marcadores {
         return direccion;
     }
 
-    public void setDireccion(String direccion) {
+    public Marcadores setDireccion(String direccion) {
         this.direccion = direccion;
+        return this;
     }
 
     public String getSitioWeb() {
         return sitioWeb;
     }
 
-    public void setSitioWeb(String sitioWeb) {
+    public Marcadores setSitioWeb(String sitioWeb) {
         this.sitioWeb = sitioWeb;
+        return this;
     }
 
     private String sitioWeb;
