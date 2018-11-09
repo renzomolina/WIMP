@@ -1,6 +1,6 @@
 package Modelo;
 
-public class Marcadores  {
+public class Marcadores {
 
 
 

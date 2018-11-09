@@ -36,6 +36,8 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatCallback;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -43,6 +45,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -63,6 +66,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.internal.ConnectionErrorMessages;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -103,9 +107,13 @@ import java.util.Locale;
 import java.util.Objects;
 
 
+import Modelo.Comentario;
 import Modelo.Marcadores;
+import Modelo.Publicidad;
 import Modelo.Tienda;
 import Modelo.Usuario;
+import adaptadores.AdaptadorComentarios;
+import adaptadores.AdaptadorPublicidades;
 import de.hdodenhof.circleimageview.CircleImageView;
 import dialogsFragments.DialogMarkerPet;
 import Modelo.Mascota;
@@ -137,6 +145,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     //FIREBASE
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mUserFireBase;
+    private DatabaseReference mDatabase;
     private String UserId;
     private Usuario.UsuarioPublico mUserPublic;
     //GOOGLE
@@ -154,6 +163,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
     private ArrayList<Marcadores>ListaMarcadoresMacota;
     private ArrayList<Marcadores>ListaMarcadoresTienda;
+    private ArrayList<Comentario>ListaComentario;
+    private ArrayList<Publicidad>ListaPublicidad;
+    ArrayList<Comentario> ListaComentarioFinal;
+    RecyclerView recyclerComentarios;
+    RecyclerView recyclerPublicidad;
 
     private boolean fabExpanded = false;
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -180,7 +194,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         //FIREBASE
         mFirebaseAuth = FirebaseAuth.getInstance();
         mUserFireBase = mFirebaseAuth.getCurrentUser();
-
+        mDatabase = FirebaseDatabase.getInstance().getReference();
         if(mUserFireBase!=null){
             UserId = mUserFireBase.getUid();
         }
@@ -203,7 +217,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         layoutFabShop = findViewById(R.id.layoutFabShop);
         */
         ObtenerDatosPerfil();
-
     }
 
     @Override
@@ -281,7 +294,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
     //--------------------------DATOS PERFIL FIREBASE------------------------------
     public void ObtenerDatosPerfil() {
-        final DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
         mDatabase.child("Usuarios").child(Objects.requireNonNull(mDatabase.child(UserId).getKey())).child("Datos Personales").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -294,7 +306,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 else {
                     GeneralMethod.GlideUrl(MainActivity.this,Objects.requireNonNull(mUserFireBase.getPhotoUrl()).toString(),mImgFotoPerfil);
                 }
-
             }
 
             @Override
@@ -428,10 +439,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     //---------------------------------CARGA DE MARCADORES EN MAPA---------------------------------------------------------
 
     private void ConsultarMarcadores(){
-        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-        final String UserId = Objects.requireNonNull(mFirebaseAuth.getCurrentUser()).getUid();
         ListaMarcadoresMacota = new ArrayList<>();
         ListaMarcadoresTienda = new ArrayList<>();
+        ListaComentario = new ArrayList<>();
+        ListaPublicidad=new ArrayList<>();
         mDatabase.child("Usuarios").child(Objects.requireNonNull(Objects.requireNonNull(mDatabase.child(UserId)).getKey())).child("Marcadores").child("Pet").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -503,12 +514,23 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         }
 
         googleMap.setOnMarkerClickListener(marker -> {
-          for(Marcadores x :ListaMarcadoresMacota)
+          for(Marcadores x :ListaMarcadoresTienda)
           {
               if(marker.getTitle().equals(x.getIdMarcador())) {
-                  instaciarDialogoMostrarMarcadorMascota((Mascota) x);
+                  instaciarDialogoMostrarMarcadorTienda((Tienda) x);
+
               }
+
           }
+            for(Marcadores x :ListaMarcadoresMacota)
+            {
+                if(marker.getTitle().equals(x.getIdMarcador())) {
+                    instaciarDialogoMostrarMarcadorMascota((Mascota) x);
+
+                }
+
+            }
+
             return false;
         });
     }
@@ -986,13 +1008,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, urlws, null,
                 response -> {
                     try {
-                        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-                        DatabaseReference currentUserDB = mDatabase.child(Objects.requireNonNull(mFirebaseAuth.getCurrentUser()).getUid());
-                        String IdPremium= GeneralMethod.getRandomString();
+                        String IdPremium = GeneralMethod.getRandomString();
                         JSONArray lista = response.getJSONArray("pago");
                         JSONObject json_data = lista.getJSONObject(0);
-                        mDatabase.child("Usuarios").child(Objects.requireNonNull(currentUserDB.getKey())).child("Datos Personales").child("premium").setValue(IdPremium);
-                        mDatabase.child("Usuarios").child(Objects.requireNonNull(currentUserDB.getKey())).child("Premium").child(IdPremium).setValue(json_data);
+                        mDatabase.child("Usuarios").child(Objects.requireNonNull(mDatabase.child(UserId).getKey())).child("Datos Personales").child("premium").setValue(IdPremium);
+                        mDatabase.child("Usuarios").child(Objects.requireNonNull(mDatabase.child(UserId).getKey())).child("Premium").child(IdPremium).setValue(json_data);
 
                     } catch (JSONException ignored) {
                     }
@@ -1021,10 +1041,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             Intent intent = new Intent(Intent.ACTION_VIEW, uri);
             startActivity(intent);
         }
-
-
-
-
     }
 
     private void instaciarPremium() {
@@ -1150,10 +1166,17 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         dialog.setCancelable(false);
         dialog.show(getFragmentManager(), "ACTUALIZAR");// Mostramos el dialogo
     }
+
+
+
+
+
+
     // -------------------------------- Mostrar datos de masctota..........................................
     @SuppressLint("ValidFragment")
     private class DialogMostrarMarcadorMascota extends DialogFragment implements View.OnClickListener {
         Marcadores mDatosMascotas;
+
         public DialogMostrarMarcadorMascota(Mascota mDatosMascotas){
             this.mDatosMascotas = mDatosMascotas;
         }
@@ -1161,9 +1184,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         @RequiresApi(api = Build.VERSION_CODES.O)
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
+
             LayoutInflater inflater = getActivity().getLayoutInflater();
             View content = inflater.inflate(R.layout.dialog_marcador, null);
-
             final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setView(content);
             builder.setOnKeyListener((dialog, keyCode, event) -> {
@@ -1173,13 +1196,21 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 return false;
             });
             CargarDatosMascota(content,(Mascota) mDatosMascotas);
+
+
+
+
+
+
             return builder.create();
         }
 
         @Override
         public void onClick(View v) {
 
+
         }
+
 
 
         private void CargarDatosMascota(View view, Mascota mMascota) {
@@ -1190,15 +1221,159 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             eDescripcionMascota.setText(mMascota.getDescripcion());
             eNombreMascota.setText(mMascota.getNombre());
             GeneralMethod.GlideUrl(this.getActivity(), mMascota.getImagen(),imgMascota);
+            CargarComentariosMascota(mMascota,view);
+        }
 
+        private void CargarComentariosMascota(Mascota mMascota,View view) {
+            mDatabase.child("Usuarios").child(Objects.requireNonNull(mDatabase.child(UserId).getKey())).child("Marcadores").child("Comentarios").child(mMascota.getIdComentario()).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    Log.i("COMENTARIO", dataSnapshot.toString());
+                   Comentario mComentario = dataSnapshot.getValue(Comentario.class);
+                    ListaComentario.add(mComentario);
+                    recyclerComentarios = view.findViewById(R.id.RecViewComentario);
+                    recyclerComentarios.setLayoutManager(new LinearLayoutManager(view.getContext()));
+                    AdaptadorComentarios adapter = new AdaptadorComentarios(ListaComentario,view.getContext());
+                    recyclerComentarios.setAdapter(adapter);
 
+                }
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
         }
     }
+
+
+
     private void instaciarDialogoMostrarMarcadorMascota(Mascota mDatosMascota) {
         DialogMostrarMarcadorMascota dialog = new DialogMostrarMarcadorMascota(mDatosMascota);  //Instanciamos la clase con el dialogo
         dialog.setCancelable(false);
         dialog.show(getFragmentManager(), "MASCOTA");// Mostramos el dialogo
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // -------------------------------- Mostrar datos de Tienda..........................................
+    @SuppressLint("ValidFragment")
+    private class DialogMostrarMarcadorTienda extends DialogFragment implements View.OnClickListener {
+        Marcadores mDatosTienda;
+
+        public DialogMostrarMarcadorTienda(Tienda mDatosTienda){
+            this.mDatosTienda = mDatosTienda;
+        }
+
+        @RequiresApi(api = Build.VERSION_CODES.O)
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+
+            LayoutInflater inflater = getActivity().getLayoutInflater();
+            View content = inflater.inflate(R.layout.dialog_marcador_tienda, null);
+            final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setView(content);
+            builder.setOnKeyListener((dialog, keyCode, event) -> {
+                if (keyCode == KeyEvent.KEYCODE_BACK) {
+                    dismiss();
+                }
+                return false;
+            });
+            CargarDatosTienda(content,(Tienda) mDatosTienda);
+
+
+
+
+
+
+            return builder.create();
+        }
+
+        @Override
+        public void onClick(View v) {
+
+
+        }
+
+
+
+        private void CargarDatosTienda(View view, Tienda mTienda) {
+            final TextView eDireccionTienda = view.findViewById(R.id.eDireccionTienda),
+                    eNombreTienda = view.findViewById(R.id.eNombreMascota),
+                    eTelefonoTienda=view.findViewById(R.id.eTelefonoTienda);
+
+            final CircleImageView imgTienda = view.findViewById(R.id.imgFotoTienda);
+
+            eDireccionTienda.setText(mTienda.getDireccion());
+            eNombreTienda.setText(mTienda.getNombre());
+            eTelefonoTienda.setText(mTienda.getTelefono());
+            GeneralMethod.GlideUrl(this.getActivity(), mTienda.getImagen(),imgTienda);
+            CargarPublicidadesTienda(mTienda,view);
+        }
+
+        private void CargarPublicidadesTienda(Tienda mTienda,View view) {
+            mDatabase.child("Usuarios").child(Objects.requireNonNull(mDatabase.child(UserId).getKey())).child("Marcadores").child("Publicidad").child(mTienda.getIdPublicidad()).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    Log.i("PUBLICIDAD", dataSnapshot.toString());
+                    Publicidad mPublicidad=dataSnapshot.getValue(Publicidad.class);
+
+                    ListaPublicidad.add(mPublicidad);
+                    recyclerPublicidad = view.findViewById(R.id.RecViewPublicidad);
+                    recyclerPublicidad.setLayoutManager(new LinearLayoutManager(view.getContext()));
+                    AdaptadorPublicidades adapter = new AdaptadorPublicidades(ListaPublicidad,view.getContext());
+                    recyclerPublicidad.setAdapter(adapter);
+
+                }
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+        }
+    }
+
+
+
+    private void instaciarDialogoMostrarMarcadorTienda(Tienda mDatosTienda) {
+        DialogMostrarMarcadorTienda dialog = new DialogMostrarMarcadorTienda(mDatosTienda);  //Instanciamos la clase con el dialogo
+        dialog.setCancelable(false);
+        dialog.show(getFragmentManager(), "MASCOTA");// Mostramos el dialogo
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 }
 

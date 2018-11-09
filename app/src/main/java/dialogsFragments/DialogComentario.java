@@ -32,16 +32,16 @@ public class DialogComentario extends DialogFragment implements View.OnClickList
     //Firebase
     private FirebaseAuth mFirebaseAuth;
     private StorageReference mStorageReference;
- DatabaseReference mDatabaseReference;
+    DatabaseReference mDatabaseReference;
 
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         LayoutInflater inflater = Objects.requireNonNull(getActivity()).getLayoutInflater();
 
         @SuppressLint("InflateParams")
         View content = inflater.inflate(R.layout.dialog_comentar_marcador_mascota, null);
-       eComentario = content.findViewById(R.id.eComentarMarcador);
-       eOk=content.findViewById(R.id.ImgOk);
-       eCancelar=content.findViewById(R.id.ImgCancelar);
+        eComentario = content.findViewById(R.id.eComentarMarcador);
+        eOk = content.findViewById(R.id.ImgOk);
+        eCancelar = content.findViewById(R.id.ImgCancelar);
         eOk.setOnClickListener(this);
         eCancelar.setOnClickListener(this);
         mFirebaseAuth = FirebaseAuth.getInstance();
@@ -50,14 +50,13 @@ public class DialogComentario extends DialogFragment implements View.OnClickList
         builder.setView(content);
 
 
-
         return builder.create();
     }
 
     @Override
     public void onClick(View v) {
 
-        switch (v.getId()){
+    /*    switch (v.getId()){
             case R.id.ImgOk:{
                 Comentario mComentario= new Comentario()
                         .setCuerpo(eComentario.getText().toString())
@@ -69,5 +68,6 @@ public class DialogComentario extends DialogFragment implements View.OnClickList
                 dismiss();
             }break;
         }
+    }*/
     }
 }

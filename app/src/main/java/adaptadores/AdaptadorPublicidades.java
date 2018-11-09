@@ -1,5 +1,8 @@
 package adaptadores;
 
+import android.app.Activity;
+import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,62 +13,74 @@ import com.whereismypet.whereismypet.R;
 import java.util.ArrayList;
 
 import Modelo.Publicidad;
+import finalClass.GeneralMethod;
 
 public class AdaptadorPublicidades extends RecyclerView.Adapter<AdaptadorPublicidades.ViewHolderPublicidades> implements View.OnClickListener{
 
     private View.OnClickListener listenerOfertas;
-    private ArrayList<Publicidad> ofertas;
+    private ArrayList<Publicidad> ListaPublicidades;
+    private Context context;
 
-    public AdaptadorPublicidades(ArrayList<Publicidad> ofertas) {
-        this.ofertas = ofertas;
-    }
-
-    public class ViewHolderPublicidades extends RecyclerView.ViewHolder {
-
-        private TextView tvtitulo;
-        private TextView tvprecio;
-        private TextView tvdescripcion;
-        private TextView tvdireccion;
-        private TextView tvtelefono;
-        private ImageView ivOferta;
-        public ViewHolderPublicidades(View itemView) {
-            super( itemView );
-
-            tvtitulo=(TextView) itemView.findViewById( R.id.TvTitulo );
-            tvprecio=(TextView) itemView.findViewById( R.id.TvPrecio );
-            tvdescripcion=(TextView) itemView.findViewById( R.id.TvDescripcion );
-            tvdireccion=(TextView) itemView.findViewById( R.id.TvDireccion );
-            tvtelefono=(TextView) itemView.findViewById( R.id.TvTelefono );
-            ivOferta=(ImageView)itemView.findViewById( R.id.IvOferta );
-        }
-
+    public AdaptadorPublicidades(ArrayList<Publicidad> ofertas,Context context) {
+        this.ListaPublicidades = ofertas;
+        this.context=context;
     }
 
 
+    @NonNull
     @Override
-    public ViewHolderPublicidades onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolderPublicidades onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view= LayoutInflater.from( parent.getContext() ).inflate( R.layout.item_oferta,null,false );
         return new ViewHolderPublicidades( view );
     }
 
     @Override
-    public void onBindViewHolder(ViewHolderPublicidades holder, int pos) {
-        holder.tvtitulo.setText( ofertas.get(pos).getTituloOferta() );
-        holder.tvprecio.setText( ofertas.get(pos).getPrecio() );
-        holder.tvdescripcion.setText( ofertas.get(pos).getDescripcionOferta() );
-        holder.tvdireccion.setText( ofertas.get(pos).getDireccion() );
-        holder.tvtelefono.setText( ofertas.get(pos).getTelefono() );
-        holder.ivOferta.setImageResource( ofertas.get(pos).getImgOferta() );
+    public void onBindViewHolder(@NonNull ViewHolderPublicidades holder, int pos) {
+        holder.tvtitulo.setText( ListaPublicidades.get(pos).getTituloOferta() );
+        holder.tvprecio.setText( ListaPublicidades.get(pos).getPrecio() );
+        holder.tvdescripcion.setText( ListaPublicidades.get(pos).getDescripcionOferta() );
+        GeneralMethod.GlideUrlImagenCuadrada((Activity) context, ListaPublicidades.get(pos).getImgOferta(),holder.ivOferta);
 
 
     }
+
+
+
+    class ViewHolderPublicidades extends RecyclerView.ViewHolder {
+
+        private TextView tvtitulo;
+        private TextView tvprecio;
+        private TextView tvdescripcion;
+        private ImageView ivOferta;
+        ViewHolderPublicidades(View itemView) {
+            super( itemView );
+
+            tvtitulo=(TextView) itemView.findViewById( R.id.TvTituloTienda);
+            tvprecio=(TextView) itemView.findViewById( R.id.TvPrecioTienda );
+            tvdescripcion=(TextView) itemView.findViewById( R.id.TvDescripcionTienda );
+            ivOferta=(ImageView)itemView.findViewById( R.id.IvOfertaTienda );
+        }
+
+    }
+
+
+
+
 
     @Override
-    public int getItemCount() {
-        return ofertas.size();
+    public int getItemCount()
+    {
+        return ListaPublicidades.size();
     }
 
-    public void setOnClickListener(View.OnClickListener listener){
+
+    @Override
+    public void onClick(View v) {
+
+    }
+
+ /*   public void setOnClickListener(View.OnClickListener listener)
+    {
         listenerOfertas = listener;
     }
     @Override
@@ -73,6 +88,6 @@ public class AdaptadorPublicidades extends RecyclerView.Adapter<AdaptadorPublici
         if(listenerOfertas!=null)
             listenerOfertas.onClick( v );
     }
-
+*/
 
 }
