@@ -193,7 +193,7 @@ public final class GeneralMethod {
     public static boolean RegexLogin(String edit, Activity activity) {
         boolean respuestaValidacion = false;
         Drawable msgerror = activity.getResources().getDrawable(R.drawable.icon_error);
-        msgerror.setBounds(0, 0, msgerror.getIntrinsicWidth(), msgerror.getIntrinsicHeight());
+        msgerror.setBounds(20, 0, msgerror.getIntrinsicWidth(), msgerror.getIntrinsicHeight());
         final EditText etCorreoLogin = activity.findViewById(R.id.CorreoLogin),
                         etContrasenaLogin = activity.findViewById(R.id.PasswordLogin);
         switch (edit) {
