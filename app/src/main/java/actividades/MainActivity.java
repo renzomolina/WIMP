@@ -476,7 +476,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     //---------------------------------CARGA DE MARCADORES EN MAPA---------------------------------------------------------
 
     private void ConsultarMarcadores(){
-       /* ListaMarcadoresMacota = new ArrayList<>();
+        ListaMarcadoresMacota = new ArrayList<>();
         ListaMarcadoresTienda = new ArrayList<>();
         mListaMarcadoresMascotas = new HashMap<>();
         mListaMarcadoresTiendas = new HashMap<>();
@@ -550,7 +550,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
         // esto tengo que hacerlo cuando leo la imagen  url cambiarle las comillas
         //final String UrlFoto = Objects.requireNonNull(taskUri.getResult()).toString().replace("\"", "");
-*/
+
     }
 
     private void CargarMarcadoresMascota(final Mascota myMarker){
