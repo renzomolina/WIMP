@@ -27,7 +27,7 @@ public class ServicioID extends FirebaseInstanceIdService {
         Log.d(TAG, "Refreshed token: " + refreshedToken);
 
 
-        //sendRegistrationToServer(refreshedToken);
+       //sendRegistrationToServer(refreshedToken);
     }
 
 
