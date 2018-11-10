@@ -110,6 +110,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 
 
@@ -168,14 +169,18 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     // FLOATING ACTION BUTTON
     FloatingActionButton mFloatingActionButtonMarkers;
 
-    private ArrayList<Marcadores>ListaMarcadoresMacota;
-    private ArrayList<Marcadores>ListaMarcadoresTienda;
+
+
+    private ArrayList<Mascota>ListaMarcadoresMacota;
+    private ArrayList<Tienda>ListaMarcadoresTienda;
     private ArrayList<Comentario>ListaComentario;
     private ArrayList<Publicidad>ListaPublicidad;
-    ArrayList<Comentario> ListaComentarioFinal;
-    RecyclerView recyclerComentarios;
-    RecyclerView recyclerPublicidad;
+    private ArrayList<Comentario> ListaComentarioFinal;
+    private RecyclerView recyclerComentarios;
+    private RecyclerView recyclerPublicidad;
 
+    private Map<String,ArrayList<Mascota>> mListaMarcadoresMascotas;
+    private Map<String,ArrayList<Tienda>> mListaMarcadoresTiendas;
     private boolean fabExpanded = false;
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
@@ -472,48 +477,60 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     private void ConsultarMarcadores(){
        /* ListaMarcadoresMacota = new ArrayList<>();
         ListaMarcadoresTienda = new ArrayList<>();
+        mListaMarcadoresMascotas = new HashMap<>();
+        mListaMarcadoresTiendas = new HashMap<>();
         ListaComentario = new ArrayList<>();
         ListaPublicidad=new ArrayList<>();
         mDatabase.child("Usuarios").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot mDataSnapshot : dataSnapshot.getChildren()){
+                        String keyUserPet = mDataSnapshot.getKey();
                         Iterator<DataSnapshot> items = mDataSnapshot.child("Marcadores").child("Pet").getChildren().iterator();
                         HashMap<String, Object> marker;
                         while(items.hasNext()){
                             DataSnapshot dt = items.next();
                             marker = (HashMap<String, Object>) dt.getValue();
                             if (marker != null) {
-                                ListaMarcadoresMacota.add(( new Mascota()
-                                        .setIdMarcador(marker.get("idMarcador").toString())
-                                        .setNombre(marker.get("nombre").toString())
-                                        .setDescripcion(marker.get("descripcion").toString())
-                                        .setImagen(marker.get("imagen").toString())
-                                        .setLatitud(marker.get("latitud").toString())
-                                        .setLongitud(marker.get("longitud").toString())));
+                                ListaMarcadoresMacota.add((Mascota) new Mascota()
+                                        .setIdComentario(Objects.requireNonNull(marker.get("idComentario")).toString())
+                                        .setIdMarcador(Objects.requireNonNull(marker.get("idMarcador")).toString())
+                                        .setNombre(Objects.requireNonNull(marker.get("nombre")).toString())
+                                        .setDescripcion(Objects.requireNonNull(marker.get("descripcion")).toString())
+                                        .setImagen(Objects.requireNonNull(marker.get("imagen")).toString())
+                                        .setLatitud(Objects.requireNonNull(marker.get("latitud")).toString())
+                                        .setLongitud(Objects.requireNonNull(marker.get("longitud")).toString()));
                             }
                         }
+                    if (keyUserPet != null) {
+                        mListaMarcadoresMascotas.put(keyUserPet,ListaMarcadoresMacota);
+                    }
                 }
                for (DataSnapshot mDataSnapshot : dataSnapshot.getChildren()){
+                   String keyUserShop = mDataSnapshot.getKey();
                     Iterator<DataSnapshot> items = mDataSnapshot.child("Marcadores").child("Shop").getChildren().iterator();
                     HashMap<String, Object> marker;
                     while(items.hasNext()){
                         DataSnapshot dt = items.next();
                         marker = (HashMap<String, Object>) dt.getValue();
                         if (marker != null) {
-                            ListaMarcadoresTienda.add(( new Tienda()
-                                    .setIdPublicidad(marker.get("idPublicidad").toString())
-                                    .setDireccion(marker.get("direccion").toString())
-                                    .setIdMarcador(marker.get("idMarcador").toString())
-                                    .setNombre(marker.get("nombre").toString())
-                                    .setDescripcion(marker.get("descripcion").toString())
-                                    .setTelefono(marker.get("telefono").toString())
-                                    .setImagen(marker.get("imagen").toString())
-                                    .setLatitud(marker.get("latitud").toString())
-                                    .setLongitud(marker.get("longitud").toString())));
+                            ListaMarcadoresTienda.add((Tienda) new Tienda()
+                                    .setIdPublicidad(Objects.requireNonNull(marker.get("idPublicidad")).toString())
+                                    .setDireccion(Objects.requireNonNull(marker.get("direccion")).toString())
+                                    .setIdMarcador(Objects.requireNonNull(marker.get("idMarcador")).toString())
+                                    .setNombre(Objects.requireNonNull(marker.get("nombre")).toString())
+                                    .setDescripcion(Objects.requireNonNull(marker.get("descripcion")).toString())
+                                    .setTelefono(Objects.requireNonNull(marker.get("telefono")).toString())
+                                    .setImagen(Objects.requireNonNull(marker.get("imagen")).toString())
+                                    .setLatitud(Objects.requireNonNull(marker.get("latitud")).toString())
+                                    .setLongitud(Objects.requireNonNull(marker.get("longitud")).toString()));
                         }
                     }
-                }
+
+                    if (keyUserShop != null) {
+                        mListaMarcadoresTiendas.put(keyUserShop, ListaMarcadoresTienda);
+                    }
+               }
 
 
                 for (Marcadores m : ListaMarcadoresMacota){
@@ -576,20 +593,16 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
           {
               if(marker.getTitle().equals(x.getIdMarcador())) {
                   instaciarDialogoMostrarMarcadorTienda((Tienda) x);
-
               }
 
           }
-            for(Marcadores x :ListaMarcadoresMacota)
-            {
-                if(marker.getTitle().equals(x.getIdMarcador())) {
-                    instaciarDialogoMostrarMarcadorMascota((Mascota) x);
+          for(Marcadores x :ListaMarcadoresMacota) {
+              if (marker.getTitle().equals(x.getIdMarcador())) {
+                  instaciarDialogoMostrarMarcadorMascota((Mascota) x);
 
-                }
-
-            }
-
-            return false;
+              }
+          }
+          return false;
         });
     }
     private int getRaw(Context c, String name) {
@@ -736,10 +749,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             swOfertas.setOnCheckedChangeListener(this);
             swCercanas.setChecked(LoadNotificationsCercanas());
             swOfertas.setChecked(LoadNotificationsOfertas());
-
-
-
-
 
             final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setView(content);
@@ -1144,8 +1153,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                     ConsultarPremium("http://www.secsanluis.com.ar/servicios/varios/wimp/W_Premium.php?link=3");
                 }break;
             }
-            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-            startActivity(intent);
+            /*Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+            startActivity(intent);*/
         }
     }
 
@@ -1315,16 +1324,22 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         }
 
         private void CargarComentariosMascota(Mascota mMascota,View view) {
-            mDatabase.child("Usuarios").child(Objects.requireNonNull(mDatabase.child(UserId).getKey())).child("Marcadores").child("Comentarios").child(mMascota.getIdComentario()).addValueEventListener(new ValueEventListener() {
+            mDatabase.child("Usuarios").child(Objects.requireNonNull(mMascota.getIdMarcador())).child("Marcadores")
+                    .child("Comentarios").child(mMascota.getIdComentario()).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     Log.i("COMENTARIO", dataSnapshot.toString());
-                   Comentario mComentario = dataSnapshot.getValue(Comentario.class);
+
+
+                    Comentario mComentario = dataSnapshot.getValue(Comentario.class);
                     ListaComentario.add(mComentario);
-                    recyclerComentarios = view.findViewById(R.id.RecViewComentario);
-                    recyclerComentarios.setLayoutManager(new LinearLayoutManager(view.getContext()));
-                    AdaptadorComentarios adapter = new AdaptadorComentarios(ListaComentario,view.getContext());
-                    recyclerComentarios.setAdapter(adapter);
+
+                    if(ListaComentario.get(0) != null){
+                        recyclerComentarios = view.findViewById(R.id.RecViewComentario);
+                        recyclerComentarios.setLayoutManager(new LinearLayoutManager(view.getContext()));
+                        AdaptadorComentarios adapter = new AdaptadorComentarios(ListaComentario,view.getContext());
+                        recyclerComentarios.setAdapter(adapter);
+                    }
 
                 }
                 @Override
@@ -1340,24 +1355,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         dialog.show(getFragmentManager(), "MASCOTA");// Mostramos el dialogo
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
     // -------------------------------- Mostrar datos de Tienda..........................................
     @SuppressLint("ValidFragment")
     private class DialogMostrarMarcadorTienda extends DialogFragment implements View.OnClickListener {
         Marcadores mDatosTienda;
-
         public DialogMostrarMarcadorTienda(Tienda mDatosTienda){
             this.mDatosTienda = mDatosTienda;
         }
@@ -1377,22 +1378,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 return false;
             });
             CargarDatosTienda(content,(Tienda) mDatosTienda);
-
-
-
-
-
-
             return builder.create();
         }
 
         @Override
         public void onClick(View v) {
 
-
         }
-
-
 
         private void CargarDatosTienda(View view, Tienda mTienda) {
             final TextView eDireccionTienda = view.findViewById(R.id.eDireccionTienda),
@@ -1409,7 +1401,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         }
 
         private void CargarPublicidadesTienda(Tienda mTienda,View view) {
-            mDatabase.child("Usuarios").child(Objects.requireNonNull(mDatabase.child(UserId).getKey())).child("Marcadores").child("Publicidad").child(mTienda.getIdPublicidad()).addValueEventListener(new ValueEventListener() {
+            mDatabase.child("Usuarios").child(Objects.requireNonNull(mTienda.getIdMarcador()))
+                    .child("Marcadores").child("Publicidad").child(mTienda.getIdPublicidad()).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     Log.i("PUBLICIDAD", dataSnapshot.toString());
@@ -1420,7 +1413,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                     recyclerPublicidad.setLayoutManager(new LinearLayoutManager(view.getContext()));
                     AdaptadorPublicidades adapter = new AdaptadorPublicidades(ListaPublicidad,view.getContext());
                     recyclerPublicidad.setAdapter(adapter);
-
                 }
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
@@ -1429,8 +1421,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             });
         }
     }
-
-
 
     private void instaciarDialogoMostrarMarcadorTienda(Tienda mDatosTienda) {
         DialogMostrarMarcadorTienda dialog = new DialogMostrarMarcadorTienda(mDatosTienda);  //Instanciamos la clase con el dialogo

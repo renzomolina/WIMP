@@ -8,6 +8,18 @@ public class Usuario {
 
     private String email;
     private String contraseña;
+    private String idUsuario;
+
+
+    public String getIdUsuario() {
+        return idUsuario;
+    }
+
+    public Usuario setIdUsuario(String idUsuario) {
+        this.idUsuario = idUsuario;
+        return this;
+    }
+
 
 
     public String getContraseña() {

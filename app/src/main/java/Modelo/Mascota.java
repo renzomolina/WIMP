@@ -11,15 +11,17 @@ public class Mascota extends Marcadores{
         return topic;
     }
 
-    public void setTopic(String topic) {
+    public Mascota setTopic(String topic) {
         this.topic = topic;
+        return this;
     }
 
     public String getIdComentario() {
         return idComentario;
     }
 
-    public void setIdComentario(String idComentario) {
+    public Mascota setIdComentario(String idComentario) {
         this.idComentario = idComentario;
+        return this;
     }
 }

@@ -515,6 +515,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         //Firebase
         private FirebaseAuth mFirebaseAuthRegistro;
+        private DatabaseReference mDatabase;
         private StorageReference mStorageReference;
         //----------------------------------------CICLOS DE VIDA DEL DIALOG-------------------------------------
 
@@ -527,6 +528,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             //Firebase
             mStorageReference = FirebaseStorage.getInstance().getReference();
             mFirebaseAuthRegistro = FirebaseAuth.getInstance();
+            mDatabase = FirebaseDatabase.getInstance().getReference();
 
             //Vistas
             btnRegistro = content.findViewById(R.id.CheckIn);
@@ -595,7 +597,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             if (ValidarRegistro()) {
                 final Usuario mUser = new Usuario()
                         .setEmail(mEmailRegistroEditText.getText().toString().trim())
-                        .setContraseña(mPassRegistroEditText.getText().toString());
+                        .setContraseña(mPassRegistroEditText.getText().toString())
+                        .setIdUsuario(mUserFireBase.getUid());
                 progressDialog = new ProgressDialog(LoginActivity.this);
                 progressDialog.setMessage("Registrando...");
                 progressDialog.show();
@@ -605,18 +608,16 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             .addOnCompleteListener(task -> {
                                 progressDialog.dismiss();
                                 if (task.isSuccessful()) {
-                                    DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-                                    DatabaseReference currentUserDB = mDatabase.child(Objects.requireNonNull(mFirebaseAuth.getCurrentUser()).getUid());
                                     final Usuario.UsuarioPublico mUserPublic = new Usuario.UsuarioPublico()
                                             .setNombre(mNombreRegistroEditText.getText().toString())
                                             .setApellido(mApellidoRegistroEditText.getText().toString());
                                     mEstado = "registro";
                                     if(!tipoDeFoto.equals("VACIO")) {
-                                        storageIMG(currentUserDB,mDatabase,mUserPublic);
+                                        storageIMG(mUserFireBase.getUid(),mDatabase,mUserPublic);
                                     }
                                     else{
-                                        mDatabase.child("Usuarios").child(Objects.requireNonNull(currentUserDB.getKey())).child("Datos Personales").setValue(mUserPublic);
-                                        mDatabase.child("Usuarios").child(Objects.requireNonNull(currentUserDB.getKey())).child("Datos Personales").child("imagen").setValue(defaultUser);
+                                        mDatabase.child("Usuarios").child(Objects.requireNonNull(mUserFireBase.getUid())).child("Datos Personales").setValue(mUserPublic);
+                                        mDatabase.child("Usuarios").child(Objects.requireNonNull(mUserFireBase.getUid())).child("Datos Personales").child("imagen").setValue(defaultUser);
                                     }
                                     final FirebaseUser firebaseUser = Objects.requireNonNull(task.getResult()).getUser();
                                     firebaseUser.sendEmailVerification();
@@ -634,15 +635,15 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             }
         }
 
-        public void storageIMG (final DatabaseReference currentUserDB, final DatabaseReference mDatabase, final Usuario.UsuarioPublico mUserPublic) {
+        public void storageIMG (final String currentUserDB, final DatabaseReference mDatabase, final Usuario.UsuarioPublico mUserPublic) {
 
             final StorageReference mStorageImgPerfilUsuario = mStorageReference.child("Imagenes").child("Perfil").child(GeneralMethod.getRandomString());
 
             mStorageImgPerfilUsuario.putFile(mFotoPerfilRegistro).addOnSuccessListener(this.getActivity(), taskSnapshot -> {
                 Task<Uri> taskUri = mStorageImgPerfilUsuario.getDownloadUrl();
                 final String UrlFoto = Objects.requireNonNull(taskUri.getResult()).toString().replace("\"", "");
-                mDatabase.child("Usuarios").child(Objects.requireNonNull(currentUserDB.getKey())).child("Datos Personales").setValue(mUserPublic);
-                mDatabase.child("Usuarios").child(Objects.requireNonNull(currentUserDB.getKey())).child("Datos Personales").child("imagen").setValue(UrlFoto);
+                mDatabase.child("Usuarios").child(Objects.requireNonNull(currentUserDB)).child("Datos Personales").setValue(mUserPublic);
+                mDatabase.child("Usuarios").child(Objects.requireNonNull(currentUserDB)).child("Datos Personales").child("imagen").setValue(UrlFoto);
             }).addOnFailureListener(this.getActivity(), e -> Toast.makeText(RegistroDialog.this.getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show());
         }
 
