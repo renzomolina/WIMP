@@ -18,6 +18,7 @@ import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -119,6 +120,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     final String mGoogle = "google.com";
     final String mPassword = "password";
     String mEstado = "logueo";
+    //Preferemcias
+
+    SharedPreferences sharedPreferences;
 
     //----------------------------------------CICLOS DE VIDA DE ACTIVITY-------------------------------------
     @Override
@@ -143,6 +147,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         mEmailEditTextLogin = findViewById(R.id.CorreoLogin);
         mPasswordEditTextLogin = findViewById(R.id.PasswordLogin);
         loginButton = findViewById(R.id.login_button);
+        mRecordarUsuarioCheckBox.setOnClickListener(this);
+
+        //mRecordarUsuarioCheckBox.setChecked(LecturaDeTipoLogin().isRecordarUsuario());
 
         //GOOGLE
         SignInButton mSignInButton = findViewById(R.id.sign_in_button);
@@ -183,25 +190,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     //--------------------------------------ESCUCHADOR DE AUTENTICACION, POR SI CAMBIA DE LOGUEO------------------------------------
     private void EscuchandoEstadoDeAutenticacion() {
-        final PreferenciasLogin mPreferenciasLogin = LecturaDeTipoLogin();
+
         mAuthStateListener = firebaseAuth -> {
             mUserFireBase = firebaseAuth.getCurrentUser();
-            if (mUserFireBase != null) {
-                if(mUserFireBase.isEmailVerified() && mPreferenciasLogin.getTipoSignOut() == null) {
-                    InicioSesionCorrecto();
-                }
-                else if(!mEstado.equals("logueo")) {
-                    switch (mPreferenciasLogin.getTipoSignOut()) {
-                        case mFacebook:
-                            break;
-                        case mGoogle:
-                            break;
-                        case mPassword:
-                            break;
-                        default:
-                            break;
-                    }
-                }
+            if (mUserFireBase != null && LecturaDeTipoLogin().getTipoSignOut().equals("default")) {
+               InicioSesionCorrecto();
             }
             /*else
                 GeneralMethod.showSnackback("El correo no se encuentra verificado, por favor verifique el correo",mContainerLogin,this);*/
@@ -209,9 +202,22 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
     //-------------------------------------------PREFERENCIAS------------------------------------------------------------------
     private PreferenciasLogin LecturaDeTipoLogin(){
-        SharedPreferences sharedPreferences = getSharedPreferences("Login", Context.MODE_PRIVATE);
-        return new PreferenciasLogin()
-                .setTipoSignOut(sharedPreferences.getString("type_sign_out",null));
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        return new PreferenciasLogin().setTipoSignOut(sharedPreferences.getString("type_sign_out", "default"))
+                .setRecordarUsuario(sharedPreferences.getBoolean("remember", true))
+                .setTipoSignIn(sharedPreferences.getString("type_sign_in", "default"));
+
+    }
+    private PreferenciasLogin LoadRememver (){
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        return new PreferenciasLogin().setRecordarUsuario(sharedPreferences.getBoolean("remember", true));
+    }
+
+    private void GuardarRemember(final boolean remember){
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean("remember",remember);
+        editor.apply();
     }
 
     //-------------------------------------------OBTENER HASH DEL PROYECTO PARA IDENTIFICARLO----------------------------------
@@ -244,7 +250,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private void ValidarLogin() {
-        mEmailEditTextLogin.addTextChangedListener(new TextWatcher() {
+        /* mEmailEditTextLogin.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
@@ -275,6 +281,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 GeneralMethod.RegexLogin("contrasenavacio", LoginActivity.this);
             }
         });
+        */
     }
 
 
@@ -296,6 +303,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                                     if (taskSignInWithEmailAndPassword.isSuccessful()) {
                                         Toast.makeText(LoginActivity.this, "Iniciando", LENGTH_SHORT).show();
                                         InicioSesionCorrecto();
+
                                     } else
                                         GeneralMethod.showSnackback(mMsgShowSnackBarEmailPassword,mContainerLogin,LoginActivity.this);
                                 });
@@ -482,6 +490,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             case R.id.sign_in_button: {
                 tipoDeLogin = "Google";
                 signIn();
+            }
+            case R.id.RecordarSesion:{
+                GuardarRemember(mRecordarUsuarioCheckBox.isChecked());
             }
             break;
             default:

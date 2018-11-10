@@ -115,6 +115,7 @@ import java.util.Objects;
 
 import Modelo.Comentario;
 import Modelo.Marcadores;
+import Modelo.PreferenciasLogin;
 import Modelo.Publicidad;
 import Modelo.Tienda;
 import Modelo.Usuario;
@@ -312,7 +313,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     }
 
     private void VolverAlLogin(final String cerrar_sesion) {
-        GuardarTipoDeLogin(cerrar_sesion);
+
+        GuardarTipoDeLogin(new PreferenciasLogin().setTipoSignOut(cerrar_sesion).setRecordarUsuario(false));
         Intent i = new Intent(this, LoginActivity.class);
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -468,7 +470,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     //---------------------------------CARGA DE MARCADORES EN MAPA---------------------------------------------------------
 
     private void ConsultarMarcadores(){
-        ListaMarcadoresMacota = new ArrayList<>();
+       /* ListaMarcadoresMacota = new ArrayList<>();
         ListaMarcadoresTienda = new ArrayList<>();
         ListaComentario = new ArrayList<>();
         ListaPublicidad=new ArrayList<>();
@@ -530,7 +532,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
         // esto tengo que hacerlo cuando leo la imagen  url cambiarle las comillas
         //final String UrlFoto = Objects.requireNonNull(taskUri.getResult()).toString().replace("\"", "");
-
+*/
     }
 
     private void CargarMarcadoresMascota(final Mascota myMarker){
@@ -608,12 +610,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
     }
 
-    private void GuardarTipoDeLogin(final String cerrar_sesion){
-        /*SharedPreferences mSharedPreferences = this.getSharedPreferences("Login",Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = mSharedPreferences.edit();*/
+    private void GuardarTipoDeLogin(final PreferenciasLogin cerrar_sesion){
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("type_sign_out",cerrar_sesion);
+        editor.putString("type_sign_out",cerrar_sesion.getTipoSignOut());
+        editor.putString("type_sign_in",cerrar_sesion.getTipoSignOut());
+        editor.putBoolean("remember",cerrar_sesion.isRecordarUsuario());
         editor.apply();
     }
     private void GuardarNotificacionesCercanas(boolean cercanas)
