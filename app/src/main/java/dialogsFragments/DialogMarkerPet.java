@@ -95,6 +95,7 @@ public class DialogMarkerPet extends DialogFragment implements View.OnClickListe
         builder.setView(content);
         builder.setPositiveButton("GUARDAR", (dialog, id) -> {
             Marcadores mMascota = new Mascota()
+                    .setIdComentario("jhnp78478u77jl87l")
                     .setIdMarcador(GeneralMethod.getRandomString())
                     .setNombre(mNombreMascotaMarcador.getText().toString())
                     .setDescripcion(mDescripcionMascotaMarcador.getText().toString())
@@ -140,28 +141,29 @@ public class DialogMarkerPet extends DialogFragment implements View.OnClickListe
         DatabaseReference currentUserDB = mDatabase.child(Objects.requireNonNull(mFirebaseAuth.getCurrentUser()).getUid());
 
         if(!tipoDeFoto.equals("VACIO")) {
-            storageIMG(currentUserDB,mMascota,mDatabase,mMascota.getIdMarcador());
+            storageIMG(currentUserDB,mDatabase,mMascota.getIdMarcador());
             SubirRealtimeDatabase(currentUserDB,mMascota,mDatabase,mMascota.getIdMarcador());
         }
         else{
-
+            mMascota.setImagen(defaultPet);
             SubirRealtimeDatabase(currentUserDB,mMascota,mDatabase,mMascota.getIdMarcador());
-            mDatabase.child("Usuarios").child(Objects.requireNonNull(currentUserDB.getKey())).child("Marcadores").child("Pet").child(mMascota.getIdMarcador()).child("imagen").setValue(defaultPet);
+         //acordate de esto renzo!!!!
+           //mDatabase.child("Usuarios").child(Objects.requireNonNull(currentUserDB.getKey())).child("Marcadores").child("Pet").child(mMascota.getIdMarcador()).child("imagen").setValue(defaultPet);
         }
     }
 
-    private void SubirRealtimeDatabase(final DatabaseReference currentUserDB, final Mascota mMascota, final DatabaseReference mDatabase, final String nombreAleatorio){
-        mDatabase.child("Usuarios").child(Objects.requireNonNull(currentUserDB.getKey())).child("Marcadores").child("Pet").child(nombreAleatorio).setValue(mMascota);
+    private void SubirRealtimeDatabase(final DatabaseReference currentUserDB, final Mascota mMascota, final DatabaseReference mDatabase, final String idMarcador){
+        mDatabase.child("Usuarios").child(Objects.requireNonNull(currentUserDB.getKey())).child("Marcadores").child("Pet").child(idMarcador).setValue(mMascota);
         CreateMarkers(new LatLng(Double.valueOf(mMascota.getLatitud()),Double.valueOf(mMascota.getLongitud())),map, mMascota);
         progressDialog.dismiss();
     }
-    private void storageIMG(final DatabaseReference currentUserDB, final Mascota mMascota, final DatabaseReference mDatabase, final String nombreAleatorio ){
+    private void storageIMG(final DatabaseReference currentUserDB, final DatabaseReference mDatabase, final String idMarcador ){
         final StorageReference mStorageImgMarkerPet = mStorageReference.child("Imagenes").child("Marcadores").child("Pet").child(GeneralMethod.getRandomString());
         mStorageImgMarkerPet.putFile(mUriMascotaMarcador).addOnSuccessListener(this.getActivity(), new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 Task<Uri> taskUri = mStorageImgMarkerPet.getDownloadUrl();
-                mDatabase.child("Usuarios").child(Objects.requireNonNull(currentUserDB.getKey())).child("Marcadores").child("Pet").child(nombreAleatorio).child("imagen").setValue(taskUri);
+                mDatabase.child("Usuarios").child(Objects.requireNonNull(currentUserDB.getKey())).child("Marcadores").child("Pet").child(idMarcador).child("imagen").setValue(taskUri);
             }
         }).addOnFailureListener(this.getActivity(), new OnFailureListener() {
             @Override

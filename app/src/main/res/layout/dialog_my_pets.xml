@@ -8,8 +8,7 @@
 
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/RecViewOferta"
-        tools:listitem="@layout/item_mascota"
+        android:id="@+id/RecViewFavoritos"
         android:layout_width="306dp"
         android:layout_height="424dp"
         android:layout_below="@+id/divider_config"
@@ -18,16 +17,15 @@
         android:layout_alignParentBottom="true"
         android:layout_gravity="center"
         android:layout_marginStart="48dp"
-        android:layout_marginTop="52dp"
         android:layout_marginEnd="30dp"
         android:layout_marginBottom="32dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
+        tools:listitem="@layout/item_mascota" />
 
     <TextView
-        android:id="@+id/misMascotas"
+        android:id="@+id/emisMascotas"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
@@ -55,7 +53,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
         android:background="#C8C9CB"
-        app:layout_constraintBottom_toTopOf="@+id/RecViewOferta"
+        app:layout_constraintBottom_toTopOf="@+id/RecViewFavoritos"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 

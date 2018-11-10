@@ -119,6 +119,7 @@ import Modelo.Publicidad;
 import Modelo.Tienda;
 import Modelo.Usuario;
 import adaptadores.AdaptadorComentarios;
+import adaptadores.AdaptadorMascota;
 import adaptadores.AdaptadorPublicidades;
 import de.hdodenhof.circleimageview.CircleImageView;
 import dialogsFragments.DialogMarkerPet;
@@ -171,9 +172,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     private ArrayList<Marcadores>ListaMarcadoresTienda;
     private ArrayList<Comentario>ListaComentario;
     private ArrayList<Publicidad>ListaPublicidad;
-    ArrayList<Comentario> ListaComentarioFinal;
+
+   //private ArrayList<Mascota>ListaMascotaSiguiendo;
     RecyclerView recyclerComentarios;
     RecyclerView recyclerPublicidad;
+    RecyclerView recyclerFavoritos;
 
     private boolean fabExpanded = false;
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -735,10 +738,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             swCercanas.setChecked(LoadNotificationsCercanas());
             swOfertas.setChecked(LoadNotificationsOfertas());
 
-
-
-
-
             final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setView(content);
             builder.setOnKeyListener((dialog, keyCode, event) -> {
@@ -982,7 +981,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     // ------------------------ DIALOG MIS MASCOTAS-----------------------------------------
     @SuppressLint("ValidFragment")
     private class MisMascotasDialog extends DialogFragment {
-        @RequiresApi(api = Build.VERSION_CODES.O)
+        private ArrayList<Mascota>ListaMisMascotas;
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             LayoutInflater inflater = getActivity().getLayoutInflater();
@@ -995,9 +994,47 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 }
                 return false;
             });
+    ListaMisMascotas=new ArrayList<>();
+            CargarDatosMascotaRecyclerMisMascotas(content);
             return builder.create();
         }
+        private void CargarDatosMascotaRecyclerMisMascotas(View view) {
+            mDatabase.child("Usuarios").child(Objects.requireNonNull(mDatabase.child(UserId).getKey())).child("Marcadores").child("Pet").addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    Log.i("Pet", dataSnapshot.toString());
+
+                    for(DataSnapshot d:dataSnapshot.getChildren()){
+
+                        Mascota mMascota = d.getValue(Mascota.class);
+                        ListaMisMascotas.add(mMascota);
+
+                    }
+
+                    recyclerFavoritos = view.findViewById(R.id.RecViewFavoritos);
+                    recyclerFavoritos.setLayoutManager(new LinearLayoutManager(view.getContext()));
+                    AdaptadorMascota adapter = new AdaptadorMascota(ListaMisMascotas,view.getContext());
+                    recyclerFavoritos.setAdapter(adapter);
+
+                }
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+        }
+
     }
+///este metodo tiene que ver donde se  van a aguardar los favoritos  reccorrerlo, por eso salta el error en la line 1010
+
+
+    //cuando llames al boton de fb, deves ahcer lo mismo pero asigandole a listaFavorito y setear el campo del dialogo  que dice mis mascotas,  a mis favoritos...
+
+
+
+
+
+
 
     private void instaciarMisMascotas() {
         MisMascotasDialog dialog = new MisMascotasDialog();  //Instanciamos la clase con el dialogo
