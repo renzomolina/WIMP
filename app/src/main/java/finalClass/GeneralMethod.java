@@ -28,6 +28,7 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.whereismypet.whereismypet.R;
@@ -466,6 +467,13 @@ public final class GeneralMethod {
         Glide.with(mActivity)
                 .load(mLoadImage)
                 .into(mIntoImageView);
+
+    }
+    public static void GlideUrlImagenCuadrada(Activity mActivity, String mLoadImage, ImageView mIntoImageView){
+        Glide.with(mActivity)
+                .load(mLoadImage)
+                .into(mIntoImageView);
+
     }
 
     //

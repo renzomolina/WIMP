@@ -5,19 +5,20 @@ package Modelo;
  */
 
 public class Publicidad {
+
+
+    private String idPublicidad;
     private String tituloOferta;
     private String precio;
     private String descripcionOferta;
-    private String direccion;
-    private String telefono;
-    private int imgOferta;
 
-    public Publicidad(String tituloOferta, String precio, String descripcionOferta, String direccion, String telefono, int imgOferta) {
-        this.tituloOferta = tituloOferta;
-        this.precio = precio;
-        this.descripcionOferta = descripcionOferta;
-        this.direccion = direccion;
-        this.telefono = telefono;
+    private String imgOferta;
+
+    public void setIdPublicidad(String idPublicidad) {
+        this.idPublicidad = idPublicidad;
+    }
+
+    public void setImgOferta(String imgOferta) {
         this.imgOferta = imgOferta;
     }
 
@@ -45,27 +46,14 @@ public class Publicidad {
         this.descripcionOferta = descripcionOferta;
     }
 
-    public String getDireccion() {
-        return direccion;
+
+
+    public String getIdPublicidad() {
+        return idPublicidad;
     }
 
-    public void setDireccion(String direccion) {
-        this.direccion = direccion;
-    }
-
-    public String getTelefono() {
-        return telefono;
-    }
-
-    public void setTelefono(String telefono) {
-        this.telefono = telefono;
-    }
-
-    public int getImgOferta() {
+    public String getImgOferta() {
         return imgOferta;
     }
 
-    public void setImgOferta(int imgOferta) {
-        this.imgOferta = imgOferta;
-    }
 }
