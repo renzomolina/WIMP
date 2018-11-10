@@ -43,6 +43,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -76,6 +77,8 @@ import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
@@ -87,6 +90,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
+import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.whereismypet.whereismypet.R;
@@ -98,6 +103,8 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -204,7 +211,29 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         */
         ObtenerDatosPerfil();
 
+        escuchadorLinks();
+
     }
+
+    private void escuchadorLinks() {
+        FirebaseDynamicLinks.getInstance()
+                .getDynamicLink(getIntent())
+                .addOnSuccessListener(this, new OnSuccessListener<PendingDynamicLinkData>() {
+                    @Override
+                    public void onSuccess(PendingDynamicLinkData pendingDynamicLinkData) {
+                        // Get deep link from result (may be null if no link is found)
+                        Uri deepLink = null;
+                        if (pendingDynamicLinkData != null) {
+                            deepLink = pendingDynamicLinkData.getLink();
+                        }
+                    }
+                })
+                .addOnFailureListener(this, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w("mLinks", "getDynamicLink:onFailure", e);
+                    }
+                });    }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
@@ -432,14 +461,53 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         final String UserId = Objects.requireNonNull(mFirebaseAuth.getCurrentUser()).getUid();
         ListaMarcadoresMacota = new ArrayList<>();
         ListaMarcadoresTienda = new ArrayList<>();
-        mDatabase.child("Usuarios").child(Objects.requireNonNull(Objects.requireNonNull(mDatabase.child(UserId)).getKey())).child("Marcadores").child("Pet").addValueEventListener(new ValueEventListener() {
+        mDatabase.child("Usuarios").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot mDataSnapshot : dataSnapshot.getChildren()){
-                    Mascota mMascotaMarcador = mDataSnapshot.getValue(Mascota.class);
-                    ListaMarcadoresMacota.add(mMascotaMarcador);
-                    assert mMascotaMarcador != null;
-                    CargarMarcadoresMascota(mMascotaMarcador);
+                        Iterator<DataSnapshot> items = mDataSnapshot.child("Marcadores").child("Pet").getChildren().iterator();
+                        HashMap<String, Object> marker;
+                        while(items.hasNext()){
+                            DataSnapshot dt = items.next();
+                            marker = (HashMap<String, Object>) dt.getValue();
+                            if (marker != null) {
+                                ListaMarcadoresMacota.add(( new Mascota()
+                                        .setIdMarcador(marker.get("idMarcador").toString())
+                                        .setNombre(marker.get("nombre").toString())
+                                        .setDescripcion(marker.get("descripcion").toString())
+                                        .setImagen(marker.get("imagen").toString())
+                                        .setLatitud(marker.get("latitud").toString())
+                                        .setLongitud(marker.get("longitud").toString())));
+                            }
+                        }
+                }
+               for (DataSnapshot mDataSnapshot : dataSnapshot.getChildren()){
+                    Iterator<DataSnapshot> items = mDataSnapshot.child("Marcadores").child("Shop").getChildren().iterator();
+                    HashMap<String, Object> marker;
+                    while(items.hasNext()){
+                        DataSnapshot dt = items.next();
+                        marker = (HashMap<String, Object>) dt.getValue();
+                        if (marker != null) {
+                            ListaMarcadoresTienda.add(( new Tienda()
+                                    .setIdPublicidad(marker.get("idPublicidad").toString())
+                                    .setDireccion(marker.get("direccion").toString())
+                                    .setIdMarcador(marker.get("idMarcador").toString())
+                                    .setNombre(marker.get("nombre").toString())
+                                    .setDescripcion(marker.get("descripcion").toString())
+                                    .setTelefono(marker.get("telefono").toString())
+                                    .setImagen(marker.get("imagen").toString())
+                                    .setLatitud(marker.get("latitud").toString())
+                                    .setLongitud(marker.get("longitud").toString())));
+                        }
+                    }
+                }
+
+
+                for (Marcadores m : ListaMarcadoresMacota){
+                    CargarMarcadoresMascota((Mascota)m);
+                }
+                for (Marcadores m : ListaMarcadoresTienda){
+                    CargarMarcadoresTienda((Tienda)m);
                 }
             }
 
@@ -448,22 +516,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
             }
         });
-        mDatabase.child("Usuarios").child(Objects.requireNonNull(Objects.requireNonNull(mDatabase.child(UserId)).getKey())).child("Marcadores").child("Shop").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot mDataSnapshot : dataSnapshot.getChildren()){
-                    Tienda mTiendaMarcador = mDataSnapshot.getValue(Tienda.class);
-                    ListaMarcadoresTienda.add( mTiendaMarcador);
-                    assert mTiendaMarcador != null;
-                    CargarMarcadoresTienda(mTiendaMarcador);
-                }
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
+        // esto tengo que hacerlo cuando leo la imagen  url cambiarle las comillas
+        //final String UrlFoto = Objects.requireNonNull(taskUri.getResult()).toString().replace("\"", "");
 
-            }
-        });
     }
 
     private void CargarMarcadoresMascota(final Mascota myMarker){
@@ -483,7 +539,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 .title(String.valueOf(myMarker.getIdMarcador()))
                 .snippet(myMarker.getDescripcion())
                 .draggable(true)
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.pet_markers)));
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.shop_markers)));
 
     }
 
@@ -531,18 +587,44 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     }
 
     private void GuardarTipoDeLogin(final String cerrar_sesion){
-        SharedPreferences mSharedPreferences = this.getSharedPreferences("Login",Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        /*SharedPreferences mSharedPreferences = this.getSharedPreferences("Login",Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = mSharedPreferences.edit();*/
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("type_sign_out",cerrar_sesion);
         editor.apply();
     }
+    private void GuardarNotificacionesCercanas(boolean cercanas)
+    {
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean("notificaciones_cercanas",cercanas);
+        editor.apply();
+        Log.i("boolean Guardar", (editor.toString()));
+    }
+    private boolean LoadNotificationsCercanas()
+    {
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        return sharedPreferences.getBoolean("notificaciones_cercanas", true);
+
+    }
+    private void GuardarNotificacionesOfertas(boolean ofertas){
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean("notificaciones_ofertas",ofertas);
+        editor.apply();
+    }
+    private boolean LoadNotificationsOfertas()
+    {
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        return sharedPreferences.getBoolean("notificaciones_ofertas", true);
+
+    }
+
+
 
     @Override
     public void onClick(View view) {
-
-
-
-
         switch (view.getId()) {
             case R.id.imgPerfilMenu: {
                 instaciarDialogoActualizar();
@@ -555,9 +637,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                     mFloatingActionButtonMarkers.setImageResource(R.drawable.mascota);
                     fabExpanded = false;
                     Context context = getApplicationContext();
-                    int duration = Toast.LENGTH_SHORT;
-                    Toast toast = Toast.makeText(context,"Marcador de Mascota" , duration);
-                    toast.show();
+                    Toast.makeText(context,"Marcador de Mascota" , Toast.LENGTH_SHORT).show();
                 }
                 else {
                     //openSubMenusFab();
@@ -565,9 +645,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                     mFloatingActionButtonMarkers.setImageResource(R.drawable.tienda);
                     fabExpanded = true;
                     Context context = getApplicationContext();
-                    int duration = Toast.LENGTH_SHORT;
-                    Toast toast = Toast.makeText(context,"Marcador de Tienda" , duration);
-                    toast.show();
+                    Toast.makeText(context,"Marcador de Tienda" , Toast.LENGTH_SHORT).show();
                 }
             }break;
         }
@@ -612,8 +690,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
     //------------------------------DIALOG AJUSTE----------------------------
     @SuppressLint("ValidFragment")
-    private class AjusteDialog extends DialogFragment implements View.OnClickListener {
+    private class AjusteDialog extends DialogFragment implements View.OnClickListener, Switch.OnCheckedChangeListener {
         ImageView mapa_config, soporte;
+        Switch swCercanas;
+        Switch swOfertas;
 
         @RequiresApi(api = Build.VERSION_CODES.O)
         @Override
@@ -621,10 +701,21 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             LayoutInflater inflater = getActivity().getLayoutInflater();
             View content = inflater.inflate(R.layout.dialog_settings, null);
 
+
             mapa_config = content.findViewById(R.id.ivConfigurar_config);
             mapa_config.setOnClickListener(this);
             soporte = content.findViewById(R.id.ivContactar_config);
             soporte.setOnClickListener(this);
+
+            swCercanas = content.findViewById(R.id.swNotificaciones_config);
+            swOfertas = content.findViewById(R.id.swOfertas_config);
+            swCercanas.setOnCheckedChangeListener(this);
+            swOfertas.setOnCheckedChangeListener(this);
+            swCercanas.setChecked(LoadNotificationsCercanas());
+            swOfertas.setChecked(LoadNotificationsOfertas());
+
+
+
 
 
             final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -648,11 +739,26 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 break;
                 case R.id.ivContactar_config: {
                     ContactarSoporte();
-                }
+                }break;
                 default:
                     break;
             }
         }
+
+        @Override
+        public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+            switch (compoundButton.getId()){
+                case R.id.swOfertas_config:
+                    GuardarNotificacionesOfertas(swOfertas.isChecked());
+                    break;
+                case R.id.swNotificaciones_config:
+                    GuardarNotificacionesCercanas(swCercanas.isChecked());
+                    break;
+            }
+
+        }
+
+
     }
 
     private void instaciarAjustes() {
@@ -845,11 +951,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 s.setChecked(false);
         }
     }
-
     private void instanciarMapas() {
         SettingMapsDialog dialog = new SettingMapsDialog();  //Instanciamos la clase con el dialogo
         dialog.setCancelable(false);
-        dialog.show(getFragmentManager(), "AJUSTES");// Mostramos el dialogo
+        dialog.show(getFragmentManager(), "AJUSTES_MAPAS");// Mostramos el dialogo
 
     }
 
@@ -876,7 +981,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     private void instaciarMisMascotas() {
         MisMascotasDialog dialog = new MisMascotasDialog();  //Instanciamos la clase con el dialogo
         dialog.setCancelable(false);
-        dialog.show(getFragmentManager(), "AJUSTES");// Mostramos el dialogo
+        dialog.show(getFragmentManager(), "MIS_MASCOTAS");// Mostramos el dialogo
 
     }
 
@@ -922,7 +1027,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     private void instaciarTerminos() {
         TerminosDialog dialog = new TerminosDialog();  //Instanciamos la clase con el dialogo
         dialog.setCancelable(false);
-        dialog.show(getFragmentManager(), "AJUSTES");// Mostramos el dialogo
+        dialog.show(getFragmentManager(), "TERMINOS");// Mostramos el dialogo
 
     }
     // ------------------------ DIALOG NOSOTROS-----------------------------------------
@@ -949,7 +1054,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     private void instaciarNosotros() {
         NosotrosDialog dialog = new NosotrosDialog();  //Instanciamos la clase con el dialogo
         dialog.setCancelable(false);
-        dialog.show(getFragmentManager(), "AJUSTES");// Mostramos el dialogo
+        dialog.show(getFragmentManager(), "NOSOTROS");// Mostramos el dialogo
     }
 
     // ------------------------ DIALOG PREMIUM-----------------------------------------
