@@ -1,7 +1,5 @@
 <resources>
     <string name="app_name">WIMP?</string>
-    <string name="facebook_app_id">468154103661801</string>
-    <string name="fb_login_protocol_scheme">fb468154103661801</string>
     <string name="alert">Alert</string>
     <string name="ok">Ok</string>
     <string name="no_internet_conexion">No Internet connection</string>
@@ -11,7 +9,6 @@
     <string name="olvidocontraseña">OlvidoContraseña</string>
     <string name="registrarse">Registrarse</string>
     <string name="imagen_perfil">Imagen Perfil</string>
-    <string name="continuar_facebook">Continuar con Facebook</string>
     <string name="confirmar_contrase_a">Confirmar Contraseña</string>
     <string name="contrase_a">Contraseña</string>
     <string name="registrar">Registrar</string>
@@ -24,20 +21,44 @@
     <string name="salir">Salir</string>
     <string name="perfildb">PerfilDB</string>
     <string name="configuracion">CONFIGURACION</string>
-    ///-----------------------------------------------------MERCADO PAGO-------------------------------------------------------------------
-    <string name="json_config_button_text">Tengo un JSON</string>
-    <string name="start_checkout_from_json">Ir al Checkout</string>
-    <string name="title_activity_checkout_example">Nuestro checkout</string>
-    <string name="checkout_title">Integración rapidísima</string>
-    <string name="checkout_description">frase de pago</string>
-    <string name="select_checkout">Selecciona una configuración</string>
+    //--------------------------------FACEBOOK-------------------------------------------------
+    <string name="facebook_app_id">468154103661801</string>
+    <string name="fb_login_protocol_scheme">fb468154103661801</string>
+    <string name="continuar_facebook">Continuar con Facebook</string>
 
-    <string name="start_for_wrong">Inicio requerido no especificado o inválido.</string>
+    //--------------------------------FIREBASE-------------------------------------------------
+    <string name="auth_failed">Lo siento, pero la autentificacion fallo</string>
+    <string name="loading">Cargando…</string>
+    //--------------------------------MENSAJES-------------------------------------------------
+    //--------------------------------GOOGLE-------------------------------------------------
+    <string name="continuar_google">Continuar con Google</string>
+    <string name="imagenperf_lmenudesplegable">ImagenPerf lMenuDesplegable</string>
+    <string name="imageniconappmenudesplegable">ImagenIconAppMenuDesplegable</string>
+    <string name="where_is_my_pet">Where is my pet?</string>
+    <string name="tus_mascotas_en_un_solo_lugar">Tus mascotas en un solo lugar</string>
 
-    <!-- Second factor messages -->
-    <string name="auth_error_password">La clave ingresada es incorrecta.</string>
-    <string name="auth_error_password_required">El campo clave es requerido.</string>
+    <string name="tel_fono">TelÃ©fono</string>
+    <string name="cupon">Cupon</string>
+    <string name="imagen">Imagen</string>
+    <string name="descuentos">Descuentos</string>
+    <string name="publicar">Publicar</string>
+    <string name="subir_imagen">Subir imagen</string>
+    <string name="aceptar_y_publicar">Aceptar y publicar</string>
+    <string name="comentar">Comentar</string>
+    <string name="marcador">Marcador</string>
+    <string name="imagenmarcador">ImagenMarcador</string>
+    <string name="aceptar">Aceptar</string>
+    <string name="terminos_y_condiciones">Terminos y Condiciones</string>
 
-    <string name="mp">MercadoPago</string>
+    <string name="pardo_marco">Pardo Marco</string>
+    <string name="quintana_miguel">Quintana Miguel</string>
+    <string name="riveros_gustavo">Riveros Gustavo</string>
+    <string name="creado_por">Creado por:</string>
+
+    <string name="renzo_molina">Renzo Molina</string>
+
+    <string name="version_1_1">Version 1.1</string>
+    <string name="descripcion">Descripcion</string>
+
 
 </resources>
